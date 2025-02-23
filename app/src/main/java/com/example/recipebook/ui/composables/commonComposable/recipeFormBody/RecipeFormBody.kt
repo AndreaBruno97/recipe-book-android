@@ -1,4 +1,4 @@
-package com.example.recipebook.ui.commonComposable.recipeFormBody
+package com.example.recipebook.ui.composables.commonComposable.recipeFormBody
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

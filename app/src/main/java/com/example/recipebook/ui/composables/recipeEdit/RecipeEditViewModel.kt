@@ -1,4 +1,4 @@
-package com.example.recipebook.ui.recipeEdit
+package com.example.recipebook.ui.composables.recipeEdit
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,10 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.data.recipe.Recipe
 import com.example.recipebook.data.recipe.RecipeRepository
-import com.example.recipebook.ui.commonComposable.recipeFormBody.RecipeDetails
-import com.example.recipebook.ui.commonComposable.recipeFormBody.RecipeUiState
-import com.example.recipebook.ui.commonComposable.recipeFormBody.toRecipe
-import com.example.recipebook.ui.commonComposable.recipeFormBody.toRecipeUiState
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipe
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipeUiState
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

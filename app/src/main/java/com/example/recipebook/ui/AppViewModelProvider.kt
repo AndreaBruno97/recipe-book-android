@@ -4,10 +4,10 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.recipebook.RecipeBookApplication
-import com.example.recipebook.ui.home.HomeViewModel
-import com.example.recipebook.ui.recipeCreate.RecipeCreateViewModel
-import com.example.recipebook.ui.recipeDetails.RecipeDetailsViewModel
-import com.example.recipebook.ui.recipeEdit.RecipeEditViewModel
+import com.example.recipebook.ui.composables.home.HomeViewModel
+import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateViewModel
+import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsViewModel
+import com.example.recipebook.ui.composables.recipeEdit.RecipeEditViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {

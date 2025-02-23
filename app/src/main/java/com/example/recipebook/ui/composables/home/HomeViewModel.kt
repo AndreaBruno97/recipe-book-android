@@ -1,4 +1,4 @@
-package com.example.recipebook.ui.home
+package com.example.recipebook.ui.composables.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

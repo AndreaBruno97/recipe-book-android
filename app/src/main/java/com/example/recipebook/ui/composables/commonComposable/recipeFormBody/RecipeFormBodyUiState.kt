@@ -1,4 +1,4 @@
-package com.example.recipebook.ui.commonComposable.recipeFormBody
+package com.example.recipebook.ui.composables.commonComposable.recipeFormBody
 
 import com.example.recipebook.data.recipe.Recipe
 import org.mongodb.kbson.ObjectId

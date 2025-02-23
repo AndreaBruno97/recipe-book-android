@@ -1,4 +1,4 @@
-package com.example.recipebook.ui.recipeDetails
+package com.example.recipebook.ui.composables.recipeDetails
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

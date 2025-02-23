@@ -7,14 +7,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.recipebook.ui.home.HomeDestination
-import com.example.recipebook.ui.home.HomeScreen
-import com.example.recipebook.ui.recipeCreate.RecipeCreateDestination
-import com.example.recipebook.ui.recipeCreate.RecipeCreateScreen
-import com.example.recipebook.ui.recipeDetails.RecipeDetailsDestination
-import com.example.recipebook.ui.recipeDetails.RecipeDetailsScreen
-import com.example.recipebook.ui.recipeEdit.RecipeEditDestination
-import com.example.recipebook.ui.recipeEdit.RecipeEditScreen
+import com.example.recipebook.ui.composables.home.HomeDestination
+import com.example.recipebook.ui.composables.home.HomeScreen
+import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateDestination
+import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateScreen
+import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsDestination
+import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsScreen
+import com.example.recipebook.ui.composables.recipeEdit.RecipeEditDestination
+import com.example.recipebook.ui.composables.recipeEdit.RecipeEditScreen
 
 @Composable
 fun RecipeBookNavHost(
@@ -48,7 +48,7 @@ fun RecipeBookNavHost(
         ) {
             RecipeDetailsScreen(
                 navigateToEditRecipe = { navController.navigate(RecipeEditDestination.getNavigateString(it)) },
-                navigateBack = { navController.popBackStack() }
+                navigateBack = { navController.navigate(HomeDestination.getNavigateString()) }
             )
         }
 

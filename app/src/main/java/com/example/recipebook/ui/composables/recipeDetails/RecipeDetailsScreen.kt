@@ -1,7 +1,7 @@
 
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.recipebook.ui.recipeDetails
+package com.example.recipebook.ui.composables.recipeDetails
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement

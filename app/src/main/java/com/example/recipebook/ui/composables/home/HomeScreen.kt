@@ -1,7 +1,7 @@
 
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.recipebook.ui.home
+package com.example.recipebook.ui.composables.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
