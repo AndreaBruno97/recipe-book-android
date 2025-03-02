@@ -13,16 +13,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.Icon
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.res.stringResource
 import com.example.recipebook.ui.navigation.RecipeBookNavHost
 import com.example.recipebook.ui.theme.TopAppBar_Back
 
 @Composable
 fun RecipeBookApp(
+    windowSize: WindowWidthSizeClass,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
-    RecipeBookNavHost(modifier = modifier, navController = navController)
+    RecipeBookNavHost(windowSize = windowSize, modifier = modifier, navController = navController)
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.example.recipebook.ui.navigation
 
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -16,11 +17,23 @@ import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsScreen
 import com.example.recipebook.ui.composables.recipeEdit.RecipeEditDestination
 import com.example.recipebook.ui.composables.recipeEdit.RecipeEditScreen
 
+enum class ScreenSize {
+    SMALL, MEDIUM, LARGE
+}
+
 @Composable
 fun RecipeBookNavHost(
+    windowSize: WindowWidthSizeClass,
     navController: NavHostController,
     modifier: Modifier = Modifier
 ){
+    val screenSize = when(windowSize){
+        WindowWidthSizeClass.Compact -> ScreenSize.SMALL
+        WindowWidthSizeClass.Medium -> ScreenSize.MEDIUM
+        WindowWidthSizeClass.Expanded -> ScreenSize.LARGE
+        else -> ScreenSize.SMALL
+    }
+
     NavHost(
         navController = navController,
         startDestination = HomeDestination.route,
@@ -28,6 +41,7 @@ fun RecipeBookNavHost(
     ){
         composable(route = HomeDestination.route) {
             HomeScreen(
+                screenSize = screenSize,
                 navigateToRecipeCreate = { navController.navigate(RecipeCreateDestination.getNavigateString()) },
                 navigateToRecipeDetails = { navController.navigate(RecipeDetailsDestination.getNavigateString(it))}
             )
@@ -35,6 +49,7 @@ fun RecipeBookNavHost(
 
         composable(route = RecipeCreateDestination.route) {
             RecipeCreateScreen(
+                screenSize = screenSize,
                 navigateToRecipeDetails = { navController.navigate(RecipeDetailsDestination.getNavigateString(it))},
                 onNavigateUp = { navController.navigateUp() }
             )
@@ -47,6 +62,7 @@ fun RecipeBookNavHost(
             })
         ) {
             RecipeDetailsScreen(
+                screenSize = screenSize,
                 navigateToEditRecipe = { navController.navigate(RecipeEditDestination.getNavigateString(it)) },
                 navigateBack = { navController.navigate(HomeDestination.getNavigateString()) }
             )
@@ -59,6 +75,7 @@ fun RecipeBookNavHost(
             })
         ) {
             RecipeEditScreen(
+                screenSize = screenSize,
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp() }
             )

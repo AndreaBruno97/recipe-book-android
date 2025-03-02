@@ -66,4 +66,7 @@ dependencies {
 
     // ViewModelScope
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // WindowSizeClass
+    implementation(libs.androidx.material3.windowSizeClass)
 }

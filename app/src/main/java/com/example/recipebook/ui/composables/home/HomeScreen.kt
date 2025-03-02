@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -25,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +50,10 @@ import com.example.recipebook.data.recipe.RecipeExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.navigation.NavigationDestination
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
+import com.example.recipebook.ui.navigation.ScreenSize
+import com.example.recipebook.ui.preview.FoldablePreview
+import com.example.recipebook.ui.preview.PhonePreview
+import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import org.mongodb.kbson.ObjectId
 
@@ -56,13 +64,33 @@ object HomeDestination: NavigationDestinationNoParams{
 
 @Composable
 fun HomeScreen(
+    screenSize: ScreenSize,
     navigateToRecipeCreate: () -> Unit,
     navigateToRecipeDetails: (ObjectId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val homeUiState by viewModel.homeUiState.collectAsState()
+
+    HomeScreenStateCollector(
+        screenSize,
+        navigateToRecipeCreate,
+        navigateToRecipeDetails,
+        homeUiState.recipeList,
+        modifier
+    )
+}
+
+
+@Composable
+private fun HomeScreenStateCollector(
+    screenSize: ScreenSize,
+    navigateToRecipeCreate: () -> Unit,
+    navigateToRecipeDetails: (ObjectId) -> Unit,
+    recipeList: List<Recipe>,
+    modifier: Modifier = Modifier
+) {
+    val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold (
         modifier = modifier.nestedScroll(scrollBarBehavior.nestedScrollConnection),
@@ -87,8 +115,9 @@ fun HomeScreen(
         }
     ){ innerPadding ->
         HomeBody(
-            recipeList = homeUiState.recipeList,
+            recipeList = recipeList,
             onRecipeClick = navigateToRecipeDetails,
+            screenSize = screenSize,
             modifier = modifier.fillMaxSize(),
             contentPadding = innerPadding
         )
@@ -98,6 +127,7 @@ fun HomeScreen(
 @Composable
 private fun HomeBody(
     recipeList: List<Recipe>,
+    screenSize: ScreenSize,
     onRecipeClick: (ObjectId) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(dimensionResource(id = R.dimen.no_padding))
@@ -106,6 +136,12 @@ private fun HomeBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ){
+        val columnNum = when(screenSize){
+            ScreenSize.SMALL -> 1
+            ScreenSize.MEDIUM -> 2
+            ScreenSize.LARGE -> 3
+        }
+
         if(recipeList.isEmpty()){
             Text(
                 text = stringResource(R.string.no_recipes_description),
@@ -116,6 +152,7 @@ private fun HomeBody(
         } else {
             RecipeList(
                 recipeList = recipeList,
+                columnNum = columnNum,
                 onRecipeClick = { onRecipeClick(it._id) },
                 contentPadding = contentPadding,
                 modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_small))
@@ -127,15 +164,17 @@ private fun HomeBody(
 @Composable
 private fun RecipeList(
     recipeList: List<Recipe>,
+    columnNum: Int,
     onRecipeClick: (Recipe) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ){
-    LazyColumn(
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columnNum),
         modifier = modifier,
         contentPadding = contentPadding
     ) {
-    items(items = recipeList, key = { it._id.toHexString() }){ recipe ->
+        items(recipeList){ recipe ->
             RecipeItem(
                 recipe = recipe,
                 modifier = Modifier
@@ -170,11 +209,54 @@ private fun RecipeItem(
     }
 }
 
+@PhonePreview
+@Composable
+fun HomeScreenPhonePreview(){
+    RecipeBookTheme {
+        HomeScreenStateCollector(
+            ScreenSize.SMALL,
+            navigateToRecipeCreate = {},
+            navigateToRecipeDetails = {},
+            RecipeExamples.recipeList,
+        )
+    }
+}
+
+@FoldablePreview
+@Composable
+fun HomeScreenFoldablePreview(){
+    RecipeBookTheme {
+        HomeScreenStateCollector(
+            ScreenSize.MEDIUM,
+            navigateToRecipeCreate = {},
+            navigateToRecipeDetails = {},
+            RecipeExamples.recipeList,
+        )
+    }
+}
+
+@TabletPreview
+@Composable
+fun HomeScreenTabletPreview(){
+    RecipeBookTheme {
+        HomeScreenStateCollector(
+            ScreenSize.LARGE,
+            navigateToRecipeCreate = {},
+            navigateToRecipeDetails = {},
+            RecipeExamples.recipeList,
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun HomeBodyPreview(){
     RecipeBookTheme {
-        HomeBody(RecipeExamples.recipeList, onRecipeClick = {})
+        HomeBody(
+            recipeList = RecipeExamples.recipeList,
+            screenSize = ScreenSize.SMALL,
+            onRecipeClick = {}
+        )
     }
 }
 
@@ -182,7 +264,11 @@ fun HomeBodyPreview(){
 @Composable
 fun HomeBodyEmptyListPreview(){
     RecipeBookTheme {
-        HomeBody(listOf(), onRecipeClick = {})
+        HomeBody(
+            recipeList = listOf(),
+            screenSize = ScreenSize.SMALL,
+            onRecipeClick = {}
+        )
     }
 }
 

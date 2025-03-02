@@ -27,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,8 +50,13 @@ import com.example.recipebook.RecipeBookTopAppBar
 import com.example.recipebook.data.recipe.Recipe
 import com.example.recipebook.data.recipe.RecipeExamples
 import com.example.recipebook.ui.AppViewModelProvider
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
+import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateScreenStateCollector
 import com.example.recipebook.ui.navigation.NavigationDestination
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
+import com.example.recipebook.ui.navigation.ScreenSize
+import com.example.recipebook.ui.preview.PhonePreview
+import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
@@ -64,12 +70,33 @@ object RecipeDetailsDestination: NavigationDestinationRecipeId{
 
 @Composable
 fun RecipeDetailsScreen(
+    screenSize: ScreenSize,
     navigateToEditRecipe: (ObjectId) -> Unit,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RecipeDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState = viewModel.uiState.collectAsState()
+
+    RecipeDetailsScreenStateCollector(
+        screenSize = screenSize,
+        navigateToEditRecipe = navigateToEditRecipe,
+        navigateBack = navigateBack,
+        modifier = modifier,
+        uiState = uiState.value,
+        deleteRecipe = viewModel::deleteRecipe
+    )
+}
+
+@Composable
+fun RecipeDetailsScreenStateCollector(
+    screenSize: ScreenSize,
+    navigateToEditRecipe: (ObjectId) -> Unit,
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    uiState: RecipeDetailsUiState,
+    deleteRecipe: suspend () -> Unit
+) {
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -82,7 +109,7 @@ fun RecipeDetailsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {navigateToEditRecipe(uiState.value.recipe._id)},
+                onClick = {navigateToEditRecipe(uiState.recipe._id)},
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
             ) {
@@ -95,10 +122,10 @@ fun RecipeDetailsScreen(
         modifier = modifier
     ){ innerPadding ->
         RecipeDetailsBody(
-            recipeDetailsUiState = uiState.value,
+            recipeDetailsUiState = uiState,
             onDelete = {
                 coroutineScope.launch {
-                    viewModel.deleteRecipe()
+                    deleteRecipe()
                     navigateBack()
                 }
             },
@@ -216,9 +243,37 @@ private fun DeleteConfirmationDialog(
     )
 }
 
+@PhonePreview
+@Composable
+fun RecipeDetailsScreenPhonePreview(){
+    RecipeBookTheme {
+        RecipeDetailsScreenStateCollector(
+            ScreenSize.SMALL,
+            navigateToEditRecipe = {},
+            navigateBack = {},
+            uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            deleteRecipe = {}
+        )
+    }
+}
+
+@TabletPreview
+@Composable
+fun RecipeDetailsScreenTabletPreview(){
+    RecipeBookTheme {
+        RecipeDetailsScreenStateCollector(
+            ScreenSize.LARGE,
+            navigateToEditRecipe = {},
+            navigateBack = {},
+            uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            deleteRecipe = {}
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-fun RecipeDetailsScreenPreview(){
+fun RecipeDetailsBodyPreview(){
     RecipeBookTheme {
         RecipeDetailsBody(
             RecipeDetailsUiState(RecipeExamples.recipe1),
