@@ -201,10 +201,6 @@ private fun RecipeItem(
                 text = recipe.name,
                 style = MaterialTheme.typography.titleLarge
             )
-            Text(
-                text = recipe._id.toHexString(),
-                style = MaterialTheme.typography.titleMedium
-            )
         }
     }
 }

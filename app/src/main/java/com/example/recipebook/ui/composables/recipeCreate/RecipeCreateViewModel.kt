@@ -9,6 +9,7 @@ import com.example.recipebook.data.recipe.RecipeRepository
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipe
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.validateInput
 import org.mongodb.kbson.ObjectId
 
 class RecipeCreateViewModel(private val recipeRepository: RecipeRepository) : ViewModel() {
@@ -21,14 +22,8 @@ class RecipeCreateViewModel(private val recipeRepository: RecipeRepository) : Vi
             RecipeUiState(recipeDetails = recipeDetails, isEntryValid = validateInput(recipeDetails))
     }
 
-    private fun validateInput(uiState: RecipeDetails = recipeUiState.recipeDetails): Boolean{
-        return with(uiState){
-            name.isNotBlank()
-        }
-    }
-
     suspend fun saveRecipe(): ObjectId? {
-        if(validateInput()){
+        if(validateInput(recipeUiState.recipeDetails)){
             return recipeRepository.addRecipe(recipeUiState.recipeDetails.toRecipe())
         }
         return null

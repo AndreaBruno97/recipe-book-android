@@ -13,9 +13,11 @@
     <string name="confirmationButton_confirm">Sì</string>
     <string name="recipe_name">Nome</string>
     <string name="recipe_id">Id</string>
+    <string name="recipe_method">Procedimento</string>
+    <string name="recipe_ingredients">Ingredienti</string>
     <string name="delete_button_text">Cancella</string>
     <string name="edit_recipe_button_text">Modifica Ricetta</string>
-    <string name="formLabel_title">Titolo</string>
     <string name="formLegend_mandatoryFields">* Campi obbligatori</string>
+    <string name="recipeForm_addIngredient">Aggiungi ingrediente</string>
     <string name="save_button_label">Salva</string>
 </resources>

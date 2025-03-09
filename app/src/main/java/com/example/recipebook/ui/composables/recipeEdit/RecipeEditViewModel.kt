@@ -12,6 +12,7 @@ import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.Rec
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipe
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipeUiState
+import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.validateInput
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -26,12 +27,6 @@ class RecipeEditViewModel(
 
     private val recipeIdString: String = checkNotNull(savedStateHandle[RecipeEditDestination.recipeIdArg])
     private val recipeId: ObjectId = ObjectId(recipeIdString)
-
-    private fun validateInput(uiState: RecipeDetails = recipeUiState.recipeDetails): Boolean{
-        return with(uiState){
-            name.isNotBlank()
-        }
-    }
 
     fun updateUiState(recipeDetails: RecipeDetails){
         recipeUiState =

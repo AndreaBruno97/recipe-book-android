@@ -58,6 +58,7 @@ import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import com.example.recipebook.ui.theme.Typography
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
 
@@ -181,40 +182,16 @@ fun RecipeDetailsBody(
 fun RecipeDetails(
     recipe: Recipe, modifier: Modifier = Modifier
 ){
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-    ){
-        RecipeDetailsRow(
-            labelResId = R.string.recipe_name,
-            recipeDetail = recipe.name,
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(id = R.dimen.padding_medium)
-            )
-        )
-        RecipeDetailsRow(
-            labelResId = R.string.recipe_id,
-            recipeDetail = recipe._id.toHexString(),
-            modifier = Modifier.padding(
-                horizontal = dimensionResource(id = R.dimen.padding_medium)
-            )
-        )
-    }
-}
+    Column(modifier = modifier) {
+        Text(recipe.name, style = MaterialTheme.typography.titleLarge)
 
-@Composable
-private fun RecipeDetailsRow(
-    @StringRes labelResId: Int,
-    recipeDetail: String,
-    modifier: Modifier = Modifier
-){
-    Row(modifier){
-       Text(stringResource(labelResId))
-       Spacer(modifier = Modifier.weight(1f))
-       Text(text = recipeDetail, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.recipe_ingredients), style = MaterialTheme.typography.titleMedium)
+        for(ingredient in recipe.ingredients){
+            Text("${ingredient.name}: ${ingredient.value}")
+        }
+
+        Text(stringResource(R.string.recipe_method), style = MaterialTheme.typography.titleMedium)
+        Text(recipe.method)
     }
 }
 
