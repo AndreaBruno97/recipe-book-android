@@ -10,27 +10,27 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
-import com.example.recipebook.data.recipe.RecipeExamples
+import com.example.recipebook.data.objects.recipe.RecipeExamples
+import com.example.recipebook.data.objects.tag.Tag
+import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipeDetails
-import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateScreenStateCollector
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
-import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsDestination
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
@@ -50,8 +50,13 @@ fun RecipeEditScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RecipeEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: RecipeEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
+    val recipeUiState = viewModel.recipeUiState
+    val tagListUiState by viewModel.tagListUiState.collectAsState()
+    val usedTagIdList = recipeUiState.recipeDetails.tags.map{ it._id }
+    val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
+
     RecipeEditScreenStateCollector(
         screenSize = screenSize,
         navigateBack = navigateBack,
@@ -59,7 +64,11 @@ fun RecipeEditScreen(
         modifier = modifier,
         recipeUiState = viewModel.recipeUiState,
         onRecipeValueChange = viewModel::updateUiState,
-        updateRecipe = viewModel::updateRecipe
+        updateRecipe = viewModel::updateRecipe,
+        unusedTagList = unusedTagList,
+        openTagListPopup = viewModel::openTagListPopup,
+        closeTagListPopup = viewModel::closeTagListPopup,
+        isTagListPopupOpen = viewModel.isTagListPopupOpen
     )
 }
 
@@ -71,7 +80,11 @@ fun RecipeEditScreenStateCollector(
     modifier: Modifier = Modifier,
     recipeUiState: RecipeUiState,
     onRecipeValueChange: (RecipeDetails) -> Unit,
-    updateRecipe: suspend () -> Unit
+    updateRecipe: suspend () -> Unit,
+    unusedTagList: List<Tag>,
+    openTagListPopup: () -> Unit,
+    closeTagListPopup: () -> Unit,
+    isTagListPopupOpen: Boolean = false
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -94,13 +107,17 @@ fun RecipeEditScreenStateCollector(
                     navigateBack()
                 }
             },
+            unusedTagList = unusedTagList,
             modifier = Modifier
                 .padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
                     top = innerPadding.calculateTopPadding()
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            openTagListPopup = openTagListPopup,
+            closeTagListPopup = closeTagListPopup,
+            isTagListPopupOpen = isTagListPopupOpen
         )
     }
 }
@@ -115,7 +132,10 @@ fun RecipeEditScreenPhonePreview(){
             onNavigateUp = {},
             recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDetails()),
             onRecipeValueChange = {},
-            updateRecipe = {}
+            updateRecipe = {},
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {}
         )
     }
 }
@@ -130,7 +150,10 @@ fun RecipeEditScreenTabletPreview(){
             onNavigateUp = {},
             recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDetails()),
             onRecipeValueChange = {},
-            updateRecipe = {}
+            updateRecipe = {},
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {}
         )
     }
 }

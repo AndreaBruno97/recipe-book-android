@@ -1,16 +1,15 @@
 package com.example.recipebook
 
 import android.app.Application
-import com.example.recipebook.data.DbBuilder
-import com.example.recipebook.data.recipe.Recipe
-import com.example.recipebook.data.recipe.RecipeRepository
-import io.realm.kotlin.Realm
-import io.realm.kotlin.RealmConfiguration
+import com.example.recipebook.data.builder.DbBuilder
+import com.example.recipebook.data.objects.recipe.RecipeRepository
+import com.example.recipebook.data.objects.tag.TagRepository
 
 class RecipeBookApplication: Application() {
 
     companion object{
         lateinit var recipeRepository: RecipeRepository
+        lateinit var tagRepository: TagRepository
     }
 
     override fun onCreate() {
@@ -18,5 +17,6 @@ class RecipeBookApplication: Application() {
         val realm = DbBuilder.getDb()
 
         recipeRepository = RecipeRepository(realm)
+        tagRepository = TagRepository(realm)
     }
 }

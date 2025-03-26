@@ -1,6 +1,7 @@
-package com.example.recipebook.data.recipe
+package com.example.recipebook.data.objects.recipe
 
-import com.example.recipebook.data.ingredient.IngredientExamples
+import com.example.recipebook.data.objects.ingredient.IngredientExamples
+import com.example.recipebook.data.objects.tag.TagExamples
 import io.realm.kotlin.ext.realmListOf
 import org.mongodb.kbson.BsonObjectId
 
@@ -14,6 +15,10 @@ class RecipeExamples {
             ingredients = realmListOf(
                 IngredientExamples.ingredientA,
                 IngredientExamples.ingredientB
+            ),
+            tags = realmListOf(
+                TagExamples.tag1,
+                TagExamples.tag2
             )
         )
 
@@ -24,6 +29,10 @@ class RecipeExamples {
             ingredients = realmListOf(
                 IngredientExamples.ingredientC,
                 IngredientExamples.ingredientD
+            ),
+            tags = realmListOf(
+                TagExamples.tag3,
+                TagExamples.tag4
             )
         )
 
@@ -36,6 +45,12 @@ class RecipeExamples {
                 IngredientExamples.ingredientB,
                 IngredientExamples.ingredientC,
                 IngredientExamples.ingredientD
+            ),
+            tags = realmListOf(
+                TagExamples.tag1,
+                TagExamples.tag2,
+                TagExamples.tag3,
+                TagExamples.tag4
             )
         )
 

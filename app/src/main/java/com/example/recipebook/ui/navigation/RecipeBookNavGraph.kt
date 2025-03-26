@@ -16,6 +16,9 @@ import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsDestinat
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsScreen
 import com.example.recipebook.ui.composables.recipeEdit.RecipeEditDestination
 import com.example.recipebook.ui.composables.recipeEdit.RecipeEditScreen
+import com.example.recipebook.ui.composables.tagList.TagListDestination
+import com.example.recipebook.ui.composables.tagList.TagListScreen
+import com.example.recipebook.ui.composables.tagList.TagListViewModel
 
 enum class ScreenSize {
     SMALL, MEDIUM, LARGE
@@ -43,7 +46,8 @@ fun RecipeBookNavHost(
             HomeScreen(
                 screenSize = screenSize,
                 navigateToRecipeCreate = { navController.navigate(RecipeCreateDestination.getNavigateString()) },
-                navigateToRecipeDetails = { navController.navigate(RecipeDetailsDestination.getNavigateString(it))}
+                navigateToRecipeDetails = { navController.navigate(RecipeDetailsDestination.getNavigateString(it))},
+                navigateToTagList = { navController.navigate(TagListDestination.getNavigateString()) }
             )
         }
 
@@ -80,5 +84,13 @@ fun RecipeBookNavHost(
                 onNavigateUp = { navController.navigateUp() }
             )
         }
+
+        composable(route = TagListDestination.route) {
+            TagListScreen(
+                screenSize = screenSize,
+                navigateBack = { navController.navigate(HomeDestination.getNavigateString()) }
+            )
+        }
+
     }
 }

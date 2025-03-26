@@ -1,6 +1,6 @@
 package com.example.recipebook.ui.composables.commonComposable.recipeFormBody
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,29 +31,45 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.recipebook.R
-import com.example.recipebook.data.recipe.RecipeExamples
+import com.example.recipebook.data.objects.recipe.RecipeExamples
+import com.example.recipebook.data.objects.tag.Tag
+import com.example.recipebook.data.objects.tag.TagExamples
+import com.example.recipebook.ui.composables.commonComposable.TagFormBody.TagDetails
+import com.example.recipebook.ui.composables.commonComposable.TagFormBody.toTagDetails
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.theme.RecipeForm_AddIngredient
+import com.example.recipebook.ui.theme.RecipeForm_AddTag
 import com.example.recipebook.ui.theme.RecipeForm_DeleteIngredient
+import com.example.recipebook.ui.theme.RecipeForm_DeleteTag
 import com.example.recipebook.ui.theme.RecipeForm_IngredientGoDown
 import com.example.recipebook.ui.theme.RecipeForm_IngredientGoUp
+import com.example.recipebook.ui.theme.RecipeForm_TagGoDown
+import com.example.recipebook.ui.theme.RecipeForm_TagGoUp
 
 @Composable
 fun RecipeFormBody(
     recipeUiState: RecipeUiState,
+    modifier: Modifier = Modifier,
     onRecipeValueChange: (RecipeDetails) -> Unit,
     onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    unusedTagList: List<Tag>,
+    openTagListPopup: () -> Unit,
+    closeTagListPopup: () -> Unit,
+    isTagListPopupOpen: Boolean = false,
 ) {
+    val recipeDetails = recipeUiState.recipeDetails
+
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
         RecipeInputForm(
-            recipeDetails = recipeUiState.recipeDetails,
+            recipeDetails = recipeDetails,
             onValueChange = onRecipeValueChange,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            openTagListPopup = openTagListPopup
         )
         Button(
             onClick = onSaveClick,
@@ -61,6 +79,28 @@ fun RecipeFormBody(
         ){
             Text(text = stringResource(R.string.save_button_label))
         }
+
+        if(isTagListPopupOpen){
+            Dialog(onDismissRequest = closeTagListPopup){
+                Card(
+                    modifier = Modifier
+                        .padding(dimensionResource(R.dimen.padding_medium)),
+                    shape = RoundedCornerShape(16.dp)
+                ){
+                    TagListPopupContent(
+                        tagList = unusedTagList,
+                        onTagSelect = {
+                            onRecipeValueChange(
+                                recipeDetails.copy(
+                                    tags = recipeDetails.tags
+                                        .plus(it.toTagDetails())
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -69,7 +109,8 @@ fun RecipeInputForm(
     recipeDetails: RecipeDetails,
     modifier: Modifier = Modifier,
     onValueChange: (RecipeDetails) -> Unit = {},
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    openTagListPopup: () -> Unit
 ){
     Column(
         modifier = modifier,
@@ -81,6 +122,13 @@ fun RecipeInputForm(
             labelText = stringResource(R.string.recipe_name) + "*",
             enabled = enabled,
             modifier = Modifier.fillMaxWidth()
+        )
+
+        RecipeTagsInput(
+            recipeDetails = recipeDetails,
+            onValueChange = onValueChange,
+            enabled = enabled,
+            openTagListPopup = openTagListPopup
         )
 
         RecipeIngredientsInput(
@@ -186,6 +234,69 @@ fun RecipeIngredientsInput(
 }
 
 @Composable
+fun RecipeTagsInput(
+    recipeDetails: RecipeDetails,
+    onValueChange: (RecipeDetails) -> Unit,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    openTagListPopup: () -> Unit
+){
+    Column(
+        modifier = modifier
+    ){
+        Text(stringResource(R.string.recipe_tags))
+
+        for((index, tag) in recipeDetails.tags.withIndex()){
+            val canGoUp = index > 0
+            val canGoDown = index < recipeDetails.tags.size - 1
+
+            TagInputLine(
+                tag = tag,
+                canGoUp = canGoUp,
+                canGoDown = canGoDown,
+                onDelete = {
+                    val newTagList = recipeDetails.tags
+                        .map { it.copy() }
+                        .filterIndexed { curIndex, _ -> curIndex != index }
+                    onValueChange(recipeDetails.copy(tags = newTagList))
+                },
+                onGoUp = {
+                    val newTagList = recipeDetails.tags
+                        .map { it.copy() }
+                        .toMutableList()
+
+                    newTagList.removeAt(index)
+                    newTagList.add(index-1, tag)
+                    onValueChange(recipeDetails.copy(tags = newTagList))
+                },
+                onGoDown = {
+                    val newTagList = recipeDetails.tags
+                        .map { it.copy() }
+                        .toMutableList()
+
+                    newTagList.removeAt(index)
+                    newTagList.add(index+1, tag)
+                    onValueChange(recipeDetails.copy(tags = newTagList))
+                },
+                enabled = enabled
+            )
+        }
+
+        Button(
+            onClick = openTagListPopup
+        ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Icon(imageVector = RecipeForm_AddTag, contentDescription = "")
+                Text(
+                    text = stringResource(id = R.string.recipeForm_addTag),
+                    modifier = Modifier.weight(1F)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun RecipeTextInput(
     value: String,
     onValueChange: (String) -> Unit,
@@ -274,6 +385,79 @@ fun IngredientInputLine(
     }
 }
 
+
+@Composable
+fun TagInputLine(
+    tag: TagDetails,
+    onDelete: () -> Unit,
+    canGoUp: Boolean,
+    canGoDown: Boolean,
+    onGoUp: () -> Unit,
+    onGoDown: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean
+){
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+    ) {
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            modifier = modifier.fillMaxHeight()
+        ){
+            IconButton(
+                onClick = onGoUp,
+                modifier = modifier.size(dimensionResource(R.dimen.padding_medium)),
+                enabled = enabled && canGoUp
+            ){
+                Icon(imageVector = RecipeForm_TagGoUp, contentDescription = "")
+            }
+            IconButton(
+                onClick = onGoDown,
+                modifier = modifier.size(dimensionResource(R.dimen.padding_medium)),
+                enabled = enabled && canGoDown
+            ){
+                Icon(imageVector = RecipeForm_TagGoDown, contentDescription = "")
+            }
+        }
+        Text(
+            tag.name
+        )
+        IconButton(
+            onClick = onDelete,
+            enabled = enabled
+        ) {
+            Icon(imageVector = RecipeForm_DeleteTag, contentDescription = "")
+        }
+    }
+}
+
+@Composable
+fun TagListPopupContent(
+    tagList: List<Tag>,
+    onTagSelect: (Tag) -> Unit,
+    modifier: Modifier = Modifier
+){
+    LazyColumn(
+        modifier = modifier
+    ){
+        items(tagList){ tag ->
+            Row(
+                modifier = Modifier
+                    .padding(dimensionResource(R.dimen.padding_medium))
+                    .fillMaxWidth()
+                    .clickable {
+                        onTagSelect(tag)
+                    }
+            ){
+                Text(tag.name)
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun RecipeFormBodyScreenPreview(){
@@ -283,7 +467,28 @@ private fun RecipeFormBodyScreenPreview(){
                 RecipeExamples.recipe1.toRecipeDetails()
             ),
             onRecipeValueChange = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RecipeFormBodyScreenWithPopupPreview(){
+    RecipeBookTheme {
+        RecipeFormBody(
+            recipeUiState = RecipeUiState(
+                RecipeExamples.recipe1.toRecipeDetails()
+            ),
+            onRecipeValueChange = {},
+            onSaveClick = {},
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {},
+            isTagListPopupOpen = true
         )
     }
 }

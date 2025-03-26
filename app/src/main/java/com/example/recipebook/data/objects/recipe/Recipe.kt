@@ -1,6 +1,7 @@
-package com.example.recipebook.data.recipe
+package com.example.recipebook.data.objects.recipe
 
-import com.example.recipebook.data.ingredient.Ingredient
+import com.example.recipebook.data.objects.ingredient.Ingredient
+import com.example.recipebook.data.objects.tag.Tag
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
@@ -12,19 +13,22 @@ class Recipe: RealmObject {
     var name: String = ""
     var method: String = ""
     var ingredients: RealmList<Ingredient> = realmListOf()
+    var tags: RealmList<Tag> = realmListOf()
 
     constructor()
 
     constructor(
-        _id: ObjectId,
+        _id: ObjectId = ObjectId(),
         name: String,
         method: String = "",
-        ingredients: RealmList<Ingredient> = realmListOf()
+        ingredients: RealmList<Ingredient> = realmListOf(),
+        tags: RealmList<Tag> = realmListOf()
     ) {
         this._id = _id
         this.name = name
         this.method = method
         this.ingredients = ingredients
+        this.tags = tags
     }
 }
 

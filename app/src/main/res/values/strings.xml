@@ -5,8 +5,11 @@
     <string name="routeTitle_recipeEdit">Modifica Ricetta</string>
     <string name="routeTitle_recipeDetails">Ricetta</string>
     <string name="routeTitle_recipeCreate">Aggiungi Ricetta</string>
+    <string name="routeTitle_tagList">Tag</string>
+    <string name="home_navigate_to_tag_list">Gestisci Tag</string>
     <string name="recipe_create_icon_name">Aggiungi Ricetta</string>
     <string name="no_recipes_description">Non ci sono attualmente ricette. Clicca + per crearne una.</string>
+    <string name="no_tags_description">Non ci sono attualmente tag. Clicca + per crearne uno.</string>
     <string name="deletePopup_title">Attenzione</string>
     <string name="deletePopup_text">Sei sicuro di voler cancellare la ricetta?</string>
     <string name="confirmationButton_cancel">No</string>
@@ -15,9 +18,13 @@
     <string name="recipe_id">Id</string>
     <string name="recipe_method">Procedimento</string>
     <string name="recipe_ingredients">Ingredienti</string>
+    <string name="recipe_tags">Tag</string>
+    <string name="tag_name">Nome</string>
     <string name="delete_button_text">Cancella</string>
     <string name="edit_recipe_button_text">Modifica Ricetta</string>
+    <string name="edit_tag_button_text">Modifica Tag</string>
     <string name="formLegend_mandatoryFields">* Campi obbligatori</string>
     <string name="recipeForm_addIngredient">Aggiungi ingrediente</string>
+    <string name="recipeForm_addTag">Aggiungi tag</string>
     <string name="save_button_label">Salva</string>
 </resources>

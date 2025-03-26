@@ -11,8 +11,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -20,7 +21,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
-import com.example.recipebook.data.recipe.RecipeExamples
+import com.example.recipebook.data.objects.tag.Tag
+import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
 import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeFormBody
@@ -46,6 +48,11 @@ fun RecipeCreateScreen(
     canNavigateBack: Boolean = true,
     viewModel: RecipeCreateViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ){
+    val recipeUiState = viewModel.recipeUiState
+    val tagListUiState by viewModel.tagListUiState.collectAsState()
+    val usedTagIdList = recipeUiState.recipeDetails.tags.map{ it._id }
+    val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
+
     RecipeCreateScreenStateCollector(
         screenSize = screenSize,
         navigateToRecipeDetails = navigateToRecipeDetails,
@@ -53,7 +60,11 @@ fun RecipeCreateScreen(
         canNavigateBack = canNavigateBack,
         recipeUiState = viewModel.recipeUiState,
         onRecipeValueChange = viewModel::updateUiState,
-        saveRecipe = viewModel::saveRecipe
+        saveRecipe = viewModel::saveRecipe,
+        unusedTagList = unusedTagList,
+        openTagListPopup = viewModel::openTagListPopup,
+        closeTagListPopup = viewModel::closeTagListPopup,
+        isTagListPopupOpen = viewModel.isTagListPopupOpen
     )
 }
 
@@ -65,7 +76,11 @@ fun RecipeCreateScreenStateCollector(
     canNavigateBack: Boolean = true,
     recipeUiState: RecipeUiState,
     onRecipeValueChange: (RecipeDetails) -> Unit,
-    saveRecipe: suspend () -> ObjectId?
+    saveRecipe: suspend () -> ObjectId?,
+    unusedTagList: List<Tag>,
+    openTagListPopup: () -> Unit,
+    closeTagListPopup: () -> Unit,
+    isTagListPopupOpen: Boolean = false
 ){
     val coroutineScope = rememberCoroutineScope()
 
@@ -90,6 +105,7 @@ fun RecipeCreateScreenStateCollector(
                     }
                 }
             },
+            unusedTagList = unusedTagList,
             modifier = Modifier
                 .padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
@@ -97,7 +113,10 @@ fun RecipeCreateScreenStateCollector(
                     top = innerPadding.calculateTopPadding()
                 )
                 .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            openTagListPopup = openTagListPopup,
+            closeTagListPopup = closeTagListPopup,
+            isTagListPopupOpen = isTagListPopupOpen
         )
 
     }
@@ -114,7 +133,10 @@ fun RecipeCreateScreenPhonePreview(){
             canNavigateBack = true,
             recipeUiState = RecipeUiState(),
             onRecipeValueChange = {},
-            saveRecipe = suspend { null }
+            saveRecipe = suspend { null },
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {}
         )
     }
 }
@@ -130,7 +152,10 @@ fun RecipeCreateScreenTabletPreview(){
             canNavigateBack = true,
             recipeUiState = RecipeUiState(),
             onRecipeValueChange = {},
-            saveRecipe = suspend { null }
+            saveRecipe = suspend { null },
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {}
         )
     }
 }

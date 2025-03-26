@@ -1,2 +1,0 @@
-0 -> Base structure: Recipe with name
-1 -> Added method and ingredients (name and value) to recipe

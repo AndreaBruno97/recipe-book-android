@@ -2,9 +2,9 @@ package com.example.recipebook.ui.composables.recipeDetails
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.recipebook.data.recipe.Recipe
+import com.example.recipebook.data.objects.recipe.Recipe
 import androidx.lifecycle.viewModelScope
-import com.example.recipebook.data.recipe.RecipeRepository
+import com.example.recipebook.data.objects.recipe.RecipeRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull

@@ -1,4 +1,4 @@
-package com.example.recipebook.data.ingredient
+package com.example.recipebook.data.objects.ingredient
 
 import io.realm.kotlin.types.EmbeddedRealmObject
 
