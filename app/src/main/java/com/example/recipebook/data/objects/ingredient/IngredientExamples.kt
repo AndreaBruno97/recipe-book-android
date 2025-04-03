@@ -1,7 +1,7 @@
 package com.example.recipebook.data.objects.ingredient
 
 class IngredientExamples {
-    companion object{
+    companion object {
         val ingredientA: Ingredient = Ingredient(
             name = "Ingrediente A",
             value = "AAA"
@@ -22,6 +22,7 @@ class IngredientExamples {
             value = "DDD"
         )
 
-        val ingredientList: List<Ingredient> = listOf(ingredientA, ingredientB, ingredientC, ingredientD)
+        val ingredientList: List<Ingredient> =
+            listOf(ingredientA, ingredientB, ingredientC, ingredientD)
     }
 }

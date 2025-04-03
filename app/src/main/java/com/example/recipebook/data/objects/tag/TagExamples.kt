@@ -3,7 +3,7 @@ package com.example.recipebook.data.objects.tag
 import org.mongodb.kbson.BsonObjectId
 
 class TagExamples {
-    companion object{
+    companion object {
         val tag1: Tag = Tag(
             _id = BsonObjectId("111111111111111111111111"),
             name = "Tag 1"

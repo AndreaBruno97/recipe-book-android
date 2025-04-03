@@ -5,9 +5,9 @@ import com.example.recipebook.data.builder.DbBuilder
 import com.example.recipebook.data.objects.recipe.RecipeRepository
 import com.example.recipebook.data.objects.tag.TagRepository
 
-class RecipeBookApplication: Application() {
+class RecipeBookApplication : Application() {
 
-    companion object{
+    companion object {
         lateinit var recipeRepository: RecipeRepository
         lateinit var tagRepository: TagRepository
     }

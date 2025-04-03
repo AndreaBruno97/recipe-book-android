@@ -1,7 +1,7 @@
-
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.recipebook.ui.composables.recipeEdit
+
 
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -18,18 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
+import com.example.recipebook.data.objects.recipe.RecipeDao
 import com.example.recipebook.data.objects.recipe.RecipeExamples
+import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeFormBody
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipeDetails
+import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
+import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
@@ -37,7 +35,7 @@ import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import kotlinx.coroutines.launch
 
-object RecipeEditDestination: NavigationDestinationRecipeId{
+object RecipeEditDestination : NavigationDestinationRecipeId {
     override val route = "recipe_edit"
     override val titleRes = R.string.routeTitle_recipeEdit
     const val recipeIdArg = "recipeId"
@@ -54,7 +52,7 @@ fun RecipeEditScreen(
 ) {
     val recipeUiState = viewModel.recipeUiState
     val tagListUiState by viewModel.tagListUiState.collectAsState()
-    val usedTagIdList = recipeUiState.recipeDetails.tags.map{ it._id }
+    val usedTagIdList = recipeUiState.recipeDao.tags.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
 
     RecipeEditScreenStateCollector(
@@ -79,7 +77,7 @@ fun RecipeEditScreenStateCollector(
     onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     recipeUiState: RecipeUiState,
-    onRecipeValueChange: (RecipeDetails) -> Unit,
+    onRecipeValueChange: (RecipeDao) -> Unit,
     updateRecipe: suspend () -> Unit,
     unusedTagList: List<Tag>,
     openTagListPopup: () -> Unit,
@@ -97,7 +95,7 @@ fun RecipeEditScreenStateCollector(
             )
         },
         modifier = modifier
-    ){ innerPadding ->
+    ) { innerPadding ->
         RecipeFormBody(
             recipeUiState = recipeUiState,
             onRecipeValueChange = onRecipeValueChange,
@@ -122,15 +120,17 @@ fun RecipeEditScreenStateCollector(
     }
 }
 
+//region Preview
+
 @PhonePreview
 @Composable
-fun RecipeEditScreenPhonePreview(){
+fun RecipeEditScreenPhonePreview() {
     RecipeBookTheme {
         RecipeEditScreenStateCollector(
             ScreenSize.SMALL,
             navigateBack = {},
             onNavigateUp = {},
-            recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDetails()),
+            recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDao()),
             onRecipeValueChange = {},
             updateRecipe = {},
             unusedTagList = TagExamples.tagList,
@@ -142,13 +142,13 @@ fun RecipeEditScreenPhonePreview(){
 
 @TabletPreview
 @Composable
-fun RecipeEditScreenTabletPreview(){
+fun RecipeEditScreenTabletPreview() {
     RecipeBookTheme {
         RecipeEditScreenStateCollector(
             ScreenSize.LARGE,
             navigateBack = {},
             onNavigateUp = {},
-            recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDetails()),
+            recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDao()),
             onRecipeValueChange = {},
             updateRecipe = {},
             unusedTagList = TagExamples.tagList,
@@ -157,3 +157,5 @@ fun RecipeEditScreenTabletPreview(){
         )
     }
 }
+
+//endregion

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class HomeViewModel(recipeRepository: RecipeRepository): ViewModel() {
+class HomeViewModel(recipeRepository: RecipeRepository) : ViewModel() {
     val homeUiState: StateFlow<HomeUiState> =
         recipeRepository.getRecipes().map { HomeUiState(it) }
             .stateIn(
@@ -18,7 +18,7 @@ class HomeViewModel(recipeRepository: RecipeRepository): ViewModel() {
                 initialValue = HomeUiState()
             )
 
-    companion object{
+    companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 }

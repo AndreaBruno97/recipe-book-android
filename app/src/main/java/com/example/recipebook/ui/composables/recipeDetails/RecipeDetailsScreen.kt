@@ -1,47 +1,33 @@
-
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.recipebook.ui.composables.recipeDetails
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-
-
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
-import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.ui.AppViewModelProvider
+import com.example.recipebook.ui.composables.recipeDetails.internal.RecipeDetailsBody
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
@@ -50,7 +36,7 @@ import com.example.recipebook.ui.theme.RecipeBookTheme
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
 
-object RecipeDetailsDestination: NavigationDestinationRecipeId{
+object RecipeDetailsDestination : NavigationDestinationRecipeId {
     override val route = "recipe_details"
     override val titleRes = R.string.routeTitle_recipeDetails
     const val recipeIdArg = "recipeId"
@@ -73,7 +59,10 @@ fun RecipeDetailsScreen(
         navigateBack = navigateBack,
         modifier = modifier,
         uiState = uiState.value,
-        deleteRecipe = viewModel::deleteRecipe
+        deleteRecipe = viewModel::deleteRecipe,
+        isDeletePopupOpen = viewModel.isDeletePopupOpen,
+        openDeletePopup = viewModel::openDeletePopup,
+        closeDeletePopup = viewModel::closeDeletePopup
     )
 }
 
@@ -84,7 +73,10 @@ fun RecipeDetailsScreenStateCollector(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     uiState: RecipeDetailsUiState,
-    deleteRecipe: suspend () -> Unit
+    deleteRecipe: suspend () -> Unit,
+    isDeletePopupOpen: Boolean = false,
+    openDeletePopup: () -> Unit,
+    closeDeletePopup: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -98,7 +90,7 @@ fun RecipeDetailsScreenStateCollector(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {navigateToEditRecipe(uiState.recipe._id)},
+                onClick = { navigateToEditRecipe(uiState.recipe._id) },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
             ) {
@@ -109,7 +101,7 @@ fun RecipeDetailsScreenStateCollector(
             }
         },
         modifier = modifier
-    ){ innerPadding ->
+    ) { innerPadding ->
         RecipeDetailsBody(
             recipeDetailsUiState = uiState,
             onDelete = {
@@ -124,128 +116,63 @@ fun RecipeDetailsScreenStateCollector(
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
                     top = innerPadding.calculateTopPadding()
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            isDeletePopupOpen = isDeletePopupOpen,
+            openDeletePopup = openDeletePopup,
+            closeDeletePopup = closeDeletePopup
         )
     }
 }
 
-@Composable
-fun RecipeDetailsBody(
-    recipeDetailsUiState: RecipeDetailsUiState,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    Column(
-        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
-    ){
-        var deleteConfirmationReqired by rememberSaveable { mutableStateOf(false) }
-
-        RecipeDetails(
-            recipe = recipeDetailsUiState.recipe,
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedButton(
-            onClick = {deleteConfirmationReqired = true},
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.delete_button_text))
-        }
-
-        if(deleteConfirmationReqired){
-            DeleteConfirmationDialog(
-                onDeleteConfirm = {
-                    deleteConfirmationReqired = false
-                    onDelete()
-                },
-                onDeleteCancel = {deleteConfirmationReqired = false},
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
-            )
-        }
-    }
-}
-
-@Composable
-fun RecipeDetails(
-    recipe: Recipe, modifier: Modifier = Modifier
-){
-    Column(modifier = modifier) {
-        Text(recipe.name, style = MaterialTheme.typography.titleLarge)
-
-        Text(stringResource(R.string.recipe_tags), style = MaterialTheme.typography.titleMedium)
-        Text(recipe.tags.joinToString(separator = ", ", transform = { it.name }))
-
-        Text(stringResource(R.string.recipe_ingredients), style = MaterialTheme.typography.titleMedium)
-        for(ingredient in recipe.ingredients){
-            Text("${ingredient.name}: ${ingredient.value}")
-        }
-
-        Text(stringResource(R.string.recipe_method), style = MaterialTheme.typography.titleMedium)
-        Text(recipe.method)
-    }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(
-    onDeleteConfirm: () -> Unit,
-    onDeleteCancel: () -> Unit,
-    modifier: Modifier = Modifier
-){
-    AlertDialog (
-        onDismissRequest = { /* Do Nothing */ },
-        title = {Text(stringResource(R.string.deletePopup_title))},
-        text = {Text(stringResource(R.string.deletePopup_text))},
-        modifier = modifier,
-        dismissButton = {
-            TextButton(onClick = onDeleteCancel){
-                Text(stringResource(R.string.confirmationButton_cancel))
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDeleteConfirm) {
-                Text(stringResource(R.string.confirmationButton_confirm))
-            }
-        }
-
-    )
-}
+//region Preview
 
 @PhonePreview
 @Composable
-fun RecipeDetailsScreenPhonePreview(){
+fun RecipeDetailsScreenPhonePreview() {
     RecipeBookTheme {
         RecipeDetailsScreenStateCollector(
             ScreenSize.SMALL,
             navigateToEditRecipe = {},
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
-            deleteRecipe = {}
+            deleteRecipe = {},
+            openDeletePopup = {},
+            closeDeletePopup = {}
         )
     }
 }
 
 @TabletPreview
 @Composable
-fun RecipeDetailsScreenTabletPreview(){
+fun RecipeDetailsScreenTabletPreview() {
     RecipeBookTheme {
         RecipeDetailsScreenStateCollector(
             ScreenSize.LARGE,
             navigateToEditRecipe = {},
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
-            deleteRecipe = {}
+            deleteRecipe = {},
+            openDeletePopup = {},
+            closeDeletePopup = {}
         )
     }
 }
 
-@Preview(showBackground = true)
+@PhonePreview
 @Composable
-fun RecipeDetailsBodyPreview(){
+fun DeletePopupPhonePreview() {
     RecipeBookTheme {
-        RecipeDetailsBody(
-            RecipeDetailsUiState(RecipeExamples.recipe1),
-            onDelete = {}
+        RecipeDetailsScreenStateCollector(
+            ScreenSize.SMALL,
+            navigateToEditRecipe = {},
+            navigateBack = {},
+            uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            deleteRecipe = {},
+            isDeletePopupOpen = true,
+            openDeletePopup = {},
+            closeDeletePopup = {}
         )
     }
 }
+
+//endregion

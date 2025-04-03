@@ -8,9 +8,9 @@ import io.realm.kotlin.RealmConfiguration
 
 class DbBuilder {
 
-    companion object{
+    companion object {
 
-        fun getDb(): Realm{
+        fun getDb(): Realm {
             val schema = setOf(
                 Recipe::class,
                 Ingredient::class,

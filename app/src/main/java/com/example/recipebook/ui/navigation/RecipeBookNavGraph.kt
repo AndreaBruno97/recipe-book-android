@@ -18,7 +18,6 @@ import com.example.recipebook.ui.composables.recipeEdit.RecipeEditDestination
 import com.example.recipebook.ui.composables.recipeEdit.RecipeEditScreen
 import com.example.recipebook.ui.composables.tagList.TagListDestination
 import com.example.recipebook.ui.composables.tagList.TagListScreen
-import com.example.recipebook.ui.composables.tagList.TagListViewModel
 
 enum class ScreenSize {
     SMALL, MEDIUM, LARGE
@@ -29,8 +28,8 @@ fun RecipeBookNavHost(
     windowSize: WindowWidthSizeClass,
     navController: NavHostController,
     modifier: Modifier = Modifier
-){
-    val screenSize = when(windowSize){
+) {
+    val screenSize = when (windowSize) {
         WindowWidthSizeClass.Compact -> ScreenSize.SMALL
         WindowWidthSizeClass.Medium -> ScreenSize.MEDIUM
         WindowWidthSizeClass.Expanded -> ScreenSize.LARGE
@@ -41,12 +40,18 @@ fun RecipeBookNavHost(
         navController = navController,
         startDestination = HomeDestination.route,
         modifier = modifier
-    ){
+    ) {
         composable(route = HomeDestination.route) {
             HomeScreen(
                 screenSize = screenSize,
                 navigateToRecipeCreate = { navController.navigate(RecipeCreateDestination.getNavigateString()) },
-                navigateToRecipeDetails = { navController.navigate(RecipeDetailsDestination.getNavigateString(it))},
+                navigateToRecipeDetails = {
+                    navController.navigate(
+                        RecipeDetailsDestination.getNavigateString(
+                            it
+                        )
+                    )
+                },
                 navigateToTagList = { navController.navigate(TagListDestination.getNavigateString()) }
             )
         }
@@ -54,27 +59,39 @@ fun RecipeBookNavHost(
         composable(route = RecipeCreateDestination.route) {
             RecipeCreateScreen(
                 screenSize = screenSize,
-                navigateToRecipeDetails = { navController.navigate(RecipeDetailsDestination.getNavigateString(it))},
+                navigateToRecipeDetails = {
+                    navController.navigate(
+                        RecipeDetailsDestination.getNavigateString(
+                            it
+                        )
+                    )
+                },
                 onNavigateUp = { navController.navigateUp() }
             )
         }
 
         composable(
             route = RecipeDetailsDestination.routeWithArgs,
-            arguments = listOf(navArgument(RecipeDetailsDestination.recipeIdArg){
+            arguments = listOf(navArgument(RecipeDetailsDestination.recipeIdArg) {
                 type = NavType.StringType
             })
         ) {
             RecipeDetailsScreen(
                 screenSize = screenSize,
-                navigateToEditRecipe = { navController.navigate(RecipeEditDestination.getNavigateString(it)) },
+                navigateToEditRecipe = {
+                    navController.navigate(
+                        RecipeEditDestination.getNavigateString(
+                            it
+                        )
+                    )
+                },
                 navigateBack = { navController.navigate(HomeDestination.getNavigateString()) }
             )
         }
 
         composable(
             route = RecipeEditDestination.routeWithArgs,
-            arguments = listOf(navArgument(RecipeEditDestination.recipeIdArg){
+            arguments = listOf(navArgument(RecipeEditDestination.recipeIdArg) {
                 type = NavType.StringType
             })
         ) {

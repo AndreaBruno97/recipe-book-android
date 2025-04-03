@@ -2,23 +2,19 @@ package com.example.recipebook.ui.composables.tagList
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.RecipeBookApplication.Companion.tagRepository
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagRepository
-import com.example.recipebook.ui.composables.commonComposable.TagFormBody.TagUiState
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.mongodb.kbson.ObjectId
 
-class TagListViewModel(tagRepository: TagRepository): ViewModel() {
+class TagListViewModel(tagRepository: TagRepository) : ViewModel() {
     val tagListUiState: StateFlow<TagListUiState> =
         tagRepository.getTag().map { TagListUiState(tagList = it) }
             .stateIn(
@@ -32,21 +28,21 @@ class TagListViewModel(tagRepository: TagRepository): ViewModel() {
     var currentTagId by mutableStateOf<ObjectId?>(null)
         private set
 
-    fun openPopup(curTagId: ObjectId?){
+    fun openPopup(curTagId: ObjectId?) {
         isPopupOpen = true
         currentTagId = curTagId
     }
 
-    fun closePopup(){
+    fun closePopup() {
         isPopupOpen = false
         currentTagId = null
     }
 
-    suspend fun deleteTag(tag: Tag){
+    suspend fun deleteTag(tag: Tag) {
         tagRepository.removeTag(tag)
     }
 
-    companion object{
+    companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 }

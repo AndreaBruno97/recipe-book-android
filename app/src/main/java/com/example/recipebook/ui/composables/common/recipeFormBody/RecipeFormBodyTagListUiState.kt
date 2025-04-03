@@ -1,4 +1,4 @@
-package com.example.recipebook.ui.composables.commonComposable.recipeFormBody
+package com.example.recipebook.ui.composables.common.recipeFormBody
 
 import com.example.recipebook.data.objects.tag.Tag
 

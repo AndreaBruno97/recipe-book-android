@@ -7,7 +7,7 @@ import org.mongodb.kbson.BsonObjectId
 
 class RecipeExamples {
 
-    companion object{
+    companion object {
         val recipe1: Recipe = Recipe(
             _id = BsonObjectId("111111111111111111111111"),
             name = "Esempio ricetta 1",

@@ -17,14 +17,14 @@ interface NavigationDestination {
     val titleRes: Int
 }
 
-interface NavigationDestinationNoParams: NavigationDestination {
+interface NavigationDestinationNoParams : NavigationDestination {
     fun getNavigateString(): String {
         return route
     }
 }
 
-interface NavigationDestinationRecipeId: NavigationDestination {
+interface NavigationDestinationRecipeId : NavigationDestination {
     fun getNavigateString(recipeId: ObjectId): String {
-        return "${route}/${recipeId.toHexString()}";
+        return "${route}/${recipeId.toHexString()}"
     }
 }

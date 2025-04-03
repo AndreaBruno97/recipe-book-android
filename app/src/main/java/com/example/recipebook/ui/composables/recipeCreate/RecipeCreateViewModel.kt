@@ -5,14 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipebook.data.objects.recipe.RecipeDao
 import com.example.recipebook.data.objects.recipe.RecipeRepository
-import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagRepository
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeFormBodyTagListUiState
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.toRecipe
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.validateInput
+import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBodyTagListUiState
+import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -37,26 +34,26 @@ class RecipeCreateViewModel(
     var isTagListPopupOpen by mutableStateOf(false)
         private set
 
-    fun updateUiState(recipeDetails: RecipeDetails){
-        recipeUiState =
-            RecipeUiState(recipeDetails = recipeDetails, isEntryValid = validateInput(recipeDetails))
+    fun updateUiState(recipeDao: RecipeDao) {
+        recipeUiState = RecipeUiState(recipeDao = recipeDao)
     }
 
     suspend fun saveRecipe(): ObjectId? {
-        if(validateInput(recipeUiState.recipeDetails)){
-            return recipeRepository.addRecipe(recipeUiState.recipeDetails.toRecipe())
+        if (recipeUiState.recipeDao.validateInput()) {
+            return recipeRepository.addRecipe(recipeUiState.recipeDao.toRecipe())
         }
         return null
     }
 
-    fun openTagListPopup(){
+    fun openTagListPopup() {
         isTagListPopupOpen = true
     }
 
-    fun closeTagListPopup(){
+    fun closeTagListPopup() {
         isTagListPopupOpen = false
     }
-    companion object{
+
+    companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }
 }

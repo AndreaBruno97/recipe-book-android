@@ -6,7 +6,7 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
 import org.mongodb.kbson.ObjectId
 
-class TagRepository(private val realm: Realm){
+class TagRepository(private val realm: Realm) {
 
     fun getTag(): Flow<List<Tag>> {
         return DbFunc.getAll(realm)
@@ -16,19 +16,19 @@ class TagRepository(private val realm: Realm){
         return DbFunc.getById(realm, _id)
     }
 
-    suspend fun addTag(tag: Tag): ObjectId{
+    suspend fun addTag(tag: Tag): ObjectId {
         return DbFunc.create(realm, tag) { it._id }
     }
 
-    suspend fun updateTag(tag: Tag){
+    suspend fun updateTag(tag: Tag) {
         DbFunc.update(realm, tag)
     }
 
-    suspend fun removeTag(tag: Tag){
+    suspend fun removeTag(tag: Tag) {
         DbFunc.delete(realm, tag)
     }
 
-    fun isNamePresent(name: String): Boolean{
+    fun isNamePresent(name: String): Boolean {
         val tagWithName = realm.query<Tag>("name = $0", name).first().find()
 
         return tagWithName != null

@@ -4,7 +4,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.recipebook.RecipeBookApplication
-import com.example.recipebook.ui.composables.commonComposable.TagFormBody.TagFormBodyViewModel
+import com.example.recipebook.ui.composables.common.tagFormBody.TagFormBodyViewModel
 import com.example.recipebook.ui.composables.home.HomeViewModel
 import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateViewModel
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsViewModel

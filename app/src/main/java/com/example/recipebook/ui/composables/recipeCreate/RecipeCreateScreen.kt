@@ -1,4 +1,3 @@
-
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.recipebook.ui.composables.recipeCreate
@@ -21,12 +20,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
+import com.example.recipebook.data.objects.recipe.RecipeDao
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeDetails
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeFormBody
-import com.example.recipebook.ui.composables.commonComposable.recipeFormBody.RecipeUiState
+import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
+import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
@@ -47,10 +46,10 @@ fun RecipeCreateScreen(
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
     viewModel: RecipeCreateViewModel = viewModel(factory = AppViewModelProvider.Factory)
-){
+) {
     val recipeUiState = viewModel.recipeUiState
     val tagListUiState by viewModel.tagListUiState.collectAsState()
-    val usedTagIdList = recipeUiState.recipeDetails.tags.map{ it._id }
+    val usedTagIdList = recipeUiState.recipeDao.tags.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
 
     RecipeCreateScreenStateCollector(
@@ -75,13 +74,13 @@ fun RecipeCreateScreenStateCollector(
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
     recipeUiState: RecipeUiState,
-    onRecipeValueChange: (RecipeDetails) -> Unit,
+    onRecipeValueChange: (RecipeDao) -> Unit,
     saveRecipe: suspend () -> ObjectId?,
     unusedTagList: List<Tag>,
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false
-){
+) {
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -92,7 +91,7 @@ fun RecipeCreateScreenStateCollector(
                 navigateUp = onNavigateUp
             )
         }
-    ){ innerPadding ->
+    ) { innerPadding ->
         RecipeFormBody(
             recipeUiState = recipeUiState,
             onRecipeValueChange = onRecipeValueChange,
@@ -100,7 +99,7 @@ fun RecipeCreateScreenStateCollector(
                 coroutineScope.launch {
                     val newRecipeId = saveRecipe()
 
-                    if(newRecipeId != null){
+                    if (newRecipeId != null) {
                         navigateToRecipeDetails(newRecipeId)
                     }
                 }
@@ -122,9 +121,11 @@ fun RecipeCreateScreenStateCollector(
     }
 }
 
+//region Preview
+
 @PhonePreview
 @Composable
-fun RecipeCreateScreenPhonePreview(){
+fun RecipeCreateScreenPhonePreview() {
     RecipeBookTheme {
         RecipeCreateScreenStateCollector(
             ScreenSize.SMALL,
@@ -143,7 +144,7 @@ fun RecipeCreateScreenPhonePreview(){
 
 @TabletPreview
 @Composable
-fun RecipeCreateScreenTabletPreview(){
+fun RecipeCreateScreenTabletPreview() {
     RecipeBookTheme {
         RecipeCreateScreenStateCollector(
             ScreenSize.LARGE,
@@ -159,3 +160,5 @@ fun RecipeCreateScreenTabletPreview(){
         )
     }
 }
+
+//endregion

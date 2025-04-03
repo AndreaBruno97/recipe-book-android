@@ -1,9 +1,12 @@
 package com.example.recipebook.ui.composables.recipeDetails
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.recipebook.data.objects.recipe.Recipe
 import androidx.lifecycle.viewModelScope
+import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,13 +19,14 @@ class RecipeDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val recipeRepository: RecipeRepository
 ) : ViewModel() {
-    private val recipeIdString: String = checkNotNull(savedStateHandle[RecipeDetailsDestination.recipeIdArg])
+    private val recipeIdString: String =
+        checkNotNull(savedStateHandle[RecipeDetailsDestination.recipeIdArg])
     private val recipeId: ObjectId = ObjectId(recipeIdString)
 
     val uiState: StateFlow<RecipeDetailsUiState> =
         recipeRepository.getRecipeById(recipeId)
             .filterNotNull()
-            .map{
+            .map {
                 RecipeDetailsUiState(it)
             }
             .stateIn(
@@ -31,7 +35,18 @@ class RecipeDetailsViewModel(
                 initialValue = RecipeDetailsUiState()
             )
 
-    suspend fun deleteRecipe(){
+    var isDeletePopupOpen by mutableStateOf(false)
+        private set
+
+    fun openDeletePopup() {
+        isDeletePopupOpen = true
+    }
+
+    fun closeDeletePopup() {
+        isDeletePopupOpen = false
+    }
+
+    suspend fun deleteRecipe() {
         recipeRepository.removeRecipe(uiState.value.recipe)
     }
 

@@ -1,8 +1,7 @@
-package com.example.recipebook.ui.composables.commonComposable.TagFormBody
+package com.example.recipebook.ui.composables.common.tagFormBody
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -13,30 +12,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.recipebook.R
+import com.example.recipebook.data.objects.tag.TagDao
 import com.example.recipebook.data.objects.tag.TagExamples
+import com.example.recipebook.data.objects.tag.toTagDao
+import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
 @Composable
 fun TagFormBody(
     tagUiState: TagUiState,
-    onTagValueChange: (TagDetails) -> Unit,
+    onTagValueChange: (TagDao) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
-    ){
+    ) {
         TagInputForm(
-            tagDetails = tagUiState.tagDetails,
+            tagDao = tagUiState.tagDao,
             onValueChange = onTagValueChange,
             modifier = Modifier.fillMaxWidth()
         )
         Button(
             onClick = onSaveClick,
-            enabled = tagUiState.isEntryValid,
+            enabled = tagUiState.tagDao.validateInput(),
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -47,27 +48,27 @@ fun TagFormBody(
 
 @Composable
 fun TagInputForm(
-    tagDetails: TagDetails,
+    tagDao: TagDao,
     modifier: Modifier = Modifier,
-    onValueChange: (TagDetails) -> Unit = {},
+    onValueChange: (TagDao) -> Unit = {},
     enabled: Boolean = true
-){
+) {
     OutlinedTextField(
-        value = tagDetails.name,
-        onValueChange = { onValueChange(tagDetails.copy(name = it)) },
-        label = {Text(stringResource(R.string.tag_name))},
+        value = tagDao.name,
+        onValueChange = { onValueChange(tagDao.copy(name = it)) },
+        label = { Text(stringResource(R.string.tag_name)) },
         enabled = enabled,
         modifier = modifier
     )
 }
 
-@Preview(showBackground = true)
+@DefaultPreview
 @Composable
-private fun TagFormBodyScreenPreview(){
+private fun TagFormBodyScreenPreview() {
     RecipeBookTheme {
         TagFormBody(
             tagUiState = TagUiState(
-                TagExamples.tag1.toTagDetails()
+                TagExamples.tag1.toTagDao()
             ),
             onTagValueChange = {},
             onSaveClick = {}
