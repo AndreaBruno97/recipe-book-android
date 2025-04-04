@@ -12,7 +12,7 @@ class Recipe : RealmObject {
     @PrimaryKey
     var _id: ObjectId = ObjectId()
     var name: String = ""
-    var method: String = ""
+    var methodList: RealmList<String> = realmListOf()
     var ingredients: RealmList<Ingredient> = realmListOf()
     var tags: RealmList<Tag> = realmListOf()
 
@@ -21,13 +21,13 @@ class Recipe : RealmObject {
     constructor(
         _id: ObjectId = ObjectId(),
         name: String,
-        method: String = "",
+        methodList: RealmList<String> = realmListOf(),
         ingredients: RealmList<Ingredient> = realmListOf(),
         tags: RealmList<Tag> = realmListOf()
     ) {
         this._id = _id
         this.name = name
-        this.method = method
+        this.methodList = methodList
         this.ingredients = ingredients
         this.tags = tags
     }

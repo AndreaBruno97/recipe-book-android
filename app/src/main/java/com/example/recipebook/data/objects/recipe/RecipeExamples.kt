@@ -11,7 +11,10 @@ class RecipeExamples {
         val recipe1: Recipe = Recipe(
             _id = BsonObjectId("111111111111111111111111"),
             name = "Esempio ricetta 1",
-            method = "Esempio procedimento 1",
+            methodList = realmListOf(
+                "Esempio procedimento 1.1",
+                "Esempio procedimento 1.2"
+            ),
             ingredients = realmListOf(
                 IngredientExamples.ingredientA,
                 IngredientExamples.ingredientB
@@ -25,7 +28,10 @@ class RecipeExamples {
         val recipe2: Recipe = Recipe(
             _id = BsonObjectId("222222222222222222222222"),
             name = "Esempio ricetta 2",
-            method = "Esempio procedimento 2",
+            methodList = realmListOf(
+                "Esempio procedimento 2.1",
+                "Esempio procedimento 2.2"
+            ),
             ingredients = realmListOf(
                 IngredientExamples.ingredientC,
                 IngredientExamples.ingredientD
@@ -39,7 +45,10 @@ class RecipeExamples {
         val recipe3: Recipe = Recipe(
             _id = BsonObjectId("333333333333333333333333"),
             name = "Esempio ricetta 3",
-            method = "Esempio procedimento 3",
+            methodList = realmListOf(
+                "Esempio procedimento 3.1",
+                "Esempio procedimento 3.2"
+            ),
             ingredients = realmListOf(
                 IngredientExamples.ingredientA,
                 IngredientExamples.ingredientB,

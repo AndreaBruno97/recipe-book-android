@@ -15,12 +15,7 @@ val Home_FabTagList = Icons.AutoMirrored.Filled.List
 
 val RecipeForm_AddIngredient = Icons.Default.Add
 val RecipeForm_AddTag = Icons.Default.Add
-val RecipeForm_DeleteIngredient = Icons.Default.Close
-val RecipeForm_DeleteTag = Icons.Default.Close
-val RecipeForm_IngredientGoUp = Icons.Default.KeyboardArrowUp
-val RecipeForm_IngredientGoDown = Icons.Default.KeyboardArrowDown
-val RecipeForm_TagGoUp = Icons.Default.KeyboardArrowUp
-val RecipeForm_TagGoDown = Icons.Default.KeyboardArrowDown
+val RecipeForm_AddMethod = Icons.Default.Add
 
 val TagList_FabAddTag = Icons.Default.Add
 val TagForm_DeleteTag = Icons.Default.Close

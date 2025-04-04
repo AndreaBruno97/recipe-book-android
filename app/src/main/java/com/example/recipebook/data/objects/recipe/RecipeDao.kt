@@ -11,21 +11,22 @@ import org.mongodb.kbson.ObjectId
 data class RecipeDao(
     val _id: ObjectId? = null,
     val name: String = "",
-    var method: String = "",
+    var methodList: List<String> = listOf(),
     var ingredients: List<IngredientDao> = listOf(),
     var tags: List<TagDao> = listOf()
 ) {
     fun toRecipe(): Recipe = Recipe(
         _id = _id ?: BsonObjectId(),
         name = name,
-        method = method,
+        methodList = methodList.toRealmList(),
         ingredients = ingredients.map { it.toIngredient() }.toRealmList(),
         tags = tags.map { it.toTag() }.toRealmList()
     )
 
     fun validateInput(): Boolean {
         return name.isNotBlank() &&
-                method.isNotBlank() &&
+                methodList.isNotEmpty() &&
+                methodList.all { it.isNotBlank() } &&
                 ingredients.isNotEmpty() &&
                 ingredients.all { it.validateInput() } &&
                 tags.all { it.validateInput() }
@@ -35,7 +36,7 @@ data class RecipeDao(
 fun Recipe.toRecipeDao(): RecipeDao = RecipeDao(
     _id = _id,
     name = name,
-    method = method,
+    methodList = methodList,
     ingredients = ingredients.map { it.toIngredientDao() },
     tags = tags.map { it.toTagDao() }
 )

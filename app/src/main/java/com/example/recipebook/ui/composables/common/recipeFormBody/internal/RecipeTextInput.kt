@@ -13,7 +13,7 @@ import com.example.recipebook.ui.theme.RecipeBookTheme
 fun RecipeTextInput(
     value: String,
     onValueChange: (String) -> Unit,
-    labelText: String,
+    labelText: String = "",
     enabled: Boolean,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true

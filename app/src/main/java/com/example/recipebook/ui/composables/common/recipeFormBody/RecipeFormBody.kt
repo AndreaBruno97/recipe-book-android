@@ -18,6 +18,7 @@ import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeIngredientsInput
+import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeMethodListInput
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeTagsInput
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeTextInput
 import com.example.recipebook.ui.preview.DefaultPreview
@@ -99,13 +100,10 @@ fun RecipeInputForm(
             enabled = enabled
         )
 
-        RecipeTextInput(
-            value = recipeDao.method,
-            onValueChange = { onValueChange(recipeDao.copy(method = it)) },
-            labelText = stringResource(R.string.recipe_method) + "*",
-            enabled = enabled,
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = false
+        RecipeMethodListInput(
+            recipeDao = recipeDao,
+            onValueChange = onValueChange,
+            enabled = enabled
         )
 
         if (enabled) {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -77,7 +78,13 @@ private fun RecipeDetails(
         }
 
         Text(stringResource(R.string.recipe_method), style = MaterialTheme.typography.titleMedium)
-        Text(recipe.method)
+
+        for ((index, method) in recipe.methodList.withIndex()) {
+            Text(method)
+            if (index < recipe.methodList.size - 1) {
+                HorizontalDivider()
+            }
+        }
     }
 }
 
