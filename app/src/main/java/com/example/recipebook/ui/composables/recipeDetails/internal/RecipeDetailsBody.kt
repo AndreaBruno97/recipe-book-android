@@ -13,13 +13,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import com.example.recipebook.R
+import com.example.recipebook.data.objects.ingredient.Ingredient
+import com.example.recipebook.data.objects.ingredient.IngredientDao
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import io.realm.kotlin.ext.realmListOf
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun RecipeDetailsBody(
@@ -73,8 +79,21 @@ private fun RecipeDetails(
             stringResource(R.string.recipe_ingredients),
             style = MaterialTheme.typography.titleMedium
         )
-        for (ingredient in recipe.ingredients) {
-            Text("${ingredient.name}: ${ingredient.value}")
+        for(ingredient in recipe.ingredients) {
+            var quantityString = ""
+            val quantity = ingredient.quantity
+
+            if(quantity != null){
+                val formattedQuantity = quantity
+                    .toBigDecimal()
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .stripTrailingZeros()
+                    .toPlainString()
+
+                quantityString = "${formattedQuantity} "
+            }
+
+            Text("${ingredient.name}: ${quantityString}${ingredient.value}")
         }
 
         Text(stringResource(R.string.recipe_method), style = MaterialTheme.typography.titleMedium)
@@ -121,6 +140,30 @@ fun RecipeDetailsBodyPreview() {
     RecipeBookTheme {
         RecipeDetailsBody(
             RecipeDetailsUiState(RecipeExamples.recipe1),
+            onDelete = {},
+            openDeletePopup = {},
+            closeDeletePopup = {}
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+fun IngredientQuantityFormattingPreview() {
+    RecipeBookTheme {
+        RecipeDetailsBody(
+            RecipeDetailsUiState(RecipeExamples.recipe1.apply {
+                ingredients = realmListOf(
+                    Ingredient("a", 1F, "a"),
+                    Ingredient("a", 12F, "a"),
+                    Ingredient("a", 123F, "a"),
+                    Ingredient("a", 1.016F, "a"),
+                    Ingredient("a", 320F, "a"),
+                    Ingredient("a", 21.010101F, "a"),
+                    Ingredient("a", 1231.010000F, "a"),
+                    Ingredient("a", 10.001002F, "a")
+                )
+            }),
             onDelete = {},
             openDeletePopup = {},
             closeDeletePopup = {}

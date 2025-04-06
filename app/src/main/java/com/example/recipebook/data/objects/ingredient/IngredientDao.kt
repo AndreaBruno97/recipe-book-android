@@ -2,10 +2,12 @@ package com.example.recipebook.data.objects.ingredient
 
 data class IngredientDao(
     var name: String = "",
+    var quantity: String = "",
     var value: String = ""
 ) {
     fun toIngredient(): Ingredient = Ingredient(
         name = name,
+        quantity = quantity.toFloatOrNull(),
         value = value
     )
 
@@ -15,7 +17,21 @@ data class IngredientDao(
     }
 }
 
-fun Ingredient.toIngredientDao(): IngredientDao = IngredientDao(
-    name = name,
-    value = value
-)
+fun Ingredient.toIngredientDao(): IngredientDao {
+    var formattedQuantity: String = ""
+
+    if(quantity != null){
+        if(quantity?.rem(1F) == 0F) {
+            formattedQuantity = quantity?.toInt().toString()
+        }
+        else{
+            formattedQuantity = quantity.toString()
+        }
+    }
+
+    return IngredientDao(
+        name = name,
+        quantity = formattedQuantity,
+        value = value
+    )
+}

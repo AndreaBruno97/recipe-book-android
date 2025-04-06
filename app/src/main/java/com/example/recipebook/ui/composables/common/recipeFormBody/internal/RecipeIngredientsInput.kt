@@ -4,13 +4,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.ingredient.IngredientDao
 import com.example.recipebook.data.objects.ingredient.IngredientExamples
@@ -60,6 +63,11 @@ fun RecipeIngredientsInput(
                     newIngredientList[index].name = newName
                     onValueChange(recipeDao.copy(ingredients = newIngredientList))
                 },
+                onQuantityChange = { newQuantity ->
+                    val newIngredientList = recipeDao.ingredients.map { it.copy() }
+                    newIngredientList[index].quantity = newQuantity
+                    onValueChange(recipeDao.copy(ingredients = newIngredientList))
+                },
                 onValueChange = { newValue ->
                     val newIngredientList = recipeDao.ingredients.map { it.copy() }
                     newIngredientList[index].value = newValue
@@ -76,6 +84,7 @@ fun RecipeIngredientsInput(
 private fun IngredientInputLine(
     ingredient: IngredientDao,
     onNameChange: (String) -> Unit,
+    onQuantityChange: (String) -> Unit,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean
@@ -88,14 +97,27 @@ private fun IngredientInputLine(
             value = ingredient.name,
             onValueChange = onNameChange,
             enabled = enabled,
-            modifier = Modifier.weight(weight = 7F)
+            modifier = Modifier.weight(weight = 4F),
+            maxLines = 1
         )
-        Spacer(Modifier.width(dimensionResource(R.dimen.padding_medium)))
+        Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
+        TextField(
+            value = ingredient.quantity,
+            onValueChange = onQuantityChange,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number
+            ),
+            enabled = enabled,
+            modifier = Modifier.weight(weight = 3F),
+            maxLines = 1
+        )
+        Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
         TextField(
             value = ingredient.value,
             onValueChange = onValueChange,
             enabled = enabled,
-            modifier = Modifier.weight(weight = 3F)
+            modifier = Modifier.weight(weight = 3F),
+            maxLines = 1
         )
     }
 }
@@ -121,6 +143,7 @@ private fun IngredientInputLinePreview() {
         IngredientInputLine(
             ingredient = IngredientExamples.ingredientA.toIngredientDao(),
             onNameChange = {},
+            onQuantityChange = {},
             onValueChange = {},
             enabled = true
         )
