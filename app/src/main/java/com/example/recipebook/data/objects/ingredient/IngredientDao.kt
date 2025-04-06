@@ -20,11 +20,10 @@ data class IngredientDao(
 fun Ingredient.toIngredientDao(): IngredientDao {
     var formattedQuantity: String = ""
 
-    if(quantity != null){
-        if(quantity?.rem(1F) == 0F) {
+    if (quantity != null) {
+        if (quantity?.rem(1F) == 0F) {
             formattedQuantity = quantity?.toInt().toString()
-        }
-        else{
+        } else {
             formattedQuantity = quantity.toString()
         }
     }

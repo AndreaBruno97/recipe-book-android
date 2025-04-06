@@ -22,7 +22,11 @@ class RecipeExamples {
             tags = realmListOf(
                 TagExamples.tag1,
                 TagExamples.tag2
-            )
+            ),
+            servingsNum = 1,
+            prepTimeMinutes = 90,
+            cookTimeMinutes = 10,
+            isFavorite = true
         )
 
         val recipe2: Recipe = Recipe(
@@ -39,7 +43,11 @@ class RecipeExamples {
             tags = realmListOf(
                 TagExamples.tag3,
                 TagExamples.tag4
-            )
+            ),
+            servingsNum = 2,
+            prepTimeMinutes = 10,
+            cookTimeMinutes = 90,
+            isFavorite = false
         )
 
         val recipe3: Recipe = Recipe(
@@ -60,7 +68,11 @@ class RecipeExamples {
                 TagExamples.tag2,
                 TagExamples.tag3,
                 TagExamples.tag4
-            )
+            ),
+            servingsNum = 3,
+            prepTimeMinutes = 90,
+            cookTimeMinutes = 90,
+            isFavorite = false
         )
 
         val recipeList: List<Recipe> = listOf(recipe1, recipe2, recipe3)

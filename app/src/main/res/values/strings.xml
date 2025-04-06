@@ -19,6 +19,10 @@
     <string name="recipe_method">Procedimento</string>
     <string name="recipe_ingredients">Ingredienti</string>
     <string name="recipe_tags">Tag</string>
+    <string name="recipe_servingsNum">Numero di portate</string>
+    <string name="recipe_prepTimeMinutes">Tempo di preparazione</string>
+    <string name="recipe_cookTimeMinutes">Tempo di cottura</string>
+    <string name="recipe_isFavorite">Preferito</string>
     <string name="tag_name">Nome</string>
     <string name="delete_button_text">Cancella</string>
     <string name="edit_recipe_button_text">Modifica Ricetta</string>

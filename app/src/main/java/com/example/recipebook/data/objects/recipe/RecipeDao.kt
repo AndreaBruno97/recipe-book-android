@@ -13,14 +13,22 @@ data class RecipeDao(
     val name: String = "",
     var methodList: List<String> = listOf(),
     var ingredients: List<IngredientDao> = listOf(),
-    var tags: List<TagDao> = listOf()
+    var tags: List<TagDao> = listOf(),
+    var servingsNum: String = "",
+    var prepTimeMinutes: String = "",
+    var cookTimeMinutes: String = "",
+    var isFavorite: Boolean = false
 ) {
     fun toRecipe(): Recipe = Recipe(
         _id = _id ?: BsonObjectId(),
         name = name,
         methodList = methodList.toRealmList(),
         ingredients = ingredients.map { it.toIngredient() }.toRealmList(),
-        tags = tags.map { it.toTag() }.toRealmList()
+        tags = tags.map { it.toTag() }.toRealmList(),
+        servingsNum = servingsNum.toIntOrNull(),
+        prepTimeMinutes = prepTimeMinutes.toIntOrNull(),
+        cookTimeMinutes = cookTimeMinutes.toIntOrNull(),
+        isFavorite = isFavorite
     )
 
     fun validateInput(): Boolean {
@@ -38,5 +46,9 @@ fun Recipe.toRecipeDao(): RecipeDao = RecipeDao(
     name = name,
     methodList = methodList,
     ingredients = ingredients.map { it.toIngredientDao() },
-    tags = tags.map { it.toTagDao() }
+    tags = tags.map { it.toTagDao() },
+    servingsNum = if (servingsNum == null) "" else servingsNum.toString(),
+    prepTimeMinutes = if (prepTimeMinutes == null) "" else prepTimeMinutes.toString(),
+    cookTimeMinutes = if (cookTimeMinutes == null) "" else cookTimeMinutes.toString(),
+    isFavorite = isFavorite
 )

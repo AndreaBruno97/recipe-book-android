@@ -2,6 +2,7 @@ package com.example.recipebook.ui.composables.recipeDetails.internal
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -13,18 +14,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.ingredient.Ingredient
-import com.example.recipebook.data.objects.ingredient.IngredientDao
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import io.realm.kotlin.ext.realmListOf
-import java.math.BigDecimal
 import java.math.RoundingMode
 
 @Composable
@@ -72,6 +70,38 @@ private fun RecipeDetails(
     Column(modifier = modifier) {
         Text(recipe.name, style = MaterialTheme.typography.titleLarge)
 
+        Row {
+            Text(
+                stringResource(R.string.recipe_servingsNum) + ": ",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(if (recipe.servingsNum == null) "-" else recipe.servingsNum.toString())
+        }
+
+        Row {
+            Text(
+                stringResource(R.string.recipe_prepTimeMinutes) + ": ",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(if (recipe.prepTimeMinutes == null) "-" else recipe.prepTimeMinutes.toString())
+        }
+
+        Row {
+            Text(
+                stringResource(R.string.recipe_cookTimeMinutes) + ": ",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(if (recipe.cookTimeMinutes == null) "-" else recipe.cookTimeMinutes.toString())
+        }
+
+        Row {
+            Text(
+                stringResource(R.string.recipe_isFavorite) + ": ",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(recipe.isFavorite.toString())
+        }
+
         Text(stringResource(R.string.recipe_tags), style = MaterialTheme.typography.titleMedium)
         Text(recipe.tags.joinToString(separator = ", ", transform = { it.name }))
 
@@ -79,11 +109,11 @@ private fun RecipeDetails(
             stringResource(R.string.recipe_ingredients),
             style = MaterialTheme.typography.titleMedium
         )
-        for(ingredient in recipe.ingredients) {
+        for (ingredient in recipe.ingredients) {
             var quantityString = ""
             val quantity = ingredient.quantity
 
-            if(quantity != null){
+            if (quantity != null) {
                 val formattedQuantity = quantity
                     .toBigDecimal()
                     .setScale(2, RoundingMode.HALF_UP)
@@ -140,6 +170,24 @@ fun RecipeDetailsBodyPreview() {
     RecipeBookTheme {
         RecipeDetailsBody(
             RecipeDetailsUiState(RecipeExamples.recipe1),
+            onDelete = {},
+            openDeletePopup = {},
+            closeDeletePopup = {}
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+fun RecipeDetailsBodyEmptyFieldsPreview() {
+    RecipeBookTheme {
+        RecipeDetailsBody(
+            RecipeDetailsUiState(RecipeExamples.recipe1.apply {
+                servingsNum = null
+                prepTimeMinutes = null
+                cookTimeMinutes = null
+                isFavorite = false
+            }),
             onDelete = {},
             openDeletePopup = {},
             closeDeletePopup = {}

@@ -2,12 +2,15 @@ package com.example.recipebook.ui.composables.common.recipeFormBody
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -83,6 +86,41 @@ fun RecipeInputForm(
             enabled = enabled,
             modifier = Modifier.fillMaxWidth()
         )
+
+        RecipeTextInput(
+            value = recipeDao.servingsNum,
+            onValueChange = { onValueChange(recipeDao.copy(servingsNum = it)) },
+            labelText = stringResource(R.string.recipe_servingsNum),
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth(),
+            isNumeric = true
+        )
+
+        RecipeTextInput(
+            value = recipeDao.prepTimeMinutes,
+            onValueChange = { onValueChange(recipeDao.copy(prepTimeMinutes = it)) },
+            labelText = stringResource(R.string.recipe_prepTimeMinutes),
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth(),
+            isNumeric = true
+        )
+
+        RecipeTextInput(
+            value = recipeDao.cookTimeMinutes,
+            onValueChange = { onValueChange(recipeDao.copy(cookTimeMinutes = it)) },
+            labelText = stringResource(R.string.recipe_cookTimeMinutes),
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth(),
+            isNumeric = true
+        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.recipe_isFavorite))
+            Checkbox(
+                checked = recipeDao.isFavorite,
+                onCheckedChange = { onValueChange(recipeDao.copy(isFavorite = it)) }
+            )
+        }
 
         RecipeTagsInput(
             recipeDao = recipeDao,

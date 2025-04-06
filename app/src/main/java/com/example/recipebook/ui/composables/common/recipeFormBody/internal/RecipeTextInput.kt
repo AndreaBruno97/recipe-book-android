@@ -1,11 +1,13 @@
 package com.example.recipebook.ui.composables.common.recipeFormBody.internal
 
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
@@ -13,13 +15,21 @@ import com.example.recipebook.ui.theme.RecipeBookTheme
 fun RecipeTextInput(
     value: String,
     onValueChange: (String) -> Unit,
-    labelText: String = "",
     enabled: Boolean,
     modifier: Modifier = Modifier,
-    singleLine: Boolean = true
+    labelText: String = "",
+    singleLine: Boolean = true,
+    isNumeric: Boolean = false
 ) {
     val minLines = if (singleLine) 1 else 5
     val maxLines = if (singleLine) 2 else 10
+
+    val keyboardOptions = if (isNumeric)
+        KeyboardOptions(
+            keyboardType = KeyboardType.Number
+        )
+    else
+        KeyboardOptions.Default
 
     OutlinedTextField(
         value = value,
@@ -34,7 +44,8 @@ fun RecipeTextInput(
         enabled = enabled,
         singleLine = singleLine,
         minLines = minLines,
-        maxLines = maxLines
+        maxLines = maxLines,
+        keyboardOptions = keyboardOptions
     )
 }
 
