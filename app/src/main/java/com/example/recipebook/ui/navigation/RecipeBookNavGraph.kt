@@ -98,7 +98,14 @@ fun RecipeBookNavHost(
             RecipeEditScreen(
                 screenSize = screenSize,
                 navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp() }
+                onNavigateUp = { navController.navigateUp() },
+                navigateToRecipeDetails = {
+                    navController.navigate(
+                        RecipeDetailsDestination.getNavigateString(
+                            it
+                        )
+                    )
+                },
             )
         }
 

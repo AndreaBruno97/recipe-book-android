@@ -2,6 +2,7 @@
 
 package com.example.recipebook.ui.composables.home
 
+import android.content.Context
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,7 +20,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +31,7 @@ import com.example.recipebook.RecipeBookTopAppBar
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.ui.AppViewModelProvider
+import com.example.recipebook.ui.composables.common.utility.clearCache
 import com.example.recipebook.ui.composables.home.internal.HomeBody
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
@@ -53,15 +57,19 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val localContext = LocalContext.current
+    clearCache(localContext)
+
     val homeUiState by viewModel.homeUiState.collectAsState()
 
     HomeScreenStateCollector(
-        screenSize,
-        navigateToRecipeCreate,
-        navigateToRecipeDetails,
-        navigateToTagList,
-        homeUiState.recipeList,
-        modifier
+        screenSize = screenSize,
+        navigateToRecipeCreate = navigateToRecipeCreate,
+        navigateToRecipeDetails = navigateToRecipeDetails,
+        navigateToTagList = navigateToTagList,
+        loadRecipeImage = viewModel::loadRecipeImage,
+        recipeList = homeUiState.recipeList,
+        modifier = modifier
     )
 }
 
@@ -71,6 +79,7 @@ private fun HomeScreenStateCollector(
     navigateToRecipeCreate: () -> Unit,
     navigateToRecipeDetails: (ObjectId) -> Unit,
     navigateToTagList: () -> Unit,
+    loadRecipeImage: (ObjectId, Context) -> ImageBitmap?,
     recipeList: List<Recipe>,
     modifier: Modifier = Modifier
 ) {
@@ -117,6 +126,7 @@ private fun HomeScreenStateCollector(
         HomeBody(
             recipeList = recipeList,
             onRecipeClick = navigateToRecipeDetails,
+            loadRecipeImage = loadRecipeImage,
             screenSize = screenSize,
             modifier = modifier.fillMaxSize(),
             contentPadding = innerPadding
@@ -135,7 +145,8 @@ fun HomeScreenPhonePreview() {
             navigateToRecipeCreate = {},
             navigateToRecipeDetails = {},
             navigateToTagList = {},
-            RecipeExamples.recipeList,
+            recipeList = RecipeExamples.recipeList,
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
         )
     }
 }
@@ -149,7 +160,8 @@ fun HomeScreenFoldablePreview() {
             navigateToRecipeCreate = {},
             navigateToRecipeDetails = {},
             navigateToTagList = {},
-            RecipeExamples.recipeList,
+            recipeList = RecipeExamples.recipeList,
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
         )
     }
 }
@@ -163,7 +175,8 @@ fun HomeScreenTabletPreview() {
             navigateToRecipeCreate = {},
             navigateToRecipeDetails = {},
             navigateToTagList = {},
-            RecipeExamples.recipeList,
+            recipeList = RecipeExamples.recipeList,
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
         )
     }
 }

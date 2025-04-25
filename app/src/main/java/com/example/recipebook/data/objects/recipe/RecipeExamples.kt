@@ -1,5 +1,9 @@
 package com.example.recipebook.data.objects.recipe
 
+import android.content.res.Resources
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.asImageBitmap
+import com.example.recipebook.R
 import com.example.recipebook.data.objects.ingredient.IngredientExamples
 import com.example.recipebook.data.objects.tag.TagExamples
 import io.realm.kotlin.ext.realmListOf
@@ -76,5 +80,12 @@ class RecipeExamples {
         )
 
         val recipeList: List<Recipe> = listOf(recipe1, recipe2, recipe3)
+
+        val recipeImageBitmap = BitmapFactory
+            .decodeResource(
+                Resources.getSystem(),
+                R.drawable.test_recipe_image
+            )
+            .asImageBitmap()
     }
 }

@@ -1,19 +1,24 @@
 package com.example.recipebook.ui.composables.recipeDetails
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeRepository
+import com.example.recipebook.ui.composables.common.utility.getRecipeFolderPath
+import com.example.recipebook.ui.composables.common.utility.loadRecipeImage
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.mongodb.kbson.ObjectId
+import java.io.File
 
 class RecipeDetailsViewModel(
     savedStateHandle: SavedStateHandle,
@@ -38,6 +43,8 @@ class RecipeDetailsViewModel(
     var isDeletePopupOpen by mutableStateOf(false)
         private set
 
+    var recipeImage: ImageBitmap? by mutableStateOf(null)
+
     fun openDeletePopup() {
         isDeletePopupOpen = true
     }
@@ -46,8 +53,21 @@ class RecipeDetailsViewModel(
         isDeletePopupOpen = false
     }
 
-    suspend fun deleteRecipe() {
+    suspend fun deleteRecipe(context: Context) {
         recipeRepository.removeRecipe(uiState.value.recipe)
+
+        val recipeFolderPath = getRecipeFolderPath(recipeId)
+        val folderFile = File(context.filesDir, recipeFolderPath)
+
+        if (folderFile.isDirectory) {
+            folderFile.delete()
+        }
+    }
+
+    fun loadRecipeImage(context: Context) {
+        if (recipeImage == null) {
+            recipeImage = loadRecipeImage(recipeId, context)
+        }
     }
 
     companion object {

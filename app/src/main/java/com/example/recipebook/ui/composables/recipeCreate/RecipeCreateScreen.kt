@@ -15,17 +15,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
 import com.example.recipebook.data.objects.recipe.RecipeDao
+import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
+import com.example.recipebook.ui.composables.common.utility.createCameraLauncherState
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
@@ -47,6 +51,10 @@ fun RecipeCreateScreen(
     canNavigateBack: Boolean = true,
     viewModel: RecipeCreateViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val currentContext = LocalContext.current
+
+    val cameraLauncherState = createCameraLauncherState(currentContext, viewModel)
+
     val recipeUiState = viewModel.recipeUiState
     val tagListUiState by viewModel.tagListUiState.collectAsState()
     val usedTagIdList = recipeUiState.recipeDao.tags.map { it._id }
@@ -59,11 +67,15 @@ fun RecipeCreateScreen(
         canNavigateBack = canNavigateBack,
         recipeUiState = viewModel.recipeUiState,
         onRecipeValueChange = viewModel::updateUiState,
-        saveRecipe = viewModel::saveRecipe,
+        saveRecipe = { viewModel.saveRecipe(currentContext) },
         unusedTagList = unusedTagList,
         openTagListPopup = viewModel::openTagListPopup,
         closeTagListPopup = viewModel::closeTagListPopup,
-        isTagListPopupOpen = viewModel.isTagListPopupOpen
+        isTagListPopupOpen = viewModel.isTagListPopupOpen,
+        takeImage = cameraLauncherState::takeImage,
+        pickImage = cameraLauncherState::pickImage,
+        clearImage = viewModel::clearImage,
+        recipeImage = viewModel.tempImage
     )
 }
 
@@ -79,7 +91,11 @@ fun RecipeCreateScreenStateCollector(
     unusedTagList: List<Tag>,
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
-    isTagListPopupOpen: Boolean = false
+    isTagListPopupOpen: Boolean = false,
+    takeImage: () -> Unit,
+    pickImage: () -> Unit,
+    clearImage: () -> Unit,
+    recipeImage: ImageBitmap?
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -104,6 +120,9 @@ fun RecipeCreateScreenStateCollector(
                     }
                 }
             },
+            onTakeImage = takeImage,
+            onPickImage = pickImage,
+            onClearImage = clearImage,
             unusedTagList = unusedTagList,
             modifier = Modifier
                 .padding(
@@ -115,7 +134,8 @@ fun RecipeCreateScreenStateCollector(
                 .fillMaxWidth(),
             openTagListPopup = openTagListPopup,
             closeTagListPopup = closeTagListPopup,
-            isTagListPopupOpen = isTagListPopupOpen
+            isTagListPopupOpen = isTagListPopupOpen,
+            recipeImage = recipeImage
         )
 
     }
@@ -137,7 +157,11 @@ fun RecipeCreateScreenPhonePreview() {
             saveRecipe = suspend { null },
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            takeImage = {},
+            pickImage = {},
+            clearImage = {},
+            recipeImage = RecipeExamples.recipeImageBitmap
         )
     }
 }
@@ -156,7 +180,11 @@ fun RecipeCreateScreenTabletPreview() {
             saveRecipe = suspend { null },
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            takeImage = {},
+            pickImage = {},
+            clearImage = {},
+            recipeImage = RecipeExamples.recipeImageBitmap
         )
     }
 }

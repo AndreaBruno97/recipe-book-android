@@ -1,9 +1,11 @@
 package com.example.recipebook.ui.composables.recipeDetails.internal
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -13,8 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.ingredient.Ingredient
 import com.example.recipebook.data.objects.recipe.Recipe
@@ -28,6 +33,7 @@ import java.math.RoundingMode
 @Composable
 fun RecipeDetailsBody(
     recipeDetailsUiState: RecipeDetailsUiState,
+    recipeImage: ImageBitmap? = null,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     isDeletePopupOpen: Boolean = false,
@@ -40,6 +46,7 @@ fun RecipeDetailsBody(
     ) {
         RecipeDetails(
             recipe = recipeDetailsUiState.recipe,
+            recipeImage = recipeImage,
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedButton(
@@ -65,10 +72,20 @@ fun RecipeDetailsBody(
 
 @Composable
 private fun RecipeDetails(
-    recipe: Recipe, modifier: Modifier = Modifier
+    recipe: Recipe, modifier: Modifier = Modifier,
+    recipeImage: ImageBitmap? = null
 ) {
     Column(modifier = modifier) {
         Text(recipe.name, style = MaterialTheme.typography.titleLarge)
+
+        if (recipeImage != null) {
+            Image(
+                bitmap = recipeImage,
+                contentDescription = "",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.height(100.dp)
+            )
+        }
 
         Row {
             Text(
@@ -170,6 +187,7 @@ fun RecipeDetailsBodyPreview() {
     RecipeBookTheme {
         RecipeDetailsBody(
             RecipeDetailsUiState(RecipeExamples.recipe1),
+            recipeImage = RecipeExamples.recipeImageBitmap,
             onDelete = {},
             openDeletePopup = {},
             closeDeletePopup = {}
@@ -188,6 +206,7 @@ fun RecipeDetailsBodyEmptyFieldsPreview() {
                 cookTimeMinutes = null
                 isFavorite = false
             }),
+            recipeImage = RecipeExamples.recipeImageBitmap,
             onDelete = {},
             openDeletePopup = {},
             closeDeletePopup = {}
@@ -212,6 +231,7 @@ fun IngredientQuantityFormattingPreview() {
                     Ingredient("a", 10.001002F, "a")
                 )
             }),
+            recipeImage = RecipeExamples.recipeImageBitmap,
             onDelete = {},
             openDeletePopup = {},
             closeDeletePopup = {}

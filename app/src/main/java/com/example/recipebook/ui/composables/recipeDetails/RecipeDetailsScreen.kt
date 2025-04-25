@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -51,7 +53,9 @@ fun RecipeDetailsScreen(
     modifier: Modifier = Modifier,
     viewModel: RecipeDetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val currentContext = LocalContext.current
     val uiState = viewModel.uiState.collectAsState()
+    viewModel.loadRecipeImage(currentContext)
 
     RecipeDetailsScreenStateCollector(
         screenSize = screenSize,
@@ -59,7 +63,8 @@ fun RecipeDetailsScreen(
         navigateBack = navigateBack,
         modifier = modifier,
         uiState = uiState.value,
-        deleteRecipe = viewModel::deleteRecipe,
+        recipeImage = viewModel.recipeImage,
+        deleteRecipe = { viewModel.deleteRecipe(currentContext) },
         isDeletePopupOpen = viewModel.isDeletePopupOpen,
         openDeletePopup = viewModel::openDeletePopup,
         closeDeletePopup = viewModel::closeDeletePopup
@@ -73,6 +78,7 @@ fun RecipeDetailsScreenStateCollector(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     uiState: RecipeDetailsUiState,
+    recipeImage: ImageBitmap? = null,
     deleteRecipe: suspend () -> Unit,
     isDeletePopupOpen: Boolean = false,
     openDeletePopup: () -> Unit,
@@ -104,6 +110,7 @@ fun RecipeDetailsScreenStateCollector(
     ) { innerPadding ->
         RecipeDetailsBody(
             recipeDetailsUiState = uiState,
+            recipeImage = recipeImage,
             onDelete = {
                 coroutineScope.launch {
                     deleteRecipe()
@@ -135,6 +142,7 @@ fun RecipeDetailsScreenPhonePreview() {
             navigateToEditRecipe = {},
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            recipeImage = RecipeExamples.recipeImageBitmap,
             deleteRecipe = {},
             openDeletePopup = {},
             closeDeletePopup = {}
@@ -151,6 +159,7 @@ fun RecipeDetailsScreenTabletPreview() {
             navigateToEditRecipe = {},
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            recipeImage = RecipeExamples.recipeImageBitmap,
             deleteRecipe = {},
             openDeletePopup = {},
             closeDeletePopup = {}
@@ -167,6 +176,7 @@ fun DeletePopupPhonePreview() {
             navigateToEditRecipe = {},
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            recipeImage = RecipeExamples.recipeImageBitmap,
             deleteRecipe = {},
             isDeletePopupOpen = true,
             openDeletePopup = {},

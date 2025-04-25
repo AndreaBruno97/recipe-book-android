@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.recipebook.R
@@ -20,6 +21,7 @@ import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
+import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeImageInput
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeIngredientsInput
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeMethodListInput
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeTagsInput
@@ -33,10 +35,14 @@ fun RecipeFormBody(
     modifier: Modifier = Modifier,
     onRecipeValueChange: (RecipeDao) -> Unit,
     onSaveClick: () -> Unit,
+    onTakeImage: () -> Unit,
+    onPickImage: () -> Unit,
+    onClearImage: () -> Unit,
     unusedTagList: List<Tag>,
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
+    recipeImage: ImageBitmap?
 ) {
     val recipeDao = recipeUiState.recipeDao
 
@@ -49,9 +55,13 @@ fun RecipeFormBody(
             onValueChange = onRecipeValueChange,
             modifier = Modifier.fillMaxWidth(),
             openTagListPopup = openTagListPopup,
+            onTakeImage = onTakeImage,
+            onPickImage = onPickImage,
+            onClearImage = onClearImage,
             unusedTagList = unusedTagList,
             closeTagListPopup = closeTagListPopup,
-            isTagListPopupOpen = isTagListPopupOpen
+            isTagListPopupOpen = isTagListPopupOpen,
+            recipeImage = recipeImage
         )
         Button(
             onClick = onSaveClick,
@@ -71,9 +81,13 @@ fun RecipeInputForm(
     onValueChange: (RecipeDao) -> Unit = {},
     enabled: Boolean = true,
     openTagListPopup: () -> Unit,
+    onTakeImage: () -> Unit,
+    onPickImage: () -> Unit,
+    onClearImage: () -> Unit,
     unusedTagList: List<Tag>,
     closeTagListPopup: () -> Unit,
-    isTagListPopupOpen: Boolean = false
+    isTagListPopupOpen: Boolean = false,
+    recipeImage: ImageBitmap?
 ) {
     Column(
         modifier = modifier,
@@ -83,6 +97,15 @@ fun RecipeInputForm(
             value = recipeDao.name,
             onValueChange = { onValueChange(recipeDao.copy(name = it)) },
             labelText = stringResource(R.string.recipe_name) + "*",
+            enabled = enabled,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        RecipeImageInput(
+            recipeImage = recipeImage,
+            onTakeImage = onTakeImage,
+            onPickImage = onPickImage,
+            onClearImage = onClearImage,
             enabled = enabled,
             modifier = Modifier.fillMaxWidth()
         )
@@ -165,9 +188,13 @@ private fun RecipeFormBodyScreenPreview() {
             ),
             onRecipeValueChange = {},
             onSaveClick = {},
+            onTakeImage = {},
+            onPickImage = {},
+            onClearImage = {},
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            recipeImage = RecipeExamples.recipeImageBitmap
         )
     }
 }
@@ -182,10 +209,14 @@ private fun RecipeFormBodyScreenWithPopupPreview() {
             ),
             onRecipeValueChange = {},
             onSaveClick = {},
+            onTakeImage = {},
+            onPickImage = {},
+            onClearImage = {},
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},
-            isTagListPopupOpen = true
+            isTagListPopupOpen = true,
+            recipeImage = RecipeExamples.recipeImageBitmap
         )
     }
 }

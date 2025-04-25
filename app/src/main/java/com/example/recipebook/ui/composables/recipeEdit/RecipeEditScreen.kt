@@ -15,6 +15,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,12 +30,14 @@ import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
+import com.example.recipebook.ui.composables.common.utility.createCameraLauncherState
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import kotlinx.coroutines.launch
+import org.mongodb.kbson.ObjectId
 
 object RecipeEditDestination : NavigationDestinationRecipeId {
     override val route = "recipe_edit"
@@ -47,9 +51,15 @@ fun RecipeEditScreen(
     screenSize: ScreenSize,
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
+    navigateToRecipeDetails: (ObjectId) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RecipeEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
+    val currentContext = LocalContext.current
+
+    val cameraLauncherState = createCameraLauncherState(currentContext, viewModel)
+    viewModel.loadRecipeImage(currentContext)
+
     val recipeUiState = viewModel.recipeUiState
     val tagListUiState by viewModel.tagListUiState.collectAsState()
     val usedTagIdList = recipeUiState.recipeDao.tags.map { it._id }
@@ -59,14 +69,19 @@ fun RecipeEditScreen(
         screenSize = screenSize,
         navigateBack = navigateBack,
         onNavigateUp = onNavigateUp,
+        navigateToRecipeDetails = { navigateToRecipeDetails(viewModel.recipeId) },
         modifier = modifier,
         recipeUiState = viewModel.recipeUiState,
         onRecipeValueChange = viewModel::updateUiState,
-        updateRecipe = viewModel::updateRecipe,
+        updateRecipe = { viewModel.updateRecipe(currentContext) },
         unusedTagList = unusedTagList,
         openTagListPopup = viewModel::openTagListPopup,
         closeTagListPopup = viewModel::closeTagListPopup,
-        isTagListPopupOpen = viewModel.isTagListPopupOpen
+        isTagListPopupOpen = viewModel.isTagListPopupOpen,
+        takeImage = cameraLauncherState::takeImage,
+        pickImage = cameraLauncherState::pickImage,
+        clearImage = viewModel::clearImage,
+        recipeImage = viewModel.tempImage
     )
 }
 
@@ -75,6 +90,7 @@ fun RecipeEditScreenStateCollector(
     screenSize: ScreenSize,
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
+    navigateToRecipeDetails: () -> Unit,
     modifier: Modifier = Modifier,
     recipeUiState: RecipeUiState,
     onRecipeValueChange: (RecipeDao) -> Unit,
@@ -82,7 +98,11 @@ fun RecipeEditScreenStateCollector(
     unusedTagList: List<Tag>,
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
-    isTagListPopupOpen: Boolean = false
+    isTagListPopupOpen: Boolean = false,
+    takeImage: () -> Unit,
+    pickImage: () -> Unit,
+    clearImage: () -> Unit,
+    recipeImage: ImageBitmap?
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -102,9 +122,12 @@ fun RecipeEditScreenStateCollector(
             onSaveClick = {
                 coroutineScope.launch {
                     updateRecipe()
-                    navigateBack()
+                    navigateToRecipeDetails()
                 }
             },
+            onTakeImage = takeImage,
+            onPickImage = pickImage,
+            onClearImage = clearImage,
             unusedTagList = unusedTagList,
             modifier = Modifier
                 .padding(
@@ -115,7 +138,8 @@ fun RecipeEditScreenStateCollector(
                 .verticalScroll(rememberScrollState()),
             openTagListPopup = openTagListPopup,
             closeTagListPopup = closeTagListPopup,
-            isTagListPopupOpen = isTagListPopupOpen
+            isTagListPopupOpen = isTagListPopupOpen,
+            recipeImage = recipeImage
         )
     }
 }
@@ -130,12 +154,17 @@ fun RecipeEditScreenPhonePreview() {
             ScreenSize.SMALL,
             navigateBack = {},
             onNavigateUp = {},
+            navigateToRecipeDetails = {},
             recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDao()),
             onRecipeValueChange = {},
             updateRecipe = {},
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            takeImage = {},
+            pickImage = {},
+            clearImage = {},
+            recipeImage = RecipeExamples.recipeImageBitmap
         )
     }
 }
@@ -148,12 +177,17 @@ fun RecipeEditScreenTabletPreview() {
             ScreenSize.LARGE,
             navigateBack = {},
             onNavigateUp = {},
+            navigateToRecipeDetails = {},
             recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDao()),
             onRecipeValueChange = {},
             updateRecipe = {},
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            takeImage = {},
+            pickImage = {},
+            clearImage = {},
+            recipeImage = RecipeExamples.recipeImageBitmap
         )
     }
 }
