@@ -4,9 +4,10 @@ import android.content.res.Resources
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.asImageBitmap
 import com.example.recipebook.R
-import com.example.recipebook.data.objects.ingredient.IngredientExamples
+import com.example.recipebook.data.objects.ingredientGroup.IngredientGroupExamples
 import com.example.recipebook.data.objects.tag.TagExamples
 import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.ext.toRealmList
 import org.mongodb.kbson.BsonObjectId
 
 class RecipeExamples {
@@ -19,11 +20,8 @@ class RecipeExamples {
                 "Esempio procedimento 1.1",
                 "Esempio procedimento 1.2"
             ),
-            ingredients = realmListOf(
-                IngredientExamples.ingredientA,
-                IngredientExamples.ingredientB
-            ),
-            tags = realmListOf(
+            ingredientGroupList = IngredientGroupExamples.ingredientGroupList.toRealmList(),
+            tagList = realmListOf(
                 TagExamples.tag1,
                 TagExamples.tag2
             ),
@@ -40,11 +38,10 @@ class RecipeExamples {
                 "Esempio procedimento 2.1",
                 "Esempio procedimento 2.2"
             ),
-            ingredients = realmListOf(
-                IngredientExamples.ingredientC,
-                IngredientExamples.ingredientD
+            ingredientGroupList = realmListOf(
+                IngredientGroupExamples.ingredientGroupA
             ),
-            tags = realmListOf(
+            tagList = realmListOf(
                 TagExamples.tag3,
                 TagExamples.tag4
             ),
@@ -61,13 +58,11 @@ class RecipeExamples {
                 "Esempio procedimento 3.1",
                 "Esempio procedimento 3.2"
             ),
-            ingredients = realmListOf(
-                IngredientExamples.ingredientA,
-                IngredientExamples.ingredientB,
-                IngredientExamples.ingredientC,
-                IngredientExamples.ingredientD
+            ingredientGroupList = realmListOf(
+                IngredientGroupExamples.ingredientGroupA,
+                IngredientGroupExamples.ingredientGroupB
             ),
-            tags = realmListOf(
+            tagList = realmListOf(
                 TagExamples.tag1,
                 TagExamples.tag2,
                 TagExamples.tag3,

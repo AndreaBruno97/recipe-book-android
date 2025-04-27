@@ -32,6 +32,7 @@
     <string name="edit_tag_button_text">Modifica Tag</string>
     <string name="formLegend_mandatoryFields">* Campi obbligatori</string>
     <string name="recipeForm_addIngredient">Aggiungi ingrediente</string>
+    <string name="recipeForm_addIngredientGroup">Aggiungi titolo gruppo</string>
     <string name="recipeForm_addTag">Aggiungi tag</string>
     <string name="recipeForm_addMethod">Aggiungi procedimento</string>
     <string name="save_button_label">Salva</string>

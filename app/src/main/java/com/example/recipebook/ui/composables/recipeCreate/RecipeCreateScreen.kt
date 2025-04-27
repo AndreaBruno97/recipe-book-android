@@ -57,7 +57,7 @@ fun RecipeCreateScreen(
 
     val recipeUiState = viewModel.recipeUiState
     val tagListUiState by viewModel.tagListUiState.collectAsState()
-    val usedTagIdList = recipeUiState.recipeDao.tags.map { it._id }
+    val usedTagIdList = recipeUiState.recipeDao.tagList.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
 
     RecipeCreateScreenStateCollector(

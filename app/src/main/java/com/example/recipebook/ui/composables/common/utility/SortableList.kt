@@ -32,9 +32,9 @@ import com.example.recipebook.ui.theme.SortableList_ItemGoUp
 fun <T> SortableList(
     itemList: List<T>,
     updateList: (List<T>) -> Unit,
-    onClickNewItem: () -> Unit,
-    newItemButtonIcon: ImageVector,
-    @StringRes newItemButtonText: Int,
+    onClickNewItem: (() -> Unit)?,
+    newItemButtonIcon: ImageVector?,
+    @StringRes newItemButtonText: Int?,
     enabled: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable() (
@@ -106,15 +106,21 @@ fun <T> SortableList(
             }
         }
 
-        Button(
-            onClick = onClickNewItem
+        if (
+            onClickNewItem != null &&
+            newItemButtonIcon != null &&
+            newItemButtonText != null
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Icon(imageVector = newItemButtonIcon, contentDescription = "")
-                Text(
-                    text = stringResource(id = newItemButtonText),
-                    modifier = Modifier.weight(1F)
-                )
+            Button(
+                onClick = onClickNewItem
+            ) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Icon(imageVector = newItemButtonIcon, contentDescription = "")
+                    Text(
+                        text = stringResource(id = newItemButtonText),
+                        modifier = Modifier.weight(1F)
+                    )
+                }
             }
         }
     }
@@ -132,6 +138,23 @@ private fun SortableListPreview() {
             onClickNewItem = {},
             newItemButtonIcon = Icons.Default.Add,
             newItemButtonText = R.string.recipe_ingredients,
+            enabled = true
+        ) { name, index, modifier ->
+            Text(name, modifier)
+        }
+    }
+}
+
+@DefaultPreview
+@Composable
+private fun SortableListNoButtonPreview() {
+    RecipeBookTheme {
+        SortableList<String>(
+            itemList = listOf("AAA", "BBB", "CCC"),
+            updateList = {},
+            onClickNewItem = null,
+            newItemButtonIcon = null,
+            newItemButtonText = null,
             enabled = true
         ) { name, index, modifier ->
             Text(name, modifier)

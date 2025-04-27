@@ -47,9 +47,9 @@ fun RecipeTagsInput(
         Text(stringResource(R.string.recipe_tags))
 
         SortableList<TagDao>(
-            itemList = recipeDao.tags,
+            itemList = recipeDao.tagList,
             updateList = { tagList ->
-                onValueChange(recipeDao.copy(tags = tagList))
+                onValueChange(recipeDao.copy(tagList = tagList))
             },
             onClickNewItem = openTagListPopup,
             newItemButtonIcon = RecipeForm_AddTag,
@@ -76,7 +76,7 @@ fun RecipeTagsInput(
                     onTagSelect = {
                         onValueChange(
                             recipeDao.copy(
-                                tags = recipeDao.tags
+                                tagList = recipeDao.tagList
                                     .plus(it.toTagDao())
                             )
                         )

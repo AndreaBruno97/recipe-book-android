@@ -1,6 +1,7 @@
 package com.example.recipebook.data.builder
 
 import com.example.recipebook.data.objects.ingredient.Ingredient
+import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.tag.Tag
 import io.realm.kotlin.Realm
@@ -13,6 +14,7 @@ class DbBuilder {
         fun getDb(): Realm {
             val schema = setOf(
                 Recipe::class,
+                IngredientGroup::class,
                 Ingredient::class,
                 Tag::class
             )

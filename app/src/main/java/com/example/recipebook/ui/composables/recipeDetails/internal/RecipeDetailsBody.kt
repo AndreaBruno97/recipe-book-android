@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.ingredient.Ingredient
+import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
@@ -120,27 +121,40 @@ private fun RecipeDetails(
         }
 
         Text(stringResource(R.string.recipe_tags), style = MaterialTheme.typography.titleMedium)
-        Text(recipe.tags.joinToString(separator = ", ", transform = { it.name }))
+        Text(recipe.tagList.joinToString(separator = ", ", transform = { it.name }))
 
         Text(
             stringResource(R.string.recipe_ingredients),
             style = MaterialTheme.typography.titleMedium
         )
-        for (ingredient in recipe.ingredients) {
-            var quantityString = ""
-            val quantity = ingredient.quantity
 
-            if (quantity != null) {
-                val formattedQuantity = quantity
-                    .toBigDecimal()
-                    .setScale(2, RoundingMode.HALF_UP)
-                    .stripTrailingZeros()
-                    .toPlainString()
+        for ((index, ingredientGroup) in recipe.ingredientGroupList.withIndex()) {
+            val title = ingredientGroup.title
 
-                quantityString = "${formattedQuantity} "
+            if (title != null) {
+                Text(title, style = MaterialTheme.typography.titleSmall)
             }
 
-            Text("${ingredient.name}: ${quantityString}${ingredient.value}")
+            for (ingredient in ingredientGroup.ingredientList) {
+                var quantityString = ""
+                val quantity = ingredient.quantity
+
+                if (quantity != null) {
+                    val formattedQuantity = quantity
+                        .toBigDecimal()
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .stripTrailingZeros()
+                        .toPlainString()
+
+                    quantityString = "${formattedQuantity} "
+                }
+
+                Text("${ingredient.name}: ${quantityString}${ingredient.value}")
+            }
+
+            if (index < recipe.ingredientGroupList.size - 1) {
+                HorizontalDivider()
+            }
         }
 
         Text(stringResource(R.string.recipe_method), style = MaterialTheme.typography.titleMedium)
@@ -220,15 +234,20 @@ fun IngredientQuantityFormattingPreview() {
     RecipeBookTheme {
         RecipeDetailsBody(
             RecipeDetailsUiState(RecipeExamples.recipe1.apply {
-                ingredients = realmListOf(
-                    Ingredient("a", 1F, "a"),
-                    Ingredient("a", 12F, "a"),
-                    Ingredient("a", 123F, "a"),
-                    Ingredient("a", 1.016F, "a"),
-                    Ingredient("a", 320F, "a"),
-                    Ingredient("a", 21.010101F, "a"),
-                    Ingredient("a", 1231.010000F, "a"),
-                    Ingredient("a", 10.001002F, "a")
+                ingredientGroupList = realmListOf(
+                    IngredientGroup(
+                        "Test decimali",
+                        ingredientList = realmListOf(
+                            Ingredient("a", 1F, "a"),
+                            Ingredient("a", 12F, "a"),
+                            Ingredient("a", 123F, "a"),
+                            Ingredient("a", 1.016F, "a"),
+                            Ingredient("a", 320F, "a"),
+                            Ingredient("a", 21.010101F, "a"),
+                            Ingredient("a", 1231.010000F, "a"),
+                            Ingredient("a", 10.001002F, "a")
+                        )
+                    )
                 )
             }),
             recipeImage = RecipeExamples.recipeImageBitmap,
