@@ -27,6 +27,8 @@
     <string name="recipe_pickImage">Scegli foto</string>
     <string name="recipe_clearImage">Cancella foto</string>
     <string name="tag_name">Nome</string>
+    <string name="tag_icon">Icona: %1$s</string>
+    <string name="tag_icon_empty">-</string>
     <string name="delete_button_text">Cancella</string>
     <string name="edit_recipe_button_text">Modifica Ricetta</string>
     <string name="edit_tag_button_text">Modifica Tag</string>

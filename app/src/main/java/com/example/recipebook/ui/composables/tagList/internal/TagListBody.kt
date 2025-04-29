@@ -89,13 +89,18 @@ private fun TagRow(
     modifier: Modifier = Modifier,
     onDelete: (Tag) -> Unit
 ) {
+    var rowText = tag.name
+    if (tag.icon != null) {
+        rowText = "${tag.icon} $rowText"
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = tag.name,
-            modifier = modifier
-
+            text = rowText,
+            modifier = modifier,
+            color = tag.colorObj
         )
         IconButton(
             onClick = { onDelete(tag) }

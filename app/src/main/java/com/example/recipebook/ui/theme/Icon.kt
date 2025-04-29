@@ -19,6 +19,7 @@ val RecipeForm_AddMethod = Icons.Default.Add
 
 val TagList_FabAddTag = Icons.Default.Add
 val TagForm_DeleteTag = Icons.Default.Close
+val TagForm_DeleteIcon = Icons.Default.Close
 
 val SortableList_ItemGoUp = Icons.Default.KeyboardArrowUp
 val SortableList_ItemGoDown = Icons.Default.KeyboardArrowDown

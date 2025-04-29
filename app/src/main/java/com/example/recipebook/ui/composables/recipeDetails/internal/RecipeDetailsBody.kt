@@ -1,8 +1,12 @@
+@file:OptIn(ExperimentalLayoutApi::class)
+
 package com.example.recipebook.ui.composables.recipeDetails.internal
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,10 +29,12 @@ import com.example.recipebook.data.objects.ingredient.Ingredient
 import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
+import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.ext.toRealmList
 import java.math.RoundingMode
 
 @Composable
@@ -121,7 +127,24 @@ private fun RecipeDetails(
         }
 
         Text(stringResource(R.string.recipe_tags), style = MaterialTheme.typography.titleMedium)
-        Text(recipe.tagList.joinToString(separator = ", ", transform = { it.name }))
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            for (tag in recipe.tagList) {
+                val tagName = if (tag.icon != null) {
+                    "${tag.icon} ${tag.name}"
+                } else {
+                    tag.name
+                }
+
+                Text(
+                    text = tagName,
+                    color = tag.colorObj,
+                    modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_small))
+                )
+            }
+        }
 
         Text(
             stringResource(R.string.recipe_ingredients),
@@ -219,6 +242,7 @@ fun RecipeDetailsBodyEmptyFieldsPreview() {
                 prepTimeMinutes = null
                 cookTimeMinutes = null
                 isFavorite = false
+                tagList = TagExamples.tagList.plus(TagExamples.tagList).toRealmList()
             }),
             recipeImage = RecipeExamples.recipeImageBitmap,
             onDelete = {},

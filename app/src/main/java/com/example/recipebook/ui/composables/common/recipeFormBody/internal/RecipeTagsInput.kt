@@ -73,6 +73,7 @@ fun RecipeTagsInput(
             ) {
                 TagListPopupContent(
                     tagList = unusedTagList,
+                    enabled = enabled,
                     onTagSelect = {
                         onValueChange(
                             recipeDao.copy(
@@ -93,12 +94,19 @@ private fun TagInputLine(
     modifier: Modifier = Modifier,
     enabled: Boolean
 ) {
+    val tagName = if (tag.icon != null) {
+        "${tag.icon} ${tag.name}"
+    } else {
+        tag.name
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
         Text(
-            tag.name
+            text = tagName,
+            color = tag.color
         )
     }
 }
@@ -106,6 +114,7 @@ private fun TagInputLine(
 @Composable
 private fun TagListPopupContent(
     tagList: List<Tag>,
+    enabled: Boolean,
     onTagSelect: (Tag) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -113,16 +122,16 @@ private fun TagListPopupContent(
         modifier = modifier
     ) {
         items(tagList) { tag ->
-            Row(
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_medium))
+            TagInputLine(
+                tag = tag.toTagDao(),
+                enabled = enabled,
+                modifier = modifier
                     .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.padding_medium))
                     .clickable {
                         onTagSelect(tag)
                     }
-            ) {
-                Text(tag.name)
-            }
+            )
         }
     }
 }
@@ -161,6 +170,7 @@ private fun TagListPopupContentPreview() {
     RecipeBookTheme {
         TagListPopupContent(
             tagList = TagExamples.tagList,
+            enabled = true,
             onTagSelect = {}
         )
     }

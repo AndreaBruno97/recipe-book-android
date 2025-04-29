@@ -42,7 +42,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -70,4 +69,7 @@ dependencies {
 
     // WindowSizeClass
     implementation(libs.androidx.material3.windowSizeClass)
+
+    // Emoji Picker
+    implementation(libs.androidx.emoji2.emojipicker)
 }
