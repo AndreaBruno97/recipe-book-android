@@ -7,11 +7,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Refresh
 
 val TopAppBar_Back = Icons.AutoMirrored.Filled.ArrowBack
 
 val Home_FabAddRecipe = Icons.Default.Add
 val Home_FabTagList = Icons.AutoMirrored.Filled.List
+
+val RecipeDetails_ResetServingsNum = Icons.Default.Refresh
 
 val RecipeForm_AddIngredient = Icons.Default.Add
 val RecipeForm_AddTag = Icons.Default.Add

@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -33,6 +36,7 @@ import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import com.example.recipebook.ui.theme.RecipeDetails_ResetServingsNum
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
 import java.math.RoundingMode
@@ -40,12 +44,17 @@ import java.math.RoundingMode
 @Composable
 fun RecipeDetailsBody(
     recipeDetailsUiState: RecipeDetailsUiState,
-    recipeImage: ImageBitmap? = null,
-    onDelete: () -> Unit,
     modifier: Modifier = Modifier,
+    recipeImage: ImageBitmap? = null,
+    curServingsNum: Int? = null,
     isDeletePopupOpen: Boolean = false,
+    servingsRatio: Float? = null,
     openDeletePopup: () -> Unit,
-    closeDeletePopup: () -> Unit
+    onDelete: () -> Unit,
+    closeDeletePopup: () -> Unit,
+    increaseServingsNum: () -> Unit,
+    decreaseServingsNum: () -> Unit,
+    resetServingsNum: () -> Unit
 ) {
     Column(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
@@ -53,8 +62,13 @@ fun RecipeDetailsBody(
     ) {
         RecipeDetails(
             recipe = recipeDetailsUiState.recipe,
+            modifier = Modifier.fillMaxWidth(),
             recipeImage = recipeImage,
-            modifier = Modifier.fillMaxWidth()
+            curServingsNum = curServingsNum,
+            servingsRatio = servingsRatio,
+            increaseServingsNum = increaseServingsNum,
+            decreaseServingsNum = decreaseServingsNum,
+            resetServingsNum = resetServingsNum
         )
         OutlinedButton(
             onClick = openDeletePopup,
@@ -79,8 +93,14 @@ fun RecipeDetailsBody(
 
 @Composable
 private fun RecipeDetails(
-    recipe: Recipe, modifier: Modifier = Modifier,
-    recipeImage: ImageBitmap? = null
+    recipe: Recipe,
+    modifier: Modifier = Modifier,
+    recipeImage: ImageBitmap? = null,
+    curServingsNum: Int? = null,
+    servingsRatio: Float? = null,
+    increaseServingsNum: () -> Unit,
+    decreaseServingsNum: () -> Unit,
+    resetServingsNum: () -> Unit
 ) {
     Column(modifier = modifier) {
         Text(recipe.name, style = MaterialTheme.typography.titleLarge)
@@ -99,7 +119,25 @@ private fun RecipeDetails(
                 stringResource(R.string.recipe_servingsNum) + ": ",
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(if (recipe.servingsNum == null) "-" else recipe.servingsNum.toString())
+            Text(curServingsNum?.toString() ?: "-")
+            Button(
+                onClick = decreaseServingsNum,
+                enabled = curServingsNum != null && curServingsNum > 1
+            ) {
+                Text("-")
+            }
+            Button(
+                onClick = increaseServingsNum,
+                enabled = curServingsNum != null
+            ) {
+                Text("+")
+            }
+            IconButton(
+                onClick = resetServingsNum,
+                enabled = curServingsNum != null && curServingsNum != recipe.servingsNum
+            ) {
+                Icon(imageVector = RecipeDetails_ResetServingsNum, contentDescription = "")
+            }
         }
 
         Row {
@@ -160,9 +198,13 @@ private fun RecipeDetails(
 
             for (ingredient in ingredientGroup.ingredientList) {
                 var quantityString = ""
-                val quantity = ingredient.quantity
+                var quantity = ingredient.quantity
 
                 if (quantity != null) {
+                    if (servingsRatio != null) {
+                        quantity *= servingsRatio
+                    }
+
                     val formattedQuantity = quantity
                         .toBigDecimal()
                         .setScale(2, RoundingMode.HALF_UP)
@@ -225,9 +267,13 @@ fun RecipeDetailsBodyPreview() {
         RecipeDetailsBody(
             RecipeDetailsUiState(RecipeExamples.recipe1),
             recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = RecipeExamples.recipe1.servingsNum,
             onDelete = {},
             openDeletePopup = {},
-            closeDeletePopup = {}
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {}
         )
     }
 }
@@ -245,9 +291,13 @@ fun RecipeDetailsBodyEmptyFieldsPreview() {
                 tagList = TagExamples.tagList.plus(TagExamples.tagList).toRealmList()
             }),
             recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = RecipeExamples.recipe1.servingsNum,
             onDelete = {},
             openDeletePopup = {},
-            closeDeletePopup = {}
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {}
         )
     }
 }
@@ -275,9 +325,13 @@ fun IngredientQuantityFormattingPreview() {
                 )
             }),
             recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = 4,
             onDelete = {},
             openDeletePopup = {},
-            closeDeletePopup = {}
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {}
         )
     }
 }

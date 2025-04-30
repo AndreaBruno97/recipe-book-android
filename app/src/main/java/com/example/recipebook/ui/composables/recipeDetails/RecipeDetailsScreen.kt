@@ -64,10 +64,15 @@ fun RecipeDetailsScreen(
         modifier = modifier,
         uiState = uiState.value,
         recipeImage = viewModel.recipeImage,
+        curServingsNum = viewModel.curServingsNum,
+        servingsRatio = viewModel.servingsRatio,
         deleteRecipe = { viewModel.deleteRecipe(currentContext) },
         isDeletePopupOpen = viewModel.isDeletePopupOpen,
         openDeletePopup = viewModel::openDeletePopup,
-        closeDeletePopup = viewModel::closeDeletePopup
+        closeDeletePopup = viewModel::closeDeletePopup,
+        increaseServingsNum = viewModel::increaseServingsNum,
+        decreaseServingsNum = viewModel::decreaseServingsNum,
+        resetServingsNum = viewModel::resetServingsNum
     )
 }
 
@@ -79,10 +84,15 @@ fun RecipeDetailsScreenStateCollector(
     modifier: Modifier = Modifier,
     uiState: RecipeDetailsUiState,
     recipeImage: ImageBitmap? = null,
+    curServingsNum: Int? = null,
+    servingsRatio: Float? = null,
     deleteRecipe: suspend () -> Unit,
     isDeletePopupOpen: Boolean = false,
     openDeletePopup: () -> Unit,
-    closeDeletePopup: () -> Unit
+    closeDeletePopup: () -> Unit,
+    increaseServingsNum: () -> Unit,
+    decreaseServingsNum: () -> Unit,
+    resetServingsNum: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -111,6 +121,7 @@ fun RecipeDetailsScreenStateCollector(
         RecipeDetailsBody(
             recipeDetailsUiState = uiState,
             recipeImage = recipeImage,
+            curServingsNum = curServingsNum,
             onDelete = {
                 coroutineScope.launch {
                     deleteRecipe()
@@ -126,7 +137,11 @@ fun RecipeDetailsScreenStateCollector(
                 .verticalScroll(rememberScrollState()),
             isDeletePopupOpen = isDeletePopupOpen,
             openDeletePopup = openDeletePopup,
-            closeDeletePopup = closeDeletePopup
+            closeDeletePopup = closeDeletePopup,
+            servingsRatio = servingsRatio,
+            increaseServingsNum = increaseServingsNum,
+            decreaseServingsNum = decreaseServingsNum,
+            resetServingsNum = resetServingsNum
         )
     }
 }
@@ -143,9 +158,13 @@ fun RecipeDetailsScreenPhonePreview() {
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
             recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = RecipeExamples.recipe1.servingsNum,
             deleteRecipe = {},
             openDeletePopup = {},
-            closeDeletePopup = {}
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {}
         )
     }
 }
@@ -160,9 +179,13 @@ fun RecipeDetailsScreenTabletPreview() {
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
             recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = RecipeExamples.recipe1.servingsNum,
             deleteRecipe = {},
             openDeletePopup = {},
-            closeDeletePopup = {}
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {}
         )
     }
 }
@@ -177,10 +200,14 @@ fun DeletePopupPhonePreview() {
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
             recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = RecipeExamples.recipe1.servingsNum,
             deleteRecipe = {},
             isDeletePopupOpen = true,
             openDeletePopup = {},
-            closeDeletePopup = {}
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {}
         )
     }
 }

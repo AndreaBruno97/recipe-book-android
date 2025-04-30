@@ -32,6 +32,8 @@ class RecipeDetailsViewModel(
         recipeRepository.getRecipeById(recipeId)
             .filterNotNull()
             .map {
+                curServingsNum = it.servingsNum
+
                 RecipeDetailsUiState(it)
             }
             .stateIn(
@@ -39,6 +41,24 @@ class RecipeDetailsViewModel(
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = RecipeDetailsUiState()
             )
+
+    var curServingsNum: Int? by mutableStateOf(null)
+
+    val servingsRatio: Float?
+        get() {
+            val baseServingsNum = uiState.value.recipe.servingsNum
+            val curServingsNum = curServingsNum
+
+            return if (
+                baseServingsNum != null &&
+                curServingsNum != null &&
+                baseServingsNum != 0
+            ) {
+                curServingsNum.toFloat() / baseServingsNum
+            } else {
+                null
+            }
+        }
 
     var isDeletePopupOpen by mutableStateOf(false)
         private set
@@ -51,6 +71,26 @@ class RecipeDetailsViewModel(
 
     fun closeDeletePopup() {
         isDeletePopupOpen = false
+    }
+
+    fun increaseServingsNum() {
+        val curServingsNumTmp = curServingsNum
+
+        if (curServingsNumTmp != null) {
+            curServingsNum = curServingsNumTmp + 1
+        }
+    }
+
+    fun decreaseServingsNum() {
+        val curServingsNumTmp = curServingsNum
+
+        if (curServingsNumTmp != null && curServingsNumTmp > 1) {
+            curServingsNum = curServingsNumTmp - 1
+        }
+    }
+
+    fun resetServingsNum() {
+        curServingsNum = uiState.value.recipe.servingsNum
     }
 
     suspend fun deleteRecipe(context: Context) {
