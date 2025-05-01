@@ -40,8 +40,8 @@ class DbFunc {
 
         suspend inline fun <reified T : RealmObject> delete(realm: Realm, record: T) {
             realm.write {
-                val latestRecipe = findLatest(record) ?: return@write
-                delete(latestRecipe)
+                val latestRecord = findLatest(record) ?: return@write
+                delete(latestRecord)
             }
         }
     }

@@ -68,11 +68,14 @@ fun RecipeDetailsScreen(
         servingsRatio = viewModel.servingsRatio,
         deleteRecipe = { viewModel.deleteRecipe(currentContext) },
         isDeletePopupOpen = viewModel.isDeletePopupOpen,
+        curIsFavorite = viewModel.curIsFavorite,
+        enabled = (!viewModel.isLoading),
         openDeletePopup = viewModel::openDeletePopup,
         closeDeletePopup = viewModel::closeDeletePopup,
         increaseServingsNum = viewModel::increaseServingsNum,
         decreaseServingsNum = viewModel::decreaseServingsNum,
-        resetServingsNum = viewModel::resetServingsNum
+        resetServingsNum = viewModel::resetServingsNum,
+        toggleIsFavorite = viewModel::toggleIsFavorite
     )
 }
 
@@ -88,11 +91,14 @@ fun RecipeDetailsScreenStateCollector(
     servingsRatio: Float? = null,
     deleteRecipe: suspend () -> Unit,
     isDeletePopupOpen: Boolean = false,
+    curIsFavorite: Boolean = true,
+    enabled: Boolean = true,
     openDeletePopup: () -> Unit,
     closeDeletePopup: () -> Unit,
     increaseServingsNum: () -> Unit,
     decreaseServingsNum: () -> Unit,
-    resetServingsNum: () -> Unit
+    resetServingsNum: () -> Unit,
+    toggleIsFavorite: suspend () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -136,12 +142,19 @@ fun RecipeDetailsScreenStateCollector(
                 )
                 .verticalScroll(rememberScrollState()),
             isDeletePopupOpen = isDeletePopupOpen,
+            curIsFavorite = curIsFavorite,
+            enabled = enabled,
             openDeletePopup = openDeletePopup,
             closeDeletePopup = closeDeletePopup,
             servingsRatio = servingsRatio,
             increaseServingsNum = increaseServingsNum,
             decreaseServingsNum = decreaseServingsNum,
-            resetServingsNum = resetServingsNum
+            resetServingsNum = resetServingsNum,
+            toggleIsFavorite = {
+                coroutineScope.launch {
+                    toggleIsFavorite()
+                }
+            }
         )
     }
 }
@@ -164,7 +177,8 @@ fun RecipeDetailsScreenPhonePreview() {
             closeDeletePopup = {},
             increaseServingsNum = {},
             decreaseServingsNum = {},
-            resetServingsNum = {}
+            resetServingsNum = {},
+            toggleIsFavorite = {}
         )
     }
 }
@@ -185,7 +199,8 @@ fun RecipeDetailsScreenTabletPreview() {
             closeDeletePopup = {},
             increaseServingsNum = {},
             decreaseServingsNum = {},
-            resetServingsNum = {}
+            resetServingsNum = {},
+            toggleIsFavorite = {}
         )
     }
 }
@@ -207,7 +222,8 @@ fun DeletePopupPhonePreview() {
             closeDeletePopup = {},
             increaseServingsNum = {},
             decreaseServingsNum = {},
-            resetServingsNum = {}
+            resetServingsNum = {},
+            toggleIsFavorite = {}
         )
     }
 }

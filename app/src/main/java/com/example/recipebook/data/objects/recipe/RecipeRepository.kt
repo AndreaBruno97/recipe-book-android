@@ -2,6 +2,7 @@ package com.example.recipebook.data.objects.recipe
 
 import com.example.recipebook.data.utility.DbFunc
 import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
 import org.mongodb.kbson.ObjectId
 
@@ -25,6 +26,17 @@ class RecipeRepository(private val realm: Realm) {
 
     suspend fun removeRecipe(recipe: Recipe) {
         DbFunc.delete(realm, recipe)
+    }
+
+    suspend fun setIsFavorite(_id: ObjectId, isFavorite: Boolean) {
+        val recipeToUpdate = realm
+            .query<Recipe>("_id = $0", _id)
+            .find()
+            .first()
+
+        realm.write {
+            findLatest(recipeToUpdate)?.isFavorite = isFavorite
+        }
     }
 
 }

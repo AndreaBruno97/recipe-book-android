@@ -33,6 +33,8 @@ class RecipeDetailsViewModel(
             .filterNotNull()
             .map {
                 curServingsNum = it.servingsNum
+                curIsFavorite = it.isFavorite
+                isLoading = false
 
                 RecipeDetailsUiState(it)
             }
@@ -43,6 +45,8 @@ class RecipeDetailsViewModel(
             )
 
     var curServingsNum: Int? by mutableStateOf(null)
+    var curIsFavorite: Boolean by mutableStateOf(false)
+    var isLoading: Boolean by mutableStateOf(true)
 
     val servingsRatio: Float?
         get() {
@@ -108,6 +112,16 @@ class RecipeDetailsViewModel(
         if (recipeImage == null) {
             recipeImage = loadRecipeImage(recipeId, context)
         }
+    }
+
+    suspend fun toggleIsFavorite() {
+        isLoading = true
+        val newIsFavorite = !uiState.value.recipe.isFavorite
+
+        recipeRepository.setIsFavorite(uiState.value.recipe._id, newIsFavorite)
+
+        curIsFavorite = newIsFavorite
+        isLoading = false
     }
 
     companion object {

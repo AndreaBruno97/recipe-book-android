@@ -18,9 +18,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -48,13 +50,16 @@ fun RecipeDetailsBody(
     recipeImage: ImageBitmap? = null,
     curServingsNum: Int? = null,
     isDeletePopupOpen: Boolean = false,
+    curIsFavorite: Boolean = true,
+    enabled: Boolean = true,
     servingsRatio: Float? = null,
     openDeletePopup: () -> Unit,
     onDelete: () -> Unit,
     closeDeletePopup: () -> Unit,
     increaseServingsNum: () -> Unit,
     decreaseServingsNum: () -> Unit,
-    resetServingsNum: () -> Unit
+    resetServingsNum: () -> Unit,
+    toggleIsFavorite: () -> Unit
 ) {
     Column(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
@@ -66,14 +71,18 @@ fun RecipeDetailsBody(
             recipeImage = recipeImage,
             curServingsNum = curServingsNum,
             servingsRatio = servingsRatio,
+            curIsFavorite = curIsFavorite,
+            enabled = enabled,
             increaseServingsNum = increaseServingsNum,
             decreaseServingsNum = decreaseServingsNum,
-            resetServingsNum = resetServingsNum
+            resetServingsNum = resetServingsNum,
+            toggleIsFavorite = toggleIsFavorite
         )
         OutlinedButton(
             onClick = openDeletePopup,
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = enabled
         ) {
             Text(stringResource(R.string.delete_button_text))
         }
@@ -98,9 +107,12 @@ private fun RecipeDetails(
     recipeImage: ImageBitmap? = null,
     curServingsNum: Int? = null,
     servingsRatio: Float? = null,
+    curIsFavorite: Boolean = false,
+    enabled: Boolean = true,
     increaseServingsNum: () -> Unit,
     decreaseServingsNum: () -> Unit,
-    resetServingsNum: () -> Unit
+    resetServingsNum: () -> Unit,
+    toggleIsFavorite: () -> Unit
 ) {
     Column(modifier = modifier) {
         Text(recipe.name, style = MaterialTheme.typography.titleLarge)
@@ -122,19 +134,19 @@ private fun RecipeDetails(
             Text(curServingsNum?.toString() ?: "-")
             Button(
                 onClick = decreaseServingsNum,
-                enabled = curServingsNum != null && curServingsNum > 1
+                enabled = enabled && curServingsNum != null && curServingsNum > 1
             ) {
                 Text("-")
             }
             Button(
                 onClick = increaseServingsNum,
-                enabled = curServingsNum != null
+                enabled = enabled && curServingsNum != null
             ) {
                 Text("+")
             }
             IconButton(
                 onClick = resetServingsNum,
-                enabled = curServingsNum != null && curServingsNum != recipe.servingsNum
+                enabled = enabled && curServingsNum != null && curServingsNum != recipe.servingsNum
             ) {
                 Icon(imageVector = RecipeDetails_ResetServingsNum, contentDescription = "")
             }
@@ -156,12 +168,19 @@ private fun RecipeDetails(
             Text(if (recipe.cookTimeMinutes == null) "-" else recipe.cookTimeMinutes.toString())
         }
 
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
                 stringResource(R.string.recipe_isFavorite) + ": ",
                 style = MaterialTheme.typography.titleMedium
             )
-            Text(recipe.isFavorite.toString())
+            Text(curIsFavorite.toString())
+            RadioButton(
+                selected = curIsFavorite,
+                onClick = toggleIsFavorite,
+                enabled = enabled
+            )
         }
 
         Text(stringResource(R.string.recipe_tags), style = MaterialTheme.typography.titleMedium)
@@ -273,7 +292,8 @@ fun RecipeDetailsBodyPreview() {
             closeDeletePopup = {},
             increaseServingsNum = {},
             decreaseServingsNum = {},
-            resetServingsNum = {}
+            resetServingsNum = {},
+            toggleIsFavorite = {}
         )
     }
 }
@@ -297,7 +317,8 @@ fun RecipeDetailsBodyEmptyFieldsPreview() {
             closeDeletePopup = {},
             increaseServingsNum = {},
             decreaseServingsNum = {},
-            resetServingsNum = {}
+            resetServingsNum = {},
+            toggleIsFavorite = {}
         )
     }
 }
@@ -331,7 +352,8 @@ fun IngredientQuantityFormattingPreview() {
             closeDeletePopup = {},
             increaseServingsNum = {},
             decreaseServingsNum = {},
-            resetServingsNum = {}
+            resetServingsNum = {},
+            toggleIsFavorite = {}
         )
     }
 }
