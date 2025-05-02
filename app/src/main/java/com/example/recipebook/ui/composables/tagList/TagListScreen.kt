@@ -65,6 +65,7 @@ fun TagListScreen(
         navigateBack = navigateBack,
         tagList = tagListUiState.tagList,
         isPopupOpen = tagListViewModel.isPopupOpen,
+        validateName = tagViewModel.validateName,
         currentTagId = tagListViewModel.currentTagId,
         openPopup = {
             tagViewModel.loadTag(it)
@@ -75,15 +76,18 @@ fun TagListScreen(
         onTagValueChange = tagViewModel::updateUiState,
         onSaveClick = {
             coroutineScope.launch {
-                tagViewModel.updateTag()
-                tagListViewModel.closePopup()
+                val isTagSaved = tagViewModel.updateTag()
+                if (isTagSaved) {
+                    tagListViewModel.closePopup()
+                }
             }
         },
         onDelete = {
             coroutineScope.launch {
                 tagListViewModel.deleteTag(it)
             }
-        }
+        },
+        isNamePresent = tagViewModel::isNamePresent
     )
 }
 
@@ -94,13 +98,15 @@ fun TagListStateCollector(
     tagList: List<Tag>,
     modifier: Modifier = Modifier,
     isPopupOpen: Boolean = false,
+    validateName: Boolean = false,
     currentTagId: ObjectId? = null,
     openPopup: (ObjectId?) -> Unit,
     closePopup: () -> Unit,
     tagUiState: TagUiState,
     onTagValueChange: (TagDao) -> Unit,
     onSaveClick: () -> Unit,
-    onDelete: (Tag) -> Unit
+    onDelete: (Tag) -> Unit,
+    isNamePresent: () -> Boolean
 ) {
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -148,8 +154,10 @@ fun TagListStateCollector(
                 ) {
                     TagFormBody(
                         tagUiState = tagUiState,
+                        validateName = validateName,
                         onTagValueChange = onTagValueChange,
-                        onSaveClick = onSaveClick
+                        onSaveClick = onSaveClick,
+                        isNamePresent = isNamePresent
                     )
                 }
             }
@@ -172,7 +180,8 @@ fun TagListScreenPhonePreview() {
             tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
             onTagValueChange = {},
             onSaveClick = {},
-            onDelete = {}
+            onDelete = {},
+            isNamePresent = { false }
         )
     }
 }
@@ -191,7 +200,8 @@ fun TagListScreenPhonePopupPreview() {
             tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
             onTagValueChange = {},
             onSaveClick = {},
-            onDelete = {}
+            onDelete = {},
+            isNamePresent = { false }
         )
     }
 }

@@ -27,6 +27,7 @@
     <string name="recipe_pickImage">Scegli foto</string>
     <string name="recipe_clearImage">Cancella foto</string>
     <string name="tag_name">Nome</string>
+    <string name="tag_nameAlreadyPresent">Esiste già un Tag con questo nome</string>
     <string name="tag_icon">Icona: %1$s</string>
     <string name="tag_icon_empty">-</string>
     <string name="delete_button_text">Cancella</string>

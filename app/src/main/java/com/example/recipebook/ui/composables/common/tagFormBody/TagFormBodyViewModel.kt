@@ -31,13 +31,29 @@ class TagFormBodyViewModel(
         }
     }
 
-    fun updateUiState(tagDao: TagDao) {
-        tagUiState = TagUiState(tagDao = tagDao)
+    var validateName by mutableStateOf(false)
+        private set
+
+    fun isNamePresent(): Boolean {
+        return tagRepository.isNamePresent(tagUiState.tagDao.toTag())
     }
 
-    suspend fun updateTag() {
-        if (tagUiState.tagDao.validateInput()) {
+    fun updateUiState(tagDao: TagDao) {
+        tagUiState = TagUiState(tagDao = tagDao)
+        validateName = false
+    }
+
+    suspend fun updateTag(): Boolean {
+        val isNameUnique = isNamePresent() == false
+        val isInputValid = tagUiState.tagDao.validateInput()
+        val saveTag = isNameUnique && isInputValid
+
+        if (saveTag) {
             tagRepository.updateTag(tagUiState.tagDao.toTag())
+        } else {
+            validateName = true
         }
+
+        return saveTag
     }
 }

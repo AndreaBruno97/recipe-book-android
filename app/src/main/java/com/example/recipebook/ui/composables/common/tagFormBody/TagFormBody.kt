@@ -42,23 +42,28 @@ import com.example.recipebook.ui.theme.TagForm_DeleteIcon
 @Composable
 fun TagFormBody(
     tagUiState: TagUiState,
+    validateName: Boolean,
     onTagValueChange: (TagDao) -> Unit,
     onSaveClick: () -> Unit,
+    isNamePresent: () -> Boolean,
     modifier: Modifier = Modifier
 ) {
+    val isNamePresentFlag = isNamePresent()
+
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
         TagInputForm(
             tagDao = tagUiState.tagDao,
+            validateName = validateName,
             onValueChange = onTagValueChange,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isNamePresent = isNamePresentFlag
         )
 
         Button(
             onClick = onSaveClick,
-            enabled = tagUiState.tagDao.validateInput(),
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -70,18 +75,28 @@ fun TagFormBody(
 @Composable
 fun TagInputForm(
     tagDao: TagDao,
+    validateName: Boolean,
     modifier: Modifier = Modifier,
     onValueChange: (TagDao) -> Unit = {},
+    isNamePresent: Boolean,
     enabled: Boolean = true
 ) {
     val currentIconText = tagDao.icon ?: stringResource(R.string.tag_icon_empty)
+    val showRepeatedNameError = isNamePresent
+    val showEmptyNameError = validateName && tagDao.name.isBlank()
 
     OutlinedTextField(
         value = tagDao.name,
         onValueChange = { onValueChange(tagDao.copy(name = it)) },
         label = { Text(stringResource(R.string.tag_name)) },
         enabled = enabled,
-        modifier = modifier
+        modifier = modifier,
+        isError = showEmptyNameError || showRepeatedNameError,
+        supportingText = {
+            if (showRepeatedNameError) {
+                Text(stringResource(R.string.tag_nameAlreadyPresent))
+            }
+        }
     )
 
     LazyVerticalGrid(
@@ -152,6 +167,8 @@ fun TagInputForm(
     )
 }
 
+//region Preview
+
 @DefaultPreview
 @Composable
 private fun TagFormBodyScreenPreview() {
@@ -160,8 +177,45 @@ private fun TagFormBodyScreenPreview() {
             tagUiState = TagUiState(
                 TagExamples.tag1.toTagDao()
             ),
+            validateName = false,
             onTagValueChange = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            isNamePresent = { false }
         )
     }
 }
+
+@DefaultPreview
+@Composable
+private fun TagFormBodyRepeatedNameScreenPreview() {
+    RecipeBookTheme {
+        TagFormBody(
+            tagUiState = TagUiState(
+                TagExamples.tag1.toTagDao()
+            ),
+            validateName = false,
+            onTagValueChange = {},
+            onSaveClick = {},
+            isNamePresent = { true }
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+private fun TagFormBodyEmptyNameScreenPreview() {
+    RecipeBookTheme {
+        TagFormBody(
+            tagUiState = TagUiState(
+                TagExamples.tag1.toTagDao()
+                    .apply { name = "" }
+            ),
+            validateName = true,
+            onTagValueChange = {},
+            onSaveClick = {},
+            isNamePresent = { false }
+        )
+    }
+}
+
+//endregion

@@ -28,8 +28,11 @@ class TagRepository(private val realm: Realm) {
         DbFunc.delete(realm, tag)
     }
 
-    fun isNamePresent(name: String): Boolean {
-        val tagWithName = realm.query<Tag>("name = $0", name).first().find()
+    fun isNamePresent(tag: Tag): Boolean {
+        val tagWithName = realm
+            // [c] means the match is case insensitive
+            .query<Tag>("name =[c] $0 && _id != $1", tag.name, tag._id)
+            .first().find()
 
         return tagWithName != null
     }
