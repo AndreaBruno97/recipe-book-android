@@ -51,7 +51,7 @@ class RecipeEditViewModel(
         recipeUiState = RecipeUiState(recipeDao = recipeDao)
     }
 
-    suspend fun updateRecipe(context: Context) {
+    suspend fun updateRecipe(context: Context): Boolean {
         if (recipeUiState.recipeDao.validateInput()) {
             recipeRepository.updateRecipe(recipeUiState.recipeDao.toRecipe())
 
@@ -59,7 +59,13 @@ class RecipeEditViewModel(
             val recipeFilePath = getRecipeImagePath(recipeId)
 
             saveImage(recipeFolderPath, recipeFilePath, context)
+
+            return true
         }
+
+        updateUiState(recipeUiState.recipeDao.getInputValidationCopy())
+
+        return false
     }
 
     fun openTagListPopup() {

@@ -52,6 +52,9 @@ class RecipeCreateViewModel(
 
             return recipeId
         }
+
+        updateUiState(recipeUiState.recipeDao.getInputValidationCopy())
+
         return null
     }
 

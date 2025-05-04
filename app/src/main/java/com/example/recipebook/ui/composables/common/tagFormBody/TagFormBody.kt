@@ -20,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,6 +34,7 @@ import com.example.recipebook.data.objects.tag.TagDao
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.data.objects.tag.tagColorList
 import com.example.recipebook.data.objects.tag.toTagDao
+import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.theme.TagForm_DeleteIcon
@@ -84,19 +84,20 @@ fun TagInputForm(
     val currentIconText = tagDao.icon ?: stringResource(R.string.tag_icon_empty)
     val showRepeatedNameError = isNamePresent
     val showEmptyNameError = validateName && tagDao.name.isBlank()
+    val supportingText = if (showRepeatedNameError) {
+        stringResource(R.string.tag_nameAlreadyPresent)
+    } else {
+        null
+    }
 
-    OutlinedTextField(
+    TextInput(
         value = tagDao.name,
         onValueChange = { onValueChange(tagDao.copy(name = it)) },
-        label = { Text(stringResource(R.string.tag_name)) },
         enabled = enabled,
         modifier = modifier,
+        labelText = stringResource(R.string.tag_name),
         isError = showEmptyNameError || showRepeatedNameError,
-        supportingText = {
-            if (showRepeatedNameError) {
-                Text(stringResource(R.string.tag_nameAlreadyPresent))
-            }
-        }
+        supportingText = supportingText
     )
 
     LazyVerticalGrid(
@@ -208,7 +209,7 @@ private fun TagFormBodyEmptyNameScreenPreview() {
         TagFormBody(
             tagUiState = TagUiState(
                 TagExamples.tag1.toTagDao()
-                    .apply { name = "" }
+                    .copy(name = "")
             ),
             validateName = true,
             onTagValueChange = {},

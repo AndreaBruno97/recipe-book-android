@@ -5,17 +5,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.ingredient.IngredientDao
 import com.example.recipebook.data.objects.ingredient.IngredientExamples
@@ -28,6 +26,7 @@ import com.example.recipebook.data.objects.recipe.RecipeDao
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.ui.composables.common.utility.SortableList
+import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.theme.RecipeForm_AddIngredient
@@ -52,15 +51,35 @@ fun RecipeIngredientsInput(
             }
         }
 
+        if (
+            recipeDao.validateIngredientList &&
+            recipeDao.ingredientItemList.isNotEmpty() &&
+            recipeDao.ingredientItemList.none { it is IngredientDao }
+        ) {
+            // The list is not empty, but there are no actual ingredients
+
+            Text(
+                stringResource(id = R.string.formError_ingredientList_NoIngredients),
+                color = Color.Red
+            )
+        }
+
         SortableList<IngredientItemDao>(
             itemList = recipeDao.ingredientItemList,
             updateList = { ingredientItemList ->
-                onValueChange(recipeDao.copy(ingredientItemList = ingredientItemList))
+                onValueChange(
+                    recipeDao
+                        .copy(
+                            ingredientItemList = ingredientItemList,
+                            validateIngredientList = false
+                        )
+                )
             },
             onClickNewItem = null,
             newItemButtonIcon = null,
             newItemButtonText = null,
-            enabled = enabled
+            enabled = enabled,
+            showEmptyError = recipeDao.validateIngredientList
         ) { ingredientItem, index, modifier ->
             val newIngredientItem = newIngredientItemList[index]
 
@@ -70,18 +89,21 @@ fun RecipeIngredientsInput(
                     onNameChange = { newName ->
                         if (newIngredientItem is IngredientDao) {
                             newIngredientItem.name = newName
+                            newIngredientItem.validateName = false
                         }
                         onValueChange(recipeDao.copy(ingredientItemList = newIngredientItemList))
                     },
                     onQuantityChange = { newQuantity ->
                         if (newIngredientItem is IngredientDao) {
                             newIngredientItem.quantity = newQuantity
+                            newIngredientItem.validateQuantity = false
                         }
                         onValueChange(recipeDao.copy(ingredientItemList = newIngredientItemList))
                     },
                     onValueChange = { newValue ->
                         if (newIngredientItem is IngredientDao) {
                             newIngredientItem.value = newValue
+                            newIngredientItem.validateValue = false
                         }
                         onValueChange(recipeDao.copy(ingredientItemList = newIngredientItemList))
                     },
@@ -94,6 +116,7 @@ fun RecipeIngredientsInput(
                     onTitleChange = { newTitle ->
                         if (newIngredientItem is IngredientGroupTitleDao) {
                             newIngredientItem.title = newTitle
+                            newIngredientItem.validateTitle = false
                         }
                         onValueChange(recipeDao.copy(ingredientItemList = newIngredientItemList))
                     },
@@ -111,10 +134,12 @@ fun RecipeIngredientsInput(
             Button(
                 onClick = {
                     onValueChange(
-                        recipeDao.copy(
-                            ingredientItemList =
-                            recipeDao.ingredientItemList.plus(listOf(IngredientDao()))
-                        )
+                        recipeDao
+                            .copy(
+                                ingredientItemList =
+                                recipeDao.ingredientItemList.plus(listOf(IngredientDao())),
+                                validateIngredientList = false
+                            )
                     )
                 },
                 modifier = Modifier.weight(1F)
@@ -130,10 +155,12 @@ fun RecipeIngredientsInput(
             Button(
                 onClick = {
                     onValueChange(
-                        recipeDao.copy(
-                            ingredientItemList =
-                            recipeDao.ingredientItemList.plus(listOf(IngredientGroupTitleDao()))
-                        )
+                        recipeDao
+                            .copy(
+                                ingredientItemList =
+                                recipeDao.ingredientItemList.plus(listOf(IngredientGroupTitleDao())),
+                                validateIngredientList = false
+                            )
                     )
                 },
                 modifier = Modifier.weight(1F)
@@ -163,31 +190,35 @@ private fun IngredientInputLine(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        TextField(
+        TextInput(
             value = ingredient.name,
             onValueChange = onNameChange,
             enabled = enabled,
             modifier = Modifier.weight(weight = 4F),
-            maxLines = 1
+            singleLine = true,
+            isError = ingredient.validateName && !ingredient.isNameValid(),
+            supportingText = stringResource(R.string.formError_mandatoryField)
         )
         Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
-        TextField(
+        TextInput(
             value = ingredient.quantity,
             onValueChange = onQuantityChange,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            ),
             enabled = enabled,
             modifier = Modifier.weight(weight = 3F),
-            maxLines = 1
+            singleLine = true,
+            isNumeric = true,
+            isError = ingredient.validateQuantity && !ingredient.isQuantityValid(),
+            supportingText = stringResource(R.string.formError_numericField)
         )
         Spacer(Modifier.width(dimensionResource(R.dimen.padding_small)))
-        TextField(
+        TextInput(
             value = ingredient.value,
             onValueChange = onValueChange,
             enabled = enabled,
             modifier = Modifier.weight(weight = 3F),
-            maxLines = 1
+            singleLine = true,
+            isError = ingredient.validateValue && !ingredient.isValueValid(),
+            supportingText = null
         )
     }
 }
@@ -203,12 +234,14 @@ private fun IngredientGroupTitleInputLine(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        TextField(
+        TextInput(
             value = ingredientGroupTitle.title ?: "",
             onValueChange = onTitleChange,
             enabled = enabled,
             modifier = Modifier.weight(weight = 1F),
-            maxLines = 1
+            singleLine = true,
+            isError = ingredientGroupTitle.validateTitle && !ingredientGroupTitle.isTitleValid(),
+            supportingText = null
         )
     }
 }
@@ -229,10 +262,49 @@ private fun RecipeIngredientsInputPreview() {
 
 @DefaultPreview
 @Composable
+private fun RecipeIngredientsInputNoIngredientPreview() {
+    RecipeBookTheme {
+        RecipeIngredientsInput(
+            recipeDao = RecipeExamples.recipe1.toRecipeDao()
+                .copy(
+                    ingredientItemList = listOf(IngredientGroupTitleDao()),
+                    validateIngredientList = true
+                ),
+            onValueChange = {},
+            enabled = true,
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
 private fun IngredientInputLinePreview() {
     RecipeBookTheme {
         IngredientInputLine(
             ingredient = IngredientExamples.ingredientA.toIngredientDao(),
+            onNameChange = {},
+            onQuantityChange = {},
+            onValueChange = {},
+            enabled = true
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+private fun IngredientInputLineErrorPreview() {
+    RecipeBookTheme {
+        IngredientInputLine(
+            ingredient = IngredientExamples.ingredientA.toIngredientDao()
+                .copy(
+                    name = "",
+                    quantity = "a",
+                    value = "",
+
+                    validateName = true,
+                    validateQuantity = true,
+                    validateValue = true
+                ),
             onNameChange = {},
             onQuantityChange = {},
             onValueChange = {},

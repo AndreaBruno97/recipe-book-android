@@ -49,7 +49,10 @@ fun RecipeTagsInput(
         SortableList<TagDao>(
             itemList = recipeDao.tagList,
             updateList = { tagList ->
-                onValueChange(recipeDao.copy(tagList = tagList))
+                onValueChange(recipeDao
+                    .copy(tagList = tagList)
+                    .apply { validateTagList = false }
+                )
             },
             onClickNewItem = openTagListPopup,
             newItemButtonIcon = RecipeForm_AddTag,

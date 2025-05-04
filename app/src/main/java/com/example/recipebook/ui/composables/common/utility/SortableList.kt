@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +38,7 @@ fun <T> SortableList(
     @StringRes newItemButtonText: Int?,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    showEmptyError: Boolean = false,
     content: @Composable() (
         item: T,
         index: Int,
@@ -46,6 +48,13 @@ fun <T> SortableList(
     Column(
         modifier = modifier
     ) {
+        if (showEmptyError && itemList.isEmpty()) {
+            Text(
+                stringResource(id = R.string.formError_mandatoryList),
+                color = Color.Red
+            )
+        }
+
         for ((index, item) in itemList.withIndex()) {
             val canGoUp = index > 0
             val canGoDown = index < itemList.size - 1
@@ -156,6 +165,24 @@ private fun SortableListNoButtonPreview() {
             newItemButtonIcon = null,
             newItemButtonText = null,
             enabled = true
+        ) { name, index, modifier ->
+            Text(name, modifier)
+        }
+    }
+}
+
+@DefaultPreview
+@Composable
+private fun SortableListErrorPreview() {
+    RecipeBookTheme {
+        SortableList<String>(
+            itemList = listOf(),
+            updateList = {},
+            onClickNewItem = null,
+            newItemButtonIcon = null,
+            newItemButtonText = null,
+            enabled = true,
+            showEmptyError = true,
         ) { name, index, modifier ->
             Text(name, modifier)
         }

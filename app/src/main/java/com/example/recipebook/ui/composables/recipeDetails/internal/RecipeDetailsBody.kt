@@ -34,6 +34,7 @@ import com.example.recipebook.data.objects.ingredient.Ingredient
 import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
+import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
@@ -303,7 +304,7 @@ fun RecipeDetailsBodyPreview() {
 fun RecipeDetailsBodyEmptyFieldsPreview() {
     RecipeBookTheme {
         RecipeDetailsBody(
-            RecipeDetailsUiState(RecipeExamples.recipe1.apply {
+            RecipeDetailsUiState(RecipeExamples.recipe1.toRecipeDao().toRecipe().apply {
                 servingsNum = null
                 prepTimeMinutes = null
                 cookTimeMinutes = null
@@ -328,7 +329,7 @@ fun RecipeDetailsBodyEmptyFieldsPreview() {
 fun IngredientQuantityFormattingPreview() {
     RecipeBookTheme {
         RecipeDetailsBody(
-            RecipeDetailsUiState(RecipeExamples.recipe1.apply {
+            RecipeDetailsUiState(RecipeExamples.recipe1.toRecipeDao().toRecipe().apply {
                 ingredientGroupList = realmListOf(
                     IngredientGroup(
                         "Test decimali",

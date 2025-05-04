@@ -94,7 +94,7 @@ fun RecipeEditScreenStateCollector(
     modifier: Modifier = Modifier,
     recipeUiState: RecipeUiState,
     onRecipeValueChange: (RecipeDao) -> Unit,
-    updateRecipe: suspend () -> Unit,
+    updateRecipe: suspend () -> Boolean,
     unusedTagList: List<Tag>,
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
@@ -121,8 +121,10 @@ fun RecipeEditScreenStateCollector(
             onRecipeValueChange = onRecipeValueChange,
             onSaveClick = {
                 coroutineScope.launch {
-                    updateRecipe()
-                    navigateToRecipeDetails()
+                    val isUpdated = updateRecipe()
+                    if (isUpdated) {
+                        navigateToRecipeDetails()
+                    }
                 }
             },
             onTakeImage = takeImage,
@@ -157,7 +159,7 @@ fun RecipeEditScreenPhonePreview() {
             navigateToRecipeDetails = {},
             recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDao()),
             onRecipeValueChange = {},
-            updateRecipe = {},
+            updateRecipe = { false },
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},
@@ -180,7 +182,7 @@ fun RecipeEditScreenTabletPreview() {
             navigateToRecipeDetails = {},
             recipeUiState = RecipeUiState(RecipeExamples.recipe1.toRecipeDao()),
             onRecipeValueChange = {},
-            updateRecipe = {},
+            updateRecipe = { false },
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},

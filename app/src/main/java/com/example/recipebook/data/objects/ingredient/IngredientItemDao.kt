@@ -4,21 +4,37 @@ import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 
 sealed interface IngredientItemDao {
     fun validateInput(): Boolean
+    fun enableInputValidation()
 }
 
 //region IngredientGroupTitleDao
 
 data class IngredientGroupTitleDao(
-    var title: String? = null
+    var title: String? = null,
+
+    // Form Validation Fields
+    var validateTitle: Boolean = false
 ) : IngredientItemDao {
 
     fun toIngredientGroup(): IngredientGroup = IngredientGroup(
         title = title
     )
 
-    override fun validateInput(): Boolean {
+    //region Input Validation
+
+    fun isTitleValid(): Boolean {
         return true
     }
+
+    override fun validateInput(): Boolean {
+        return isTitleValid()
+    }
+
+    override fun enableInputValidation() {
+        validateTitle = true
+    }
+
+    //endregion
 }
 
 fun IngredientGroup.toIngredientGroupTitleDao() = IngredientGroupTitleDao(
@@ -32,7 +48,12 @@ fun IngredientGroup.toIngredientGroupTitleDao() = IngredientGroupTitleDao(
 data class IngredientDao(
     var name: String = "",
     var quantity: String = "",
-    var value: String = ""
+    var value: String = "",
+
+    // Form Validation Fields
+    var validateName: Boolean = false,
+    var validateQuantity: Boolean = false,
+    var validateValue: Boolean = false
 ) : IngredientItemDao {
     fun toIngredient(): Ingredient = Ingredient(
         name = name,
@@ -40,9 +61,33 @@ data class IngredientDao(
         value = value
     )
 
-    override fun validateInput(): Boolean {
+    //region Input Validation
+
+    fun isNameValid(): Boolean {
         return name.isNotBlank()
     }
+
+    fun isQuantityValid(): Boolean {
+        return quantity.isBlank() || quantity.toFloatOrNull() != null
+    }
+
+    fun isValueValid(): Boolean {
+        return true
+    }
+
+    override fun validateInput(): Boolean {
+        return isNameValid() &&
+                isQuantityValid() &&
+                isValueValid()
+    }
+
+    override fun enableInputValidation() {
+        validateName = true
+        validateQuantity = true
+        validateValue = true
+    }
+
+    //endregion
 }
 
 fun Ingredient.toIngredientDao(): IngredientDao {

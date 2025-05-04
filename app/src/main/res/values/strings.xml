@@ -39,4 +39,9 @@
     <string name="recipeForm_addTag">Aggiungi tag</string>
     <string name="recipeForm_addMethod">Aggiungi procedimento</string>
     <string name="save_button_label">Salva</string>
+    <string name="formError_mandatoryField">Campo obbligatorio</string>
+    <string name="formError_mandatoryList">La lista deve contenere almeno un elemento</string>
+    <string name="formError_ingredientList_NoIngredients">La lista deve contenere almeno un ingrediente</string>
+    <string name="formError_integerField">Campo numero intero</string>
+    <string name="formError_numericField">Campo numerico</string>
 </resources>
