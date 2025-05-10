@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 
 val TopAppBar_Back = Icons.AutoMirrored.Filled.ArrowBack
 
@@ -21,6 +22,8 @@ val RecipeForm_AddTag = Icons.Default.Add
 val RecipeForm_AddMethod = Icons.Default.Add
 
 val TagList_FabAddTag = Icons.Default.Add
+val TagList_ClearFilter = Icons.Default.Close
+val TagList_ApplyFilter = Icons.Default.Search
 val TagForm_DeleteTag = Icons.Default.Close
 val TagForm_DeleteIcon = Icons.Default.Close
 

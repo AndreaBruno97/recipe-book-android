@@ -4,6 +4,7 @@ import com.example.recipebook.data.utility.DbFunc
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.mongodb.kbson.ObjectId
 
 class TagRepository(private val realm: Realm) {
@@ -14,6 +15,19 @@ class TagRepository(private val realm: Realm) {
 
     fun getTagById(_id: ObjectId): Flow<Tag?> {
         return DbFunc.getById(realm, _id)
+    }
+
+    fun getTagFiltered(name: String?): Flow<List<Tag>> {
+        if (name == null) {
+            return getTag()
+        } else {
+            return realm
+                .query<Tag>(
+                    "name CONTAINS[c] $0", name
+                )
+                .asFlow()
+                .map { it.list }
+        }
     }
 
     suspend fun addTag(tag: Tag): ObjectId {

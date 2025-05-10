@@ -2,20 +2,26 @@
 
 package com.example.recipebook.ui.composables.tagList
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
@@ -38,6 +44,7 @@ import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import com.example.recipebook.ui.theme.TagList_ClearFilter
 import com.example.recipebook.ui.theme.TagList_FabAddTag
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
@@ -58,6 +65,7 @@ fun TagListScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val tagListUiState by tagListViewModel.tagListUiState.collectAsState()
+    val filterState by tagListViewModel.filterState.collectAsState()
 
     TagListStateCollector(
         screenSize = screenSize,
@@ -67,6 +75,7 @@ fun TagListScreen(
         isPopupOpen = tagListViewModel.isPopupOpen,
         validateName = tagViewModel.validateName,
         currentTagId = tagListViewModel.currentTagId,
+        filterName = filterState.filterName,
         openPopup = {
             tagViewModel.loadTag(it)
             tagListViewModel.openPopup(it)
@@ -87,7 +96,8 @@ fun TagListScreen(
                 tagListViewModel.deleteTag(it)
             }
         },
-        isNamePresent = tagViewModel::isNamePresent
+        isNamePresent = tagViewModel::isNamePresent,
+        updateFilterName = tagListViewModel::updateFilterName
     )
 }
 
@@ -100,13 +110,15 @@ fun TagListStateCollector(
     isPopupOpen: Boolean = false,
     validateName: Boolean = false,
     currentTagId: ObjectId? = null,
+    filterName: String = "",
     openPopup: (ObjectId?) -> Unit,
     closePopup: () -> Unit,
     tagUiState: TagUiState,
     onTagValueChange: (TagDao) -> Unit,
     onSaveClick: () -> Unit,
     onDelete: (Tag) -> Unit,
-    isNamePresent: () -> Boolean
+    isNamePresent: () -> Boolean,
+    updateFilterName: (String) -> Unit
 ) {
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -133,14 +145,38 @@ fun TagListStateCollector(
             }
         }
     ) { innerPadding ->
-        TagListBody(
-            tagList = tagList,
-            screenSize = screenSize,
-            modifier = modifier.fillMaxSize(),
-            contentPadding = innerPadding,
-            openPopup = openPopup,
-            onDelete = onDelete
-        )
+        Column(
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+                OutlinedTextField(
+                    value = filterName,
+                    onValueChange = updateFilterName,
+                    modifier = Modifier.weight(1F)
+                )
+                IconButton(
+                    onClick = { updateFilterName("") }
+                ) {
+                    Icon(
+                        imageVector = TagList_ClearFilter,
+                        contentDescription = ""
+                    )
+                }
+            }
+            TagListBody(
+                tagList = tagList,
+                screenSize = screenSize,
+                modifier = modifier.fillMaxSize(),
+                //contentPadding = innerPadding,
+                openPopup = openPopup,
+                onDelete = onDelete
+            )
+        }
         if (isPopupOpen) {
             Dialog(onDismissRequest = closePopup) {
                 Card(
@@ -181,7 +217,8 @@ fun TagListScreenPhonePreview() {
             onTagValueChange = {},
             onSaveClick = {},
             onDelete = {},
-            isNamePresent = { false }
+            isNamePresent = { false },
+            updateFilterName = {}
         )
     }
 }
@@ -201,7 +238,8 @@ fun TagListScreenPhonePopupPreview() {
             onTagValueChange = {},
             onSaveClick = {},
             onDelete = {},
-            isNamePresent = { false }
+            isNamePresent = { false },
+            updateFilterName = {}
         )
     }
 }
