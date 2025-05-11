@@ -61,6 +61,7 @@ fun HomeScreen(
     clearCache(localContext)
 
     val homeUiState by viewModel.homeUiState.collectAsState()
+    val filterState by viewModel.filterState.collectAsState()
 
     HomeScreenStateCollector(
         screenSize = screenSize,
@@ -69,7 +70,9 @@ fun HomeScreen(
         navigateToTagList = navigateToTagList,
         loadRecipeImage = viewModel::loadRecipeImage,
         recipeList = homeUiState.recipeList,
-        modifier = modifier
+        modifier = modifier,
+        filter = filterState,
+        updateFilter = viewModel::updateFilter
     )
 }
 
@@ -81,7 +84,9 @@ private fun HomeScreenStateCollector(
     navigateToTagList: () -> Unit,
     loadRecipeImage: (ObjectId, Context) -> ImageBitmap?,
     recipeList: List<Recipe>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    filter: RecipeListFilterState = RecipeListFilterState(),
+    updateFilter: (RecipeListFilterState) -> Unit
 ) {
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
@@ -129,7 +134,9 @@ private fun HomeScreenStateCollector(
             loadRecipeImage = loadRecipeImage,
             screenSize = screenSize,
             modifier = modifier.fillMaxSize(),
-            contentPadding = innerPadding
+            contentPadding = innerPadding,
+            filter = filter,
+            updateFilter = updateFilter
         )
     }
 }
@@ -146,7 +153,8 @@ fun HomeScreenPhonePreview() {
             navigateToRecipeDetails = {},
             navigateToTagList = {},
             recipeList = RecipeExamples.recipeList,
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            updateFilter = {}
         )
     }
 }
@@ -161,7 +169,8 @@ fun HomeScreenFoldablePreview() {
             navigateToRecipeDetails = {},
             navigateToTagList = {},
             recipeList = RecipeExamples.recipeList,
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            updateFilter = {}
         )
     }
 }
@@ -176,7 +185,8 @@ fun HomeScreenTabletPreview() {
             navigateToRecipeDetails = {},
             navigateToTagList = {},
             recipeList = RecipeExamples.recipeList,
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            updateFilter = {}
         )
     }
 }

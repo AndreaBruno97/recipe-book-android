@@ -61,3 +61,9 @@ val md_theme_dark_inversePrimary = Color(0xFF6B3DD4)
 val md_theme_dark_surfaceTint = Color(0xFFCFBCFF)
 val md_theme_dark_outlineVariant = Color(0xFF49454E)
 val md_theme_dark_scrim = Color(0xFF000000)
+
+//region Specific colors
+
+val home_isFavoriteIcon = Color.Yellow
+
+//endregion

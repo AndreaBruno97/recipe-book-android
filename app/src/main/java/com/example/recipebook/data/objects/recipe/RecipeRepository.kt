@@ -4,6 +4,7 @@ import com.example.recipebook.data.utility.DbFunc
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.mongodb.kbson.ObjectId
 
 class RecipeRepository(private val realm: Realm) {
@@ -14,6 +15,26 @@ class RecipeRepository(private val realm: Realm) {
 
     fun getRecipeById(_id: ObjectId): Flow<Recipe?> {
         return DbFunc.getById(realm, _id)
+    }
+
+    fun getRecipesFiltered(name: String?, isFavorite: Boolean): Flow<List<Recipe>> {
+        var realmQuery = realm.query<Recipe>()
+
+        if (name != null) {
+            realmQuery = realmQuery.query(
+                "name CONTAINS[c] $0", name
+            )
+        }
+
+        if (isFavorite) {
+            realmQuery = realmQuery.query(
+                "isFavorite == true"
+            )
+        }
+
+        return realmQuery
+            .asFlow()
+            .map { it.list }
     }
 
     suspend fun addRecipe(recipe: Recipe): ObjectId {

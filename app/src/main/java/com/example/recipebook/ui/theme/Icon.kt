@@ -8,12 +8,14 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 
 val TopAppBar_Back = Icons.AutoMirrored.Filled.ArrowBack
 
 val Home_FabAddRecipe = Icons.Default.Add
 val Home_FabTagList = Icons.AutoMirrored.Filled.List
+val Home_RecipeFilter_ClearFilter = Icons.Default.Close
+val Home_RecipeIsFavorite = Icons.Default.Star
 
 val RecipeDetails_ResetServingsNum = Icons.Default.Refresh
 
@@ -23,7 +25,6 @@ val RecipeForm_AddMethod = Icons.Default.Add
 
 val TagList_FabAddTag = Icons.Default.Add
 val TagList_ClearFilter = Icons.Default.Close
-val TagList_ApplyFilter = Icons.Default.Search
 val TagForm_DeleteTag = Icons.Default.Close
 val TagForm_DeleteIcon = Icons.Default.Close
 
