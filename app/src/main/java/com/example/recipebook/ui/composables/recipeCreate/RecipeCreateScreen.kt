@@ -57,6 +57,7 @@ fun RecipeCreateScreen(
 
     val recipeUiState = viewModel.recipeUiState
     val tagListUiState by viewModel.tagListUiState.collectAsState()
+    val tagListFilterState by viewModel.tagListFilterState.collectAsState()
     val usedTagIdList = recipeUiState.recipeDao.tagList.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
 
@@ -75,7 +76,9 @@ fun RecipeCreateScreen(
         takeImage = cameraLauncherState::takeImage,
         pickImage = cameraLauncherState::pickImage,
         clearImage = viewModel::clearImage,
-        recipeImage = viewModel.tempImage
+        recipeImage = viewModel.tempImage,
+        tagListFilterName = tagListFilterState.filterName,
+        tagListUpdateFilterName = viewModel::updateFilterName
     )
 }
 
@@ -95,7 +98,9 @@ fun RecipeCreateScreenStateCollector(
     takeImage: () -> Unit,
     pickImage: () -> Unit,
     clearImage: () -> Unit,
-    recipeImage: ImageBitmap?
+    recipeImage: ImageBitmap?,
+    tagListFilterName: String = "",
+    tagListUpdateFilterName: (String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -135,7 +140,9 @@ fun RecipeCreateScreenStateCollector(
             openTagListPopup = openTagListPopup,
             closeTagListPopup = closeTagListPopup,
             isTagListPopupOpen = isTagListPopupOpen,
-            recipeImage = recipeImage
+            recipeImage = recipeImage,
+            tagListFilterName = tagListFilterName,
+            tagListUpdateFilterName = tagListUpdateFilterName
         )
 
     }
@@ -161,7 +168,8 @@ fun RecipeCreateScreenPhonePreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {}
         )
     }
 }
@@ -184,7 +192,8 @@ fun RecipeCreateScreenTabletPreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {}
         )
     }
 }

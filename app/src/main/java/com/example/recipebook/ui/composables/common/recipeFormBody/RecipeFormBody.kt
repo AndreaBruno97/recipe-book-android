@@ -44,7 +44,9 @@ fun RecipeFormBody(
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
-    recipeImage: ImageBitmap?
+    recipeImage: ImageBitmap?,
+    tagListFilterName: String = "",
+    tagListUpdateFilterName: (String) -> Unit
 ) {
     val recipeDao = recipeUiState.recipeDao
 
@@ -63,7 +65,9 @@ fun RecipeFormBody(
             unusedTagList = unusedTagList,
             closeTagListPopup = closeTagListPopup,
             isTagListPopupOpen = isTagListPopupOpen,
-            recipeImage = recipeImage
+            recipeImage = recipeImage,
+            tagListFilterName = tagListFilterName,
+            tagListUpdateFilterName = tagListUpdateFilterName
         )
         Button(
             onClick = onSaveClick,
@@ -88,7 +92,9 @@ fun RecipeInputForm(
     unusedTagList: List<Tag>,
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
-    recipeImage: ImageBitmap?
+    recipeImage: ImageBitmap?,
+    tagListFilterName: String = "",
+    tagListUpdateFilterName: (String) -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -201,7 +207,9 @@ fun RecipeInputForm(
             openTagListPopup = openTagListPopup,
             unusedTagList = unusedTagList,
             closeTagListPopup = closeTagListPopup,
-            isTagListPopupOpen = isTagListPopupOpen
+            isTagListPopupOpen = isTagListPopupOpen,
+            filterName = tagListFilterName,
+            updateFilterName = tagListUpdateFilterName
         )
 
         RecipeIngredientsInput(
@@ -243,7 +251,8 @@ private fun RecipeFormBodyScreenPreview() {
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},
-            recipeImage = RecipeExamples.recipeImageBitmap
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {}
         )
     }
 }
@@ -265,7 +274,8 @@ private fun RecipeFormBodyScreenWithPopupPreview() {
             openTagListPopup = {},
             closeTagListPopup = {},
             isTagListPopupOpen = true,
-            recipeImage = RecipeExamples.recipeImageBitmap
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {}
         )
     }
 }
@@ -327,7 +337,8 @@ private fun RecipeFormBodyScreenErrorPreview() {
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},
-            recipeImage = RecipeExamples.recipeImageBitmap
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {}
         )
     }
 }
