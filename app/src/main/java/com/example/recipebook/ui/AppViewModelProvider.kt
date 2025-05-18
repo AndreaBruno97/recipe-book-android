@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.recipebook.RecipeBookApplication
 import com.example.recipebook.ui.composables.common.tagFormBody.TagFormBodyViewModel
+import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
 import com.example.recipebook.ui.composables.home.HomeViewModel
 import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateViewModel
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsViewModel
@@ -22,16 +23,14 @@ object AppViewModelProvider {
 
         initializer {
             RecipeCreateViewModel(
-                recipeRepository = RecipeBookApplication.recipeRepository,
-                tagRepository = RecipeBookApplication.tagRepository
+                recipeRepository = RecipeBookApplication.recipeRepository
             )
         }
 
         initializer {
             RecipeEditViewModel(
                 savedStateHandle = this.createSavedStateHandle(),
-                recipeRepository = RecipeBookApplication.recipeRepository,
-                tagRepository = RecipeBookApplication.tagRepository
+                recipeRepository = RecipeBookApplication.recipeRepository
             )
         }
 
@@ -50,6 +49,12 @@ object AppViewModelProvider {
 
         initializer {
             TagFormBodyViewModel(
+                tagRepository = RecipeBookApplication.tagRepository
+            )
+        }
+
+        initializer {
+            TagListSelectorViewModel(
                 tagRepository = RecipeBookApplication.tagRepository
             )
         }

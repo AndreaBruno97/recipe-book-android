@@ -3,12 +3,16 @@
 package com.example.recipebook.ui.composables.home
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeRepository
+import com.example.recipebook.data.objects.tag.Tag
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +23,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.mongodb.kbson.ObjectId
 
-class HomeViewModel(recipeRepository: RecipeRepository) : ViewModel() {
+class HomeViewModel(
+    recipeRepository: RecipeRepository
+) : ViewModel() {
     private val _filterState = MutableStateFlow(RecipeListFilterState())
     val filterState = _filterState.asStateFlow()
 
@@ -28,7 +34,8 @@ class HomeViewModel(recipeRepository: RecipeRepository) : ViewModel() {
             .flatMapLatest { filter ->
                 recipeRepository.getRecipesFiltered(
                     filter.filterNameOrNull,
-                    filter.filterIsFavorite
+                    filter.filterIsFavorite,
+                    filter.filterTagList
                 )
             }.map { HomeUiState(it) }
             .stateIn(
@@ -36,6 +43,17 @@ class HomeViewModel(recipeRepository: RecipeRepository) : ViewModel() {
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = HomeUiState()
             )
+
+    var isFilterSectionOpen by mutableStateOf(false)
+        private set
+
+    fun openFilterSection() {
+        isFilterSectionOpen = true
+    }
+
+    fun closeFilterSection() {
+        isFilterSectionOpen = false
+    }
 
     private val recipeImageMap: MutableMap<String, ImageBitmap?> = mutableStateMapOf()
 
@@ -68,7 +86,8 @@ class HomeViewModel(recipeRepository: RecipeRepository) : ViewModel() {
 
 data class RecipeListFilterState(
     val filterName: String = "",
-    val filterIsFavorite: Boolean = false
+    val filterIsFavorite: Boolean = false,
+    val filterTagList: List<Tag> = listOf()
 ) {
     val filterNameOrNull = filterName.ifBlank { null }
 }

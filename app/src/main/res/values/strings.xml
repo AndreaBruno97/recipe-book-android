@@ -7,6 +7,8 @@
     <string name="routeTitle_recipeCreate">Aggiungi Ricetta</string>
     <string name="routeTitle_tagList">Tag</string>
     <string name="home_navigate_to_tag_list">Gestisci Tag</string>
+    <string name="home_filterSection_title">Filtri</string>
+    <string name="home_filterSection_addTag">Aggiungi tag</string>
     <string name="recipe_create_icon_name">Aggiungi Ricetta</string>
     <string name="no_recipes_description">Non ci sono attualmente ricette. Clicca + per crearne una.</string>
     <string name="no_tags_description">Non ci sono attualmente tag. Clicca + per crearne uno.</string>

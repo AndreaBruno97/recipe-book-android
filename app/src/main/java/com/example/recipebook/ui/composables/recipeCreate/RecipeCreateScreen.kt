@@ -29,6 +29,7 @@ import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
+import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
 import com.example.recipebook.ui.composables.common.utility.createCameraLauncherState
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
@@ -49,15 +50,16 @@ fun RecipeCreateScreen(
     navigateToRecipeDetails: (ObjectId) -> Unit,
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
-    viewModel: RecipeCreateViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    recipeViewModel: RecipeCreateViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    tagListViewModel: TagListSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val currentContext = LocalContext.current
 
-    val cameraLauncherState = createCameraLauncherState(currentContext, viewModel)
+    val cameraLauncherState = createCameraLauncherState(currentContext, recipeViewModel)
 
-    val recipeUiState = viewModel.recipeUiState
-    val tagListUiState by viewModel.tagListUiState.collectAsState()
-    val tagListFilterState by viewModel.tagListFilterState.collectAsState()
+    val recipeUiState = recipeViewModel.recipeUiState
+    val tagListUiState by tagListViewModel.tagListUiState.collectAsState()
+    val tagListFilterState by tagListViewModel.tagListFilterState.collectAsState()
     val usedTagIdList = recipeUiState.recipeDao.tagList.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
 
@@ -66,19 +68,19 @@ fun RecipeCreateScreen(
         navigateToRecipeDetails = navigateToRecipeDetails,
         onNavigateUp = onNavigateUp,
         canNavigateBack = canNavigateBack,
-        recipeUiState = viewModel.recipeUiState,
-        onRecipeValueChange = viewModel::updateUiState,
-        saveRecipe = { viewModel.saveRecipe(currentContext) },
+        recipeUiState = recipeViewModel.recipeUiState,
+        onRecipeValueChange = recipeViewModel::updateUiState,
+        saveRecipe = { recipeViewModel.saveRecipe(currentContext) },
         unusedTagList = unusedTagList,
-        openTagListPopup = viewModel::openTagListPopup,
-        closeTagListPopup = viewModel::closeTagListPopup,
-        isTagListPopupOpen = viewModel.isTagListPopupOpen,
+        openTagListPopup = tagListViewModel::openTagListPopup,
+        closeTagListPopup = tagListViewModel::closeTagListPopup,
+        isTagListPopupOpen = tagListViewModel.isTagListPopupOpen,
         takeImage = cameraLauncherState::takeImage,
         pickImage = cameraLauncherState::pickImage,
-        clearImage = viewModel::clearImage,
-        recipeImage = viewModel.tempImage,
+        clearImage = recipeViewModel::clearImage,
+        recipeImage = recipeViewModel.tempImage,
         tagListFilterName = tagListFilterState.filterName,
-        tagListUpdateFilterName = viewModel::updateFilterName
+        tagListUpdateFilterName = tagListViewModel::updateFilterName
     )
 }
 

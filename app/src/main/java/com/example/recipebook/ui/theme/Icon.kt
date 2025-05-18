@@ -15,7 +15,10 @@ val TopAppBar_Back = Icons.AutoMirrored.Filled.ArrowBack
 val Home_FabAddRecipe = Icons.Default.Add
 val Home_FabTagList = Icons.AutoMirrored.Filled.List
 val Home_RecipeFilter_ClearFilter = Icons.Default.Close
+val Home_RecipeFilter_OpenSection = Icons.Default.KeyboardArrowDown
+val Home_RecipeFilter_CloseSection = Icons.Default.KeyboardArrowUp
 val Home_RecipeIsFavorite = Icons.Default.Star
+val Home_RecipeFilter_RemoveTag = Icons.Default.Close
 
 val RecipeDetails_ResetServingsNum = Icons.Default.Refresh
 

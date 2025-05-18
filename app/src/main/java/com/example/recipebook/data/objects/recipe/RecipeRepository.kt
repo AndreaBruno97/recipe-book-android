@@ -1,5 +1,6 @@
 package com.example.recipebook.data.objects.recipe
 
+import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.utility.DbFunc
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -17,7 +18,11 @@ class RecipeRepository(private val realm: Realm) {
         return DbFunc.getById(realm, _id)
     }
 
-    fun getRecipesFiltered(name: String?, isFavorite: Boolean): Flow<List<Recipe>> {
+    fun getRecipesFiltered(
+        name: String?,
+        isFavorite: Boolean,
+        tagList: List<Tag>?
+    ): Flow<List<Recipe>> {
         var realmQuery = realm.query<Recipe>()
 
         if (name != null) {
@@ -29,6 +34,18 @@ class RecipeRepository(private val realm: Realm) {
         if (isFavorite) {
             realmQuery = realmQuery.query(
                 "isFavorite == true"
+            )
+        }
+
+        if (!tagList.isNullOrEmpty()) {
+            realmQuery = realmQuery.query(
+                tagList.joinToString(
+                    separator = " OR ",
+                    prefix = "(",
+                    postfix = ")"
+                ) { tag ->
+                    "(oid(${tag._id.toHexString()}) IN tagList._id)"
+                }
             )
         }
 
