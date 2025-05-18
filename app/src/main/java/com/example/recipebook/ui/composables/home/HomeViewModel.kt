@@ -33,9 +33,10 @@ class HomeViewModel(
         _filterState
             .flatMapLatest { filter ->
                 recipeRepository.getRecipesFiltered(
-                    filter.filterNameOrNull,
+                    filter.filterName,
                     filter.filterIsFavorite,
-                    filter.filterTagList
+                    filter.filterTagList,
+                    filter.filterIngredientList
                 )
             }.map { HomeUiState(it) }
             .stateIn(
@@ -87,9 +88,9 @@ class HomeViewModel(
 data class RecipeListFilterState(
     val filterName: String = "",
     val filterIsFavorite: Boolean = false,
-    val filterTagList: List<Tag> = listOf()
-) {
-    val filterNameOrNull = filterName.ifBlank { null }
-}
+    val filterTagList: List<Tag> = listOf(),
+    val filterInputIngredient: String = "",
+    val filterIngredientList: List<String> = listOf()
+)
 
 data class HomeUiState(val recipeList: List<Recipe> = listOf())

@@ -20,14 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.recipebook.R
+import com.example.recipebook.data.objects.ingredient.IngredientExamples
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorBody
 import com.example.recipebook.ui.composables.home.RecipeListFilterState
 import com.example.recipebook.ui.preview.DefaultPreview
+import com.example.recipebook.ui.theme.Home_RecipeFilter_AddIngredient
 import com.example.recipebook.ui.theme.Home_RecipeFilter_ClearFilter
 import com.example.recipebook.ui.theme.Home_RecipeFilter_CloseSection
 import com.example.recipebook.ui.theme.Home_RecipeFilter_OpenSection
+import com.example.recipebook.ui.theme.Home_RecipeFilter_RemoveIngredient
 import com.example.recipebook.ui.theme.Home_RecipeFilter_RemoveTag
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
@@ -89,6 +92,20 @@ fun HomeRecipeFilters(
                 filterName = filterName,
                 enabled = enabled
             )
+
+            HomeRecipeFiltersIngredients(
+                filter = filter,
+                updateFilter = updateFilter,
+                modifier = internalElementsModifier
+            )
+
+            Button(
+                onClick = {
+                    updateFilter(RecipeListFilterState())
+                }
+            ) {
+                Text(stringResource(R.string.home_filterSection_clearFilters))
+            }
         }
 
     }
@@ -254,6 +271,78 @@ fun HomeRecipeFiltersTag(
     }
 }
 
+@Composable
+fun HomeRecipeFiltersIngredients(
+    modifier: Modifier = Modifier,
+    filter: RecipeListFilterState = RecipeListFilterState(),
+    updateFilter: (RecipeListFilterState) -> Unit
+) {
+    Column(modifier = modifier) {
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+        ) {
+            OutlinedTextField(
+                value = filter.filterInputIngredient,
+                onValueChange = { updateFilter(filter.copy(filterInputIngredient = it)) },
+                modifier = Modifier.weight(1F),
+                label = { Text(stringResource(R.string.home_filterSection_ingredient)) }
+            )
+            IconButton(
+                onClick = { updateFilter(filter.copy(filterInputIngredient = "")) }
+            ) {
+                Icon(
+                    imageVector = Home_RecipeFilter_ClearFilter,
+                    contentDescription = ""
+                )
+            }
+            IconButton(
+                onClick = {
+                    updateFilter(
+                        filter.copy(
+                            filterInputIngredient = "",
+                            filterIngredientList = filter.filterIngredientList.plus(filter.filterInputIngredient)
+                        )
+                    )
+                }
+            ) {
+                Icon(
+                    imageVector = Home_RecipeFilter_AddIngredient,
+                    contentDescription = ""
+                )
+            }
+        }
+
+        for ((index, ingredient) in filter.filterIngredientList.withIndex()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = ingredient)
+                IconButton(
+                    onClick = {
+                        updateFilter(
+                            filter.copy(
+                                filterIngredientList = filter
+                                    .filterIngredientList
+                                    .filterIndexed { curIndex, _ ->
+                                        curIndex != index
+                                    }
+                            )
+                        )
+                    }
+                ) {
+                    Icon(
+                        imageVector = Home_RecipeFilter_RemoveIngredient,
+                        contentDescription = ""
+                    )
+                }
+            }
+        }
+    }
+}
+
 //region Preview
 
 @DefaultPreview
@@ -262,7 +351,14 @@ fun HomeRecipeFiltersPreview() {
     RecipeBookTheme {
         HomeRecipeFilters(
             filter = RecipeListFilterState(
-                filterTagList = TagExamples.tagList
+                filterTagList = listOf(
+                    TagExamples.tag1,
+                    TagExamples.tag2
+                ),
+                filterIngredientList = listOf(
+                    IngredientExamples.ingredientA.name,
+                    IngredientExamples.ingredientB.name
+                )
             ),
             updateFilter = {},
             isFilterSectionOpen = true,
@@ -340,10 +436,26 @@ fun HomeRecipeFiltersFavoritePreview() {
 fun HomeRecipeFiltersTagPreview() {
     RecipeBookTheme {
         HomeRecipeFiltersTag(
+            filter = RecipeListFilterState(
+                filterTagList = TagExamples.tagList
+            ),
             updateFilter = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
             closeTagListPopup = {}
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+fun HomeRecipeFiltersIngredientsPreview() {
+    RecipeBookTheme {
+        HomeRecipeFiltersIngredients(
+            filter = RecipeListFilterState(
+                filterIngredientList = IngredientExamples.ingredientList.map { it.name }
+            ),
+            updateFilter = {}
         )
     }
 }

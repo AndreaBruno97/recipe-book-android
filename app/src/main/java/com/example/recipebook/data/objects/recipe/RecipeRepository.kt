@@ -19,15 +19,16 @@ class RecipeRepository(private val realm: Realm) {
     }
 
     fun getRecipesFiltered(
-        name: String?,
-        isFavorite: Boolean,
-        tagList: List<Tag>?
+        name: String = "",
+        isFavorite: Boolean = false,
+        tagList: List<Tag> = listOf(),
+        ingredientList: List<String> = listOf()
     ): Flow<List<Recipe>> {
         var realmQuery = realm.query<Recipe>()
 
-        if (name != null) {
+        if (name.isNotBlank()) {
             realmQuery = realmQuery.query(
-                "name CONTAINS[c] $0", name
+                "name CONTAINS[c] $0 OR $0 CONTAINS[c] name", name
             )
         }
 
@@ -37,15 +38,18 @@ class RecipeRepository(private val realm: Realm) {
             )
         }
 
-        if (!tagList.isNullOrEmpty()) {
+        if (tagList.isNotEmpty()) {
             realmQuery = realmQuery.query(
-                tagList.joinToString(
-                    separator = " OR ",
-                    prefix = "(",
-                    postfix = ")"
-                ) { tag ->
-                    "(oid(${tag._id.toHexString()}) IN tagList._id)"
-                }
+                "ANY tagList._id == ANY $0",
+                tagList.map { it._id }
+            )
+        }
+
+        if (ingredientList.isNotEmpty()) {
+            realmQuery = realmQuery.query(
+                "ANY ingredientGroupList.ingredientList.name CONTAINS[c] ANY {$0} OR " +
+                        "ANY {$0} CONTAINS[c] ANY ingredientGroupList.ingredientList.name",
+                ingredientList.joinToString(separator = ", ")
             )
         }
 
