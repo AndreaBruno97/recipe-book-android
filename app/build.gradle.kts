@@ -72,4 +72,7 @@ dependencies {
 
     // Emoji Picker
     implementation(libs.androidx.emoji2.emojipicker)
+
+    // Jsoup: parse HTML page
+    implementation(libs.jsoup)
 }

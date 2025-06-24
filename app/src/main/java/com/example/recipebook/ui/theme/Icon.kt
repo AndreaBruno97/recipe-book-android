@@ -28,6 +28,9 @@ val RecipeDetails_ResetServingsNum = Icons.Default.Refresh
 val RecipeForm_AddIngredient = Icons.Default.Add
 val RecipeForm_AddTag = Icons.Default.Add
 val RecipeForm_AddMethod = Icons.Default.Add
+val RecipeForm_ClearWebsiteField = Icons.Default.Close
+val RecipeForm_openRecipeFromWebsite = Icons.Default.KeyboardArrowDown
+val RecipeForm_closeRecipeFromWebsite = Icons.Default.KeyboardArrowUp
 
 val TagList_FabAddTag = Icons.Default.Add
 val TagList_ClearFilter = Icons.Default.Close

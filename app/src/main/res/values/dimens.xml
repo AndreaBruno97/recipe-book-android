@@ -12,4 +12,6 @@
     <dimen name="tag_color_internal_size">24dp</dimen>
     <dimen name="tag_color_border_size">2dp</dimen>
     <dimen name="tag_emoji_picker_height">150dp</dimen>
+
+    <dimen name="progress_indicator_size">64dp</dimen>
 </resources>

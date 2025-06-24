@@ -147,9 +147,11 @@ fun Recipe.toRecipeDao(): RecipeDao {
     val ingredientItemList: MutableList<IngredientItemDao> = mutableListOf()
 
     ingredientGroupList.forEach { ingredientGroup ->
-        ingredientItemList.add(
-            ingredientGroup.toIngredientGroupTitleDao()
-        )
+        if (ingredientGroup.title?.isNotBlank() == true) {
+            ingredientItemList.add(
+                ingredientGroup.toIngredientGroupTitleDao()
+            )
+        }
 
         ingredientGroup.ingredientList.forEach { ingredient ->
             ingredientItemList.add(

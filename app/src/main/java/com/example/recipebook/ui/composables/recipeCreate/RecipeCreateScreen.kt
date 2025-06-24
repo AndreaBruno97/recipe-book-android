@@ -2,6 +2,7 @@
 
 package com.example.recipebook.ui.composables.recipeCreate
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +31,9 @@ import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
+import com.example.recipebook.ui.composables.common.utility.LoadingOverlay
 import com.example.recipebook.ui.composables.common.utility.createCameraLauncherState
+import com.example.recipebook.ui.composables.recipeCreate.internal.RecipeFromWebsiteSection
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
@@ -80,7 +83,15 @@ fun RecipeCreateScreen(
         clearImage = recipeViewModel::clearImage,
         recipeImage = recipeViewModel.tempImage,
         tagListFilterName = tagListFilterState.filterName,
-        tagListUpdateFilterName = tagListViewModel::updateFilterName
+        tagListUpdateFilterName = tagListViewModel::updateFilterName,
+        recipeWebsiteUrl = recipeViewModel.recipeWebsiteUrl,
+        validateRecipeWebsiteUrl = recipeViewModel.validateRecipeWebsiteUrl,
+        isLoading = recipeViewModel.isLoading,
+        isRecipeFromWebsiteSectionVisible = recipeViewModel.isRecipeFromWebsiteSectionVisible,
+        updateRecipeWebsiteUrl = { recipeViewModel.updateRecipeWebsiteUrl(it) },
+        loadRecipeFromWebsite = { recipeViewModel.loadRecipeFromWebsite(currentContext) },
+        showRecipeFromWebsiteSection = recipeViewModel::showRecipeFromWebsiteSection,
+        hideRecipeFromWebsiteSection = recipeViewModel::hideRecipeFromWebsiteSection
     )
 }
 
@@ -102,9 +113,19 @@ fun RecipeCreateScreenStateCollector(
     clearImage: () -> Unit,
     recipeImage: ImageBitmap?,
     tagListFilterName: String = "",
-    tagListUpdateFilterName: (String) -> Unit
+    tagListUpdateFilterName: (String) -> Unit,
+    recipeWebsiteUrl: String = "",
+    validateRecipeWebsiteUrl: RecipeWebsiteUrlErrors? = null,
+    isLoading: Boolean = false,
+    isRecipeFromWebsiteSectionVisible: Boolean = true,
+    updateRecipeWebsiteUrl: (String) -> Unit,
+    loadRecipeFromWebsite: () -> Unit,
+    showRecipeFromWebsiteSection: () -> Unit,
+    hideRecipeFromWebsiteSection: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+    LoadingOverlay(isLoading)
 
     Scaffold(
         topBar = {
@@ -115,22 +136,7 @@ fun RecipeCreateScreenStateCollector(
             )
         }
     ) { innerPadding ->
-        RecipeFormBody(
-            recipeUiState = recipeUiState,
-            onRecipeValueChange = onRecipeValueChange,
-            onSaveClick = {
-                coroutineScope.launch {
-                    val newRecipeId = saveRecipe()
-
-                    if (newRecipeId != null) {
-                        navigateToRecipeDetails(newRecipeId)
-                    }
-                }
-            },
-            onTakeImage = takeImage,
-            onPickImage = pickImage,
-            onClearImage = clearImage,
-            unusedTagList = unusedTagList,
+        Column(
             modifier = Modifier
                 .padding(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
@@ -138,15 +144,44 @@ fun RecipeCreateScreenStateCollector(
                     top = innerPadding.calculateTopPadding()
                 )
                 .verticalScroll(rememberScrollState())
-                .fillMaxWidth(),
-            openTagListPopup = openTagListPopup,
-            closeTagListPopup = closeTagListPopup,
-            isTagListPopupOpen = isTagListPopupOpen,
-            recipeImage = recipeImage,
-            tagListFilterName = tagListFilterName,
-            tagListUpdateFilterName = tagListUpdateFilterName
-        )
+                .fillMaxWidth()
+        ) {
+            RecipeFromWebsiteSection(
+                recipeWebsiteUrl = recipeWebsiteUrl,
+                validateRecipeWebsiteUrl = validateRecipeWebsiteUrl,
+                isRecipeFromWebsiteSectionVisible = isRecipeFromWebsiteSectionVisible,
+                updateRecipeWebsiteUrl = updateRecipeWebsiteUrl,
+                loadRecipeFromWebsite = loadRecipeFromWebsite,
+                showRecipeFromWebsiteSection = showRecipeFromWebsiteSection,
+                hideRecipeFromWebsiteSection = hideRecipeFromWebsiteSection
+            )
 
+            RecipeFormBody(
+                recipeUiState = recipeUiState,
+                onRecipeValueChange = onRecipeValueChange,
+                onSaveClick = {
+                    coroutineScope.launch {
+                        val newRecipeId = saveRecipe()
+
+                        if (newRecipeId != null) {
+                            navigateToRecipeDetails(newRecipeId)
+                        }
+                    }
+                },
+                onTakeImage = takeImage,
+                onPickImage = pickImage,
+                onClearImage = clearImage,
+                unusedTagList = unusedTagList,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                openTagListPopup = openTagListPopup,
+                closeTagListPopup = closeTagListPopup,
+                isTagListPopupOpen = isTagListPopupOpen,
+                recipeImage = recipeImage,
+                tagListFilterName = tagListFilterName,
+                tagListUpdateFilterName = tagListUpdateFilterName
+            )
+        }
     }
 }
 
@@ -171,7 +206,11 @@ fun RecipeCreateScreenPhonePreview() {
             pickImage = {},
             clearImage = {},
             recipeImage = RecipeExamples.recipeImageBitmap,
-            tagListUpdateFilterName = {}
+            tagListUpdateFilterName = {},
+            updateRecipeWebsiteUrl = {},
+            loadRecipeFromWebsite = {},
+            showRecipeFromWebsiteSection = {},
+            hideRecipeFromWebsiteSection = {}
         )
     }
 }
@@ -195,7 +234,69 @@ fun RecipeCreateScreenTabletPreview() {
             pickImage = {},
             clearImage = {},
             recipeImage = RecipeExamples.recipeImageBitmap,
-            tagListUpdateFilterName = {}
+            tagListUpdateFilterName = {},
+            updateRecipeWebsiteUrl = {},
+            loadRecipeFromWebsite = {},
+            showRecipeFromWebsiteSection = {},
+            hideRecipeFromWebsiteSection = {}
+        )
+    }
+}
+
+@PhonePreview
+@Composable
+fun RecipeCreateScreenLoadingPhonePreview() {
+    RecipeBookTheme {
+        RecipeCreateScreenStateCollector(
+            ScreenSize.SMALL,
+            navigateToRecipeDetails = {},
+            onNavigateUp = {},
+            canNavigateBack = true,
+            recipeUiState = RecipeUiState(),
+            onRecipeValueChange = {},
+            saveRecipe = suspend { null },
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {},
+            takeImage = {},
+            pickImage = {},
+            clearImage = {},
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {},
+            isLoading = true,
+            updateRecipeWebsiteUrl = {},
+            loadRecipeFromWebsite = {},
+            showRecipeFromWebsiteSection = {},
+            hideRecipeFromWebsiteSection = {}
+        )
+    }
+}
+
+@TabletPreview
+@Composable
+fun RecipeCreateScreenLoadingTabletPreview() {
+    RecipeBookTheme {
+        RecipeCreateScreenStateCollector(
+            ScreenSize.LARGE,
+            navigateToRecipeDetails = {},
+            onNavigateUp = {},
+            canNavigateBack = true,
+            recipeUiState = RecipeUiState(),
+            onRecipeValueChange = {},
+            saveRecipe = suspend { null },
+            unusedTagList = TagExamples.tagList,
+            openTagListPopup = {},
+            closeTagListPopup = {},
+            takeImage = {},
+            pickImage = {},
+            clearImage = {},
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            tagListUpdateFilterName = {},
+            isLoading = true,
+            updateRecipeWebsiteUrl = {},
+            loadRecipeFromWebsite = {},
+            showRecipeFromWebsiteSection = {},
+            hideRecipeFromWebsiteSection = {}
         )
     }
 }

@@ -48,4 +48,11 @@
     <string name="formError_ingredientList_NoIngredients">La lista deve contenere almeno un ingrediente</string>
     <string name="formError_integerField">Campo numero intero</string>
     <string name="formError_numericField">Campo numerico</string>
+    <string name="recipeForm_loadRecipeFromWebsite">Carica ricetta</string>
+    <string name="recipeForm_websiteUrl">Indirizzo da leggere</string>
+    <string name="recipeForm_websiteUrlErrorInvalid">Indirizzo non valido</string>
+    <string name="recipeForm_websiteUrlErrorUnmanaged">Indirizzo proviene da un sito non gestito</string>
+    <string name="recipeForm_websiteUrlLoadingError">Errore di caricamento</string>
+    <string name="recipeForm_websiteUrlTitle">Caricamento ricette da indirizzo web</string>
+    <string name="recipeForm_websiteUrlWebsiteList">Lista di siti supportati: %1$s</string>
 </resources>

@@ -215,7 +215,6 @@ private fun HomeBody(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.padding(contentPadding)
     ) {
-
         HomeRecipeFilters(
             filter = filter,
             updateFilter = updateFilter,
