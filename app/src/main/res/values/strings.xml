@@ -22,6 +22,8 @@
     <string name="recipe_id">Id</string>
     <string name="recipe_method">Procedimento</string>
     <string name="recipe_ingredients">Ingredienti</string>
+    <string name="recipe_ingredient">Ingrediente</string>
+    <string name="recipe_ingredientTitle">Titolo ingredienti</string>
     <string name="recipe_tags">Tag</string>
     <string name="recipe_servingsNum">Numero di portate</string>
     <string name="recipe_prepTimeMinutes">Tempo di preparazione</string>
@@ -55,4 +57,9 @@
     <string name="recipeForm_websiteUrlLoadingError">Errore di caricamento</string>
     <string name="recipeForm_websiteUrlTitle">Caricamento ricette da indirizzo web</string>
     <string name="recipeForm_websiteUrlWebsiteList">Lista di siti supportati: %1$s</string>
+    <string name="recipeFromImage_override">Sovrascrivi ricetta</string>
+    <string name="recipeFromImage_addToRecipe">Aggiungi alla ricetta</string>
+    <string name="recipeFromImage_takeImage">Scatta foto da analizzare</string>
+    <string name="recipeFromImage_pickImage">Scegli foto da analizzare</string>
+    <string name="recipeFromImage_loadImage">Elabora immagine</string>
 </resources>

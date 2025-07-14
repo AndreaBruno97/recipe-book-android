@@ -6,15 +6,17 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.data.objects.recipe.RecipeDao
 import com.example.recipebook.data.objects.recipe.RecipeRepository
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.common.recipeFormBody.toRecipeUiState
-import com.example.recipebook.ui.composables.common.utility.ImageManagerViewModel
 import com.example.recipebook.ui.composables.common.utility.getRecipeFolderPath
 import com.example.recipebook.ui.composables.common.utility.getRecipeImagePath
+import com.example.recipebook.ui.composables.common.utility.saveImage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -24,8 +26,7 @@ import org.mongodb.kbson.ObjectId
 class RecipeEditViewModel(
     savedStateHandle: SavedStateHandle,
     private val recipeRepository: RecipeRepository
-) : ImageManagerViewModel() {
-
+) : ViewModel() {
     var recipeUiState by mutableStateOf(RecipeUiState())
         private set
 
@@ -34,8 +35,17 @@ class RecipeEditViewModel(
     var recipeId: ObjectId = ObjectId(recipeIdString)
         private set
 
+    var isRecipeImageChanged by mutableStateOf(false)
+        private set
+
     fun updateUiState(recipeDao: RecipeDao) {
-        recipeUiState = RecipeUiState(recipeDao = recipeDao)
+        recipeUiState = recipeUiState.copy(recipeDao = recipeDao)
+    }
+
+    fun updateUiStateImage(recipeImage: ImageBitmap?, recipeImageTmpPath: String?) {
+        recipeUiState =
+            recipeUiState.copy(recipeImage = recipeImage, recipeImageTmpPath = recipeImageTmpPath)
+        isRecipeImageChanged = true
     }
 
     suspend fun updateRecipe(context: Context): Boolean {
@@ -45,7 +55,14 @@ class RecipeEditViewModel(
             val recipeFolderPath = getRecipeFolderPath(recipeId)
             val recipeFilePath = getRecipeImagePath(recipeId)
 
-            saveImage(recipeFolderPath, recipeFilePath, context)
+            if (isRecipeImageChanged) {
+                saveImage(
+                    recipeFolderPath,
+                    recipeFilePath,
+                    recipeUiState.recipeImageTmpPath,
+                    context
+                )
+            }
 
             return true
         }
@@ -56,11 +73,13 @@ class RecipeEditViewModel(
     }
 
     fun loadRecipeImage(context: Context) {
-        if (isFileChanged == false && tempImage == null) {
-            tempImage = com.example.recipebook.ui.composables.common.utility.loadRecipeImage(
+        if (isRecipeImageChanged == false && recipeUiState.recipeImage == null) {
+            val tempImage = com.example.recipebook.ui.composables.common.utility.loadRecipeImage(
                 recipeId,
                 context
             )
+
+            recipeUiState = recipeUiState.copy(recipeImage = tempImage)
         }
     }
 

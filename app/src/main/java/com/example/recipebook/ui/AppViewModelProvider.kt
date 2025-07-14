@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.recipebook.RecipeBookApplication
 import com.example.recipebook.ui.composables.common.tagFormBody.TagFormBodyViewModel
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
+import com.example.recipebook.ui.composables.common.utility.ImageManagerViewModel
 import com.example.recipebook.ui.composables.home.HomeViewModel
 import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateViewModel
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsViewModel
@@ -58,5 +59,10 @@ object AppViewModelProvider {
                 tagRepository = RecipeBookApplication.tagRepository
             )
         }
+
+        initializer {
+            ImageManagerViewModel()
+        }
+
     }
 }

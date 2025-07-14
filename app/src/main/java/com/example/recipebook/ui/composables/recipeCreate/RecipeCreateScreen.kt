@@ -18,21 +18,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
 import com.example.recipebook.data.objects.recipe.RecipeDao
-import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
+import com.example.recipebook.ui.composables.common.utility.ImageManagerViewModel
 import com.example.recipebook.ui.composables.common.utility.LoadingOverlay
 import com.example.recipebook.ui.composables.common.utility.createCameraLauncherState
+import com.example.recipebook.ui.composables.recipeCreate.internal.RecipeFromImageSection
 import com.example.recipebook.ui.composables.recipeCreate.internal.RecipeFromWebsiteSection
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
@@ -54,11 +56,26 @@ fun RecipeCreateScreen(
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
     recipeViewModel: RecipeCreateViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    tagListViewModel: TagListSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    tagListViewModel: TagListSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    imageManagerViewModel: ImageManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val currentContext = LocalContext.current
 
-    val cameraLauncherState = createCameraLauncherState(currentContext, recipeViewModel)
+    val cameraLauncherState =
+        createCameraLauncherState(currentContext, imageManagerViewModel) { imageBitmap, imagePath ->
+            when (recipeViewModel.currentImageDestination) {
+                ImageDestination.MAIN_RECIPE_IMAGE -> {
+                    recipeViewModel.updateUiStateImage(imageBitmap, imagePath)
+                }
+
+                ImageDestination.IMAGE_TO_RECIPE_CONVERTER -> {
+                    recipeViewModel.updateRecipeFromImageBitmap(imageBitmap, imagePath)
+                }
+
+                null -> { /* Do nothing */
+                }
+            }
+        }
 
     val recipeUiState = recipeViewModel.recipeUiState
     val tagListUiState by tagListViewModel.tagListUiState.collectAsState()
@@ -78,10 +95,15 @@ fun RecipeCreateScreen(
         openTagListPopup = tagListViewModel::openTagListPopup,
         closeTagListPopup = tagListViewModel::closeTagListPopup,
         isTagListPopupOpen = tagListViewModel.isTagListPopupOpen,
-        takeImage = cameraLauncherState::takeImage,
-        pickImage = cameraLauncherState::pickImage,
-        clearImage = recipeViewModel::clearImage,
-        recipeImage = recipeViewModel.tempImage,
+        takeImage = {
+            recipeViewModel.updateCurrentImageDestination(ImageDestination.MAIN_RECIPE_IMAGE)
+            cameraLauncherState.takeImage()
+        },
+        pickImage = {
+            recipeViewModel.updateCurrentImageDestination(ImageDestination.MAIN_RECIPE_IMAGE)
+            cameraLauncherState.pickImage()
+        },
+        clearImage = { recipeViewModel.updateUiStateImage(null, null) },
         tagListFilterName = tagListFilterState.filterName,
         tagListUpdateFilterName = tagListViewModel::updateFilterName,
         recipeWebsiteUrl = recipeViewModel.recipeWebsiteUrl,
@@ -91,7 +113,30 @@ fun RecipeCreateScreen(
         updateRecipeWebsiteUrl = { recipeViewModel.updateRecipeWebsiteUrl(it) },
         loadRecipeFromWebsite = { recipeViewModel.loadRecipeFromWebsite(currentContext) },
         showRecipeFromWebsiteSection = recipeViewModel::showRecipeFromWebsiteSection,
-        hideRecipeFromWebsiteSection = recipeViewModel::hideRecipeFromWebsiteSection
+        hideRecipeFromWebsiteSection = recipeViewModel::hideRecipeFromWebsiteSection,
+        isRecipeFromImagePopupOpen = recipeViewModel.isRecipeFromImagePopupOpen,
+        imageRecipeBlockContainer = recipeViewModel.imageRecipeBlockContainer,
+        recipeFromImage = recipeViewModel::recipeFromImage,
+        updateBlockContainer = recipeViewModel::updateBlockContainer,
+        closeRecipeFromImagePopup = recipeViewModel::closeRecipeFromImagePopup,
+        loadRecipeFromImageResult = recipeViewModel::loadRecipeFromImageResult,
+        recipeFromImageTakeImage = {
+            recipeViewModel.resetRecipeFromImage()
+            recipeViewModel.updateCurrentImageDestination(ImageDestination.IMAGE_TO_RECIPE_CONVERTER)
+            cameraLauncherState.takeImage()
+        },
+        recipeFromImagePickImage = {
+            recipeViewModel.resetRecipeFromImage()
+            recipeViewModel.updateCurrentImageDestination(ImageDestination.IMAGE_TO_RECIPE_CONVERTER)
+            cameraLauncherState.pickImage()
+        },
+        recipeFromImageBitmap = recipeViewModel.recipeFromImageBitmap,
+        recipeFromImageOrientation = recipeViewModel.recipeFromImageOrientation,
+        updateBlockType = recipeViewModel::updateBlockType,
+        updateBlockElementIndex = recipeViewModel::updateBlockElementIndex,
+        updateBlockIsCollapsed = recipeViewModel::updateBlockIsCollapsed,
+        rotateRecipeFromImage90Right = recipeViewModel::rotateRecipeFromImage90Right,
+        rotateRecipeFromImage90Left = recipeViewModel::rotateRecipeFromImage90Left
     )
 }
 
@@ -111,7 +156,6 @@ fun RecipeCreateScreenStateCollector(
     takeImage: () -> Unit,
     pickImage: () -> Unit,
     clearImage: () -> Unit,
-    recipeImage: ImageBitmap?,
     tagListFilterName: String = "",
     tagListUpdateFilterName: (String) -> Unit,
     recipeWebsiteUrl: String = "",
@@ -121,9 +165,25 @@ fun RecipeCreateScreenStateCollector(
     updateRecipeWebsiteUrl: (String) -> Unit,
     loadRecipeFromWebsite: () -> Unit,
     showRecipeFromWebsiteSection: () -> Unit,
-    hideRecipeFromWebsiteSection: () -> Unit
+    hideRecipeFromWebsiteSection: () -> Unit,
+    isRecipeFromImagePopupOpen: Boolean = false,
+    imageRecipeBlockContainer: ImageRecipeBlockContainer? = null,
+    recipeFromImage: () -> Unit,
+    updateBlockContainer: (ImageRecipeBlockContainer?) -> Unit,
+    closeRecipeFromImagePopup: () -> Unit,
+    loadRecipeFromImageResult: (Boolean) -> Unit,
+    recipeFromImageBitmap: ImageBitmap?,
+    recipeFromImageOrientation: Int = 0,
+    recipeFromImageTakeImage: () -> Unit,
+    recipeFromImagePickImage: () -> Unit,
+    updateBlockType: (ImageRecipeBlock, Int) -> Unit,
+    updateBlockElementIndex: (ImageRecipeBlock, Int, Int) -> Unit,
+    updateBlockIsCollapsed: (ImageRecipeBlock, Int) -> Unit,
+    rotateRecipeFromImage90Right: () -> Unit,
+    rotateRecipeFromImage90Left: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
 
     LoadingOverlay(isLoading)
 
@@ -156,6 +216,24 @@ fun RecipeCreateScreenStateCollector(
                 hideRecipeFromWebsiteSection = hideRecipeFromWebsiteSection
             )
 
+            RecipeFromImageSection(
+                isRecipeFromImagePopupOpen = isRecipeFromImagePopupOpen,
+                imageRecipeBlockContainer = imageRecipeBlockContainer,
+                recipeFromImageBitmap = recipeFromImageBitmap,
+                imageOrientation = recipeFromImageOrientation,
+                recipeFromImageTakeImage = recipeFromImageTakeImage,
+                recipeFromImagePickImage = recipeFromImagePickImage,
+                recipeFromImage = recipeFromImage,
+                updateBlockContainer = updateBlockContainer,
+                closeRecipeFromImagePopup = closeRecipeFromImagePopup,
+                loadRecipeFromImageResult = loadRecipeFromImageResult,
+                updateBlockType = updateBlockType,
+                updateBlockElementIndex = updateBlockElementIndex,
+                updateBlockIsCollapsed = updateBlockIsCollapsed,
+                rotateRecipeFromImage90Right = rotateRecipeFromImage90Right,
+                rotateRecipeFromImage90Left = rotateRecipeFromImage90Left
+            )
+
             RecipeFormBody(
                 recipeUiState = recipeUiState,
                 onRecipeValueChange = onRecipeValueChange,
@@ -177,7 +255,6 @@ fun RecipeCreateScreenStateCollector(
                 openTagListPopup = openTagListPopup,
                 closeTagListPopup = closeTagListPopup,
                 isTagListPopupOpen = isTagListPopupOpen,
-                recipeImage = recipeImage,
                 tagListFilterName = tagListFilterName,
                 tagListUpdateFilterName = tagListUpdateFilterName
             )
@@ -205,12 +282,23 @@ fun RecipeCreateScreenPhonePreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {},
             updateRecipeWebsiteUrl = {},
             loadRecipeFromWebsite = {},
             showRecipeFromWebsiteSection = {},
-            hideRecipeFromWebsiteSection = {}
+            hideRecipeFromWebsiteSection = {},
+            recipeFromImage = {},
+            updateBlockContainer = {},
+            closeRecipeFromImagePopup = {},
+            loadRecipeFromImageResult = {},
+            recipeFromImageBitmap = null,
+            recipeFromImageTakeImage = {},
+            recipeFromImagePickImage = {},
+            updateBlockType = { _, _ -> /* Do Nothing */ },
+            updateBlockElementIndex = { _, _, _ -> /* Do Nothing */ },
+            updateBlockIsCollapsed = { _, _ -> /* Do Nothing */ },
+            rotateRecipeFromImage90Right = {},
+            rotateRecipeFromImage90Left = {}
         )
     }
 }
@@ -233,12 +321,23 @@ fun RecipeCreateScreenTabletPreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {},
             updateRecipeWebsiteUrl = {},
             loadRecipeFromWebsite = {},
             showRecipeFromWebsiteSection = {},
-            hideRecipeFromWebsiteSection = {}
+            hideRecipeFromWebsiteSection = {},
+            recipeFromImage = {},
+            updateBlockContainer = {},
+            closeRecipeFromImagePopup = {},
+            loadRecipeFromImageResult = {},
+            recipeFromImageBitmap = null,
+            recipeFromImageTakeImage = {},
+            recipeFromImagePickImage = {},
+            updateBlockType = { _, _ -> /* Do Nothing */ },
+            updateBlockElementIndex = { _, _, _ -> /* Do Nothing */ },
+            updateBlockIsCollapsed = { _, _ -> /* Do Nothing */ },
+            rotateRecipeFromImage90Right = {},
+            rotateRecipeFromImage90Left = {}
         )
     }
 }
@@ -261,13 +360,24 @@ fun RecipeCreateScreenLoadingPhonePreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {},
             isLoading = true,
             updateRecipeWebsiteUrl = {},
             loadRecipeFromWebsite = {},
             showRecipeFromWebsiteSection = {},
-            hideRecipeFromWebsiteSection = {}
+            hideRecipeFromWebsiteSection = {},
+            recipeFromImage = {},
+            updateBlockContainer = {},
+            closeRecipeFromImagePopup = {},
+            loadRecipeFromImageResult = {},
+            recipeFromImageBitmap = null,
+            recipeFromImageTakeImage = {},
+            recipeFromImagePickImage = {},
+            updateBlockType = { _, _ -> /* Do Nothing */ },
+            updateBlockElementIndex = { _, _, _ -> /* Do Nothing */ },
+            updateBlockIsCollapsed = { _, _ -> /* Do Nothing */ },
+            rotateRecipeFromImage90Right = {},
+            rotateRecipeFromImage90Left = {}
         )
     }
 }
@@ -290,13 +400,24 @@ fun RecipeCreateScreenLoadingTabletPreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {},
             isLoading = true,
             updateRecipeWebsiteUrl = {},
             loadRecipeFromWebsite = {},
             showRecipeFromWebsiteSection = {},
-            hideRecipeFromWebsiteSection = {}
+            hideRecipeFromWebsiteSection = {},
+            recipeFromImage = {},
+            updateBlockContainer = {},
+            closeRecipeFromImagePopup = {},
+            loadRecipeFromImageResult = {},
+            recipeFromImageBitmap = null,
+            recipeFromImageTakeImage = {},
+            recipeFromImagePickImage = {},
+            updateBlockType = { _, _ -> /* Do Nothing */ },
+            updateBlockElementIndex = { _, _, _ -> /* Do Nothing */ },
+            updateBlockIsCollapsed = { _, _ -> /* Do Nothing */ },
+            rotateRecipeFromImage90Right = {},
+            rotateRecipeFromImage90Left = {}
         )
     }
 }

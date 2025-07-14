@@ -4,6 +4,7 @@ import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 
 sealed interface IngredientItemDao {
     fun validateInput(): Boolean
+    fun isEmpty(): Boolean
     fun enableInputValidation()
 }
 
@@ -28,6 +29,10 @@ data class IngredientGroupTitleDao(
 
     override fun validateInput(): Boolean {
         return isTitleValid()
+    }
+
+    override fun isEmpty(): Boolean {
+        return title.isNullOrEmpty()
     }
 
     override fun enableInputValidation() {
@@ -79,6 +84,12 @@ data class IngredientDao(
         return isNameValid() &&
                 isQuantityValid() &&
                 isValueValid()
+    }
+
+    override fun isEmpty(): Boolean {
+        return name.isEmpty() &&
+                quantity.isEmpty() &&
+                value.isEmpty()
     }
 
     override fun enableInputValidation() {

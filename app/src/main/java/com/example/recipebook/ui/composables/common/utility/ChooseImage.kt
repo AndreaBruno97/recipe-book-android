@@ -67,55 +67,56 @@ fun loadRecipeImage(recipeId: ObjectId, context: Context): ImageBitmap? {
     return recipeImage
 }
 
+suspend fun saveImage(
+    folderPath: String,
+    filePath: String,
+    sourceFilePath: String?,
+    context: Context
+) {
+    val folderFile = File(context.filesDir, folderPath)
+
+    // Create directory if it doesn't exist
+    folderFile.mkdirs()
+
+    // Clear directory in case previous file exists
+    folderFile.listFiles()?.forEach { it.delete() }
+
+    // Create new file
+    if (sourceFilePath != null) {
+        val fileBytes = File(sourceFilePath).readBytes()
+        withContext(Dispatchers.IO) {
+            val imageFile = File(context.filesDir, filePath)
+
+            FileOutputStream(imageFile).use {
+                it.write(fileBytes)
+            }
+        }
+    }
+}
+
 open class ImageManagerViewModel : ViewModel() {
+    private val imagePrefix = "temp_image_file_"
+
     var tempFileUrl: Uri? by mutableStateOf(null)
     var tempFileUrlDirectString: String? by mutableStateOf(null)
     var tempImage: ImageBitmap? by mutableStateOf(null)
-    var isFileChanged: Boolean by mutableStateOf(false)
 
     fun clearImage() {
-        if (tempImage != null) {
-            isFileChanged = true
-        }
-
         tempFileUrl = null
         tempFileUrlDirectString = null
         tempImage = null
     }
 
-    suspend fun saveImage(folderPath: String, filePath: String, context: Context) {
-        val sourceFilePath = tempFileUrlDirectString
-        val folderFile = File(context.filesDir, folderPath)
-
-        // Create directory if it doesn't exist
-        folderFile.mkdirs()
-
-        if (isFileChanged) {
-            val imageToStore = tempImage
-            val imageFile = File(context.filesDir, filePath)
-
-            // Clear directory in case previous file exists
-            folderFile.listFiles()?.forEach { it.delete() }
-
-            // Create new file
-            if (sourceFilePath != null && imageToStore != null) {
-                val fileBytes = File(sourceFilePath).readBytes()
-                withContext(Dispatchers.IO) {
-                    FileOutputStream(imageFile).use {
-                        it.write(fileBytes)
-                    }
-                }
-            }
-        }
-    }
-
-    fun onReceive(intent: Intent) = runBlocking {
+    fun onReceive(
+        intent: Intent,
+        retrieveImage: (ImageBitmap?, String?) -> Unit
+    ) = runBlocking {
         viewModelScope.launch(coroutineContext) {
             when (intent) {
                 is Intent.OnPermissionGrantedWith -> {
                     // Create an empty image file in the app's cache directory
                     val tempFile = File.createTempFile(
-                        "temp_image_file_", /* prefix */
+                        imagePrefix, /* prefix */
                         ".jpg", /* suffix */
                         intent.compositionContext.cacheDir  /* cache directory */
                     )
@@ -153,15 +154,17 @@ open class ImageManagerViewModel : ViewModel() {
                             tempImage = bitmap.asImageBitmap()
 
                             val tempFilePicked = File.createTempFile(
-                                "temp_image_file_", /* prefix */
+                                imagePrefix, /* prefix */
                                 ".jpg", /* suffix */
                                 intent.compositionContext.cacheDir  /* cache directory */
                             )
                             tempFilePicked.writeBytes(bytes)
                             tempFileUrlDirectString = tempFilePicked.path
-                            isFileChanged = true
+
+                            retrieveImage(tempImage, tempFileUrlDirectString)
                         } else {
                             // error reading the bytes from the image url
+                            retrieveImage(null, null)
                             println("The image that was picked could not be read from the device at this url: $imageUrl")
                         }
 
@@ -187,13 +190,16 @@ open class ImageManagerViewModel : ViewModel() {
                                 .decodeFile(tempFileUrlDirectString)
                                 .asImageBitmap()
                         }
-                        isFileChanged = true
                     }
+
+                    retrieveImage(tempImage, tempFileUrlDirectString)
 
                     tempFileUrl = null
                 }
 
                 is Intent.OnImageSavingCanceled -> {
+                    retrieveImage(null, null)
+
                     tempFileUrl = null
                 }
             }
@@ -220,22 +226,32 @@ class CameraLauncherStateCollector(
 @Composable
 fun createCameraLauncherState(
     currentContext: Context,
-    viewModel: ImageManagerViewModel
+    viewModel: ImageManagerViewModel,
+    retrieveImage: (ImageBitmap?, String?) -> Unit
 ): CameraLauncherStateCollector {
     // launches photo picker
     val pickImageFromAlbumLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { urls ->
-            viewModel.onReceive(Intent.OnFinishPickingImagesWith(currentContext, urls))
+            viewModel.onReceive(
+                Intent.OnFinishPickingImagesWith(currentContext, urls),
+                retrieveImage
+            )
         }
 
     // launches camera
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isImageSaved ->
             if (isImageSaved) {
-                viewModel.onReceive(Intent.OnImageSavedWith(currentContext))
+                viewModel.onReceive(
+                    Intent.OnImageSavedWith(currentContext),
+                    retrieveImage
+                )
             } else {
                 // handle image saving error or cancellation
-                viewModel.onReceive(Intent.OnImageSavingCanceled)
+                viewModel.onReceive(
+                    Intent.OnImageSavingCanceled,
+                    retrieveImage
+                )
             }
         }
 
@@ -243,10 +259,16 @@ fun createCameraLauncherState(
     val permissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
             if (permissionGranted) {
-                viewModel.onReceive(Intent.OnPermissionGrantedWith(currentContext))
+                viewModel.onReceive(
+                    Intent.OnPermissionGrantedWith(currentContext),
+                    retrieveImage
+                )
             } else {
                 // handle permission denied such as:
-                viewModel.onReceive(Intent.OnPermissionDenied)
+                viewModel.onReceive(
+                    Intent.OnPermissionDenied,
+                    retrieveImage
+                )
             }
         }
 

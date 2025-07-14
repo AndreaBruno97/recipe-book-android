@@ -44,11 +44,11 @@ fun RecipeFormBody(
     openTagListPopup: () -> Unit,
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
-    recipeImage: ImageBitmap?,
     tagListFilterName: String = "",
     tagListUpdateFilterName: (String) -> Unit
 ) {
     val recipeDao = recipeUiState.recipeDao
+    val recipeImage = recipeUiState.recipeImage
 
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large)),
@@ -242,7 +242,8 @@ private fun RecipeFormBodyScreenPreview() {
     RecipeBookTheme {
         RecipeFormBody(
             recipeUiState = RecipeUiState(
-                RecipeExamples.recipe1.toRecipeDao()
+                recipeDao = RecipeExamples.recipe1.toRecipeDao(),
+                recipeImage = RecipeExamples.recipeImageBitmap
             ),
             onRecipeValueChange = {},
             onSaveClick = {},
@@ -252,7 +253,6 @@ private fun RecipeFormBodyScreenPreview() {
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {}
         )
     }
@@ -264,7 +264,8 @@ private fun RecipeFormBodyScreenWithPopupPreview() {
     RecipeBookTheme {
         RecipeFormBody(
             recipeUiState = RecipeUiState(
-                RecipeExamples.recipe1.toRecipeDao()
+                recipeDao = RecipeExamples.recipe1.toRecipeDao(),
+                recipeImage = RecipeExamples.recipeImageBitmap
             ),
             onRecipeValueChange = {},
             onSaveClick = {},
@@ -275,7 +276,6 @@ private fun RecipeFormBodyScreenWithPopupPreview() {
             openTagListPopup = {},
             closeTagListPopup = {},
             isTagListPopupOpen = true,
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {}
         )
     }
@@ -287,7 +287,8 @@ private fun RecipeFormBodyScreenErrorPreview() {
     RecipeBookTheme {
         RecipeFormBody(
             recipeUiState = RecipeUiState(
-                RecipeExamples.recipe1.toRecipeDao()
+                recipeImage = RecipeExamples.recipeImageBitmap,
+                recipeDao = RecipeExamples.recipe1.toRecipeDao()
                     .copy(
                         name = "",
                         servingsNum = "a",
@@ -338,7 +339,6 @@ private fun RecipeFormBodyScreenErrorPreview() {
             unusedTagList = TagExamples.tagList,
             openTagListPopup = {},
             closeTagListPopup = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {}
         )
     }

@@ -75,4 +75,7 @@ dependencies {
 
     // Jsoup: parse HTML page
     implementation(libs.jsoup)
+
+    // Google ML Kit (Text Recognition)
+    implementation(libs.text.recognition)
 }

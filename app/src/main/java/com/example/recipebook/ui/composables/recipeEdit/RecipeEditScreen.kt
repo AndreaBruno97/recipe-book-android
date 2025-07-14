@@ -15,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -31,6 +30,7 @@ import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeFormBody
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
+import com.example.recipebook.ui.composables.common.utility.ImageManagerViewModel
 import com.example.recipebook.ui.composables.common.utility.createCameraLauncherState
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
 import com.example.recipebook.ui.navigation.ScreenSize
@@ -56,10 +56,16 @@ fun RecipeEditScreen(
     modifier: Modifier = Modifier,
     recipeViewModel: RecipeEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
     tagListSelectorViewModel: TagListSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    imageManagerViewModel: ImageManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val currentContext = LocalContext.current
 
-    val cameraLauncherState = createCameraLauncherState(currentContext, recipeViewModel)
+    val cameraLauncherState = createCameraLauncherState(
+        currentContext,
+        imageManagerViewModel,
+        recipeViewModel::updateUiStateImage
+    )
+
     recipeViewModel.loadRecipeImage(currentContext)
 
     val recipeUiState = recipeViewModel.recipeUiState
@@ -83,8 +89,7 @@ fun RecipeEditScreen(
         isTagListPopupOpen = tagListSelectorViewModel.isTagListPopupOpen,
         takeImage = cameraLauncherState::takeImage,
         pickImage = cameraLauncherState::pickImage,
-        clearImage = recipeViewModel::clearImage,
-        recipeImage = recipeViewModel.tempImage,
+        clearImage = { recipeViewModel.updateUiStateImage(null, null) },
         tagListFilterName = tagListFilterState.filterName,
         tagListUpdateFilterName = tagListSelectorViewModel::updateFilterName
     )
@@ -107,7 +112,6 @@ fun RecipeEditScreenStateCollector(
     takeImage: () -> Unit,
     pickImage: () -> Unit,
     clearImage: () -> Unit,
-    recipeImage: ImageBitmap?,
     tagListFilterName: String = "",
     tagListUpdateFilterName: (String) -> Unit
 ) {
@@ -148,7 +152,6 @@ fun RecipeEditScreenStateCollector(
             openTagListPopup = openTagListPopup,
             closeTagListPopup = closeTagListPopup,
             isTagListPopupOpen = isTagListPopupOpen,
-            recipeImage = recipeImage,
             tagListFilterName = tagListFilterName,
             tagListUpdateFilterName = tagListUpdateFilterName
         )
@@ -175,7 +178,6 @@ fun RecipeEditScreenPhonePreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {}
         )
     }
@@ -199,7 +201,6 @@ fun RecipeEditScreenTabletPreview() {
             takeImage = {},
             pickImage = {},
             clearImage = {},
-            recipeImage = RecipeExamples.recipeImageBitmap,
             tagListUpdateFilterName = {}
         )
     }

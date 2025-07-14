@@ -2,6 +2,8 @@ package com.example.recipebook.ui.theme
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -40,3 +42,8 @@ val TagForm_DeleteIcon = Icons.Default.Close
 val SortableList_ItemGoUp = Icons.Default.KeyboardArrowUp
 val SortableList_ItemGoDown = Icons.Default.KeyboardArrowDown
 val SortableList_DeleteIngredient = Icons.Default.Close
+
+val RecipeFromImage_ShowRow = Icons.Default.KeyboardArrowDown
+val RecipeFromImage_HideRow = Icons.Default.KeyboardArrowUp
+val RecipeFromImage_RotateLeft = Icons.AutoMirrored.Filled.KeyboardArrowLeft
+val RecipeFromImage_RotateRight = Icons.AutoMirrored.Filled.KeyboardArrowRight
