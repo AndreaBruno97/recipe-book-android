@@ -15,8 +15,7 @@ import com.example.recipebook.data.objects.recipe.RecipeRepository
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.common.recipeFormBody.toRecipeUiState
 import com.example.recipebook.ui.composables.common.utility.getRecipeFolderPath
-import com.example.recipebook.ui.composables.common.utility.getRecipeImagePath
-import com.example.recipebook.ui.composables.common.utility.saveImage
+import com.example.recipebook.ui.composables.common.utility.saveRecipeImage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -53,12 +52,10 @@ class RecipeEditViewModel(
             recipeRepository.updateRecipe(recipeUiState.recipeDao.toRecipe())
 
             val recipeFolderPath = getRecipeFolderPath(recipeId)
-            val recipeFilePath = getRecipeImagePath(recipeId)
 
             if (isRecipeImageChanged) {
-                saveImage(
+                saveRecipeImage(
                     recipeFolderPath,
-                    recipeFilePath,
                     recipeUiState.recipeImageTmpPath,
                     context
                 )

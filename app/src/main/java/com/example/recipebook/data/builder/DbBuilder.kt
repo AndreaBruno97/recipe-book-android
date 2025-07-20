@@ -1,5 +1,6 @@
 package com.example.recipebook.data.builder
 
+import com.example.recipebook.constants.FileConstants
 import com.example.recipebook.data.objects.ingredient.Ingredient
 import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 import com.example.recipebook.data.objects.recipe.Recipe
@@ -19,7 +20,9 @@ class DbBuilder {
                 Tag::class
             )
 
-            val realmConfiguration = RealmConfiguration.Builder(schema)
+            val realmConfiguration = RealmConfiguration
+                .Builder(schema)
+                .name(FileConstants.DB_NAME)
                 .schemaVersion(DbMigration.CURRENT_VERSION)
                 .initialData(DbInitialDataCallback())
                 //.migration()

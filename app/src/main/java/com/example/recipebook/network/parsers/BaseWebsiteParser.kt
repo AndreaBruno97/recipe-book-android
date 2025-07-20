@@ -3,6 +3,7 @@ package com.example.recipebook.network.parsers
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.recipebook.constants.FileConstants
 import com.example.recipebook.data.objects.ingredientGroup.IngredientGroup
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.network.NetworkResponse
@@ -56,8 +57,8 @@ interface BaseWebsiteParser {
 
             if (imageBytes != null && imageBytes.isNotEmpty()) {
                 val tempFile = File.createTempFile(
-                    "temp_image_file_", /* prefix */
-                    ".jpg", /* suffix */
+                    FileConstants.TEMP_IMAGE_PREFIX, /* prefix */
+                    FileConstants.TEMP_IMAGE_SUFFIX, /* suffix */
                     cacheDirectory  /* cache directory */
                 )
                 tempFile.writeBytes(imageBytes)

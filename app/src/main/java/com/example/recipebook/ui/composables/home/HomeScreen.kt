@@ -31,12 +31,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
+import com.example.recipebook.constants.FileFunctions
+import com.example.recipebook.constants.saveToDownloadFolderComposable
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
-import com.example.recipebook.ui.composables.common.utility.clearCache
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeFilters
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeList
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
@@ -66,7 +67,7 @@ fun HomeScreen(
     tagListViewModel: TagListSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val localContext = LocalContext.current
-    clearCache(localContext)
+    FileFunctions.clearCache(localContext)
 
     val homeUiState by homeViewModel.homeUiState.collectAsState()
     val filterState by homeViewModel.filterState.collectAsState()
@@ -76,6 +77,10 @@ fun HomeScreen(
 
     val usedTagIdList = filterState.filterTagList.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
+
+    val downloadDb = saveToDownloadFolderComposable(localContext) {
+        homeViewModel.getDbDownloadFile(localContext)
+    }
 
     HomeScreenStateCollector(
         screenSize = screenSize,
@@ -95,7 +100,8 @@ fun HomeScreen(
         unusedTagList = unusedTagList,
         closeTagListPopup = tagListViewModel::closeTagListPopup,
         isTagListPopupOpen = tagListViewModel.isTagListPopupOpen,
-        filterName = tagListFilterState.filterName
+        filterName = tagListFilterState.filterName,
+        downloadDb = downloadDb
     )
 }
 
@@ -119,9 +125,11 @@ private fun HomeScreenStateCollector(
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
     filterName: String = "",
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    downloadDb: () -> Unit
 ) {
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val localContext = LocalContext.current
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBarBehavior.nestedScrollConnection),
@@ -156,6 +164,12 @@ private fun HomeScreenStateCollector(
                             Icon(imageVector = Home_FabTagList, contentDescription = "")
                             Text(stringResource(R.string.home_navigate_to_tag_list))
                         }
+                    }
+
+                    Button(
+                        onClick = downloadDb
+                    ) {
+                        Text("DOWNLOAD")
                     }
                 }
             )
@@ -266,7 +280,8 @@ fun HomeScreenPhonePreview() {
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            downloadDb = {}
         )
     }
 }
@@ -287,7 +302,8 @@ fun HomeScreenFoldablePreview() {
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            downloadDb = {}
         )
     }
 }
@@ -308,7 +324,8 @@ fun HomeScreenTabletPreview() {
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            downloadDb = {}
         )
     }
 }

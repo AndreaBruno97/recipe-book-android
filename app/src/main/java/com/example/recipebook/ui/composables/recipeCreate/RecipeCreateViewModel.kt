@@ -26,8 +26,7 @@ import com.example.recipebook.network.Network
 import com.example.recipebook.network.SupportedWebsites
 import com.example.recipebook.ui.composables.common.recipeFormBody.RecipeUiState
 import com.example.recipebook.ui.composables.common.utility.getRecipeFolderPath
-import com.example.recipebook.ui.composables.common.utility.getRecipeImagePath
-import com.example.recipebook.ui.composables.common.utility.saveImage
+import com.example.recipebook.ui.composables.common.utility.saveRecipeImage
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -148,11 +147,9 @@ class RecipeCreateViewModel(
             val recipeId = recipeRepository.addRecipe(recipeUiState.recipeDao.toRecipe())
 
             val recipeFolderPath = getRecipeFolderPath(recipeId)
-            val recipeFilePath = getRecipeImagePath(recipeId)
 
-            saveImage(
+            saveRecipeImage(
                 recipeFolderPath,
-                recipeFilePath,
                 recipeUiState.recipeImageTmpPath,
                 context
             )

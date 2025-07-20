@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipebook.constants.FileFunctions
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeRepository
 import com.example.recipebook.ui.composables.common.utility.getRecipeFolderPath
@@ -104,7 +105,7 @@ class RecipeDetailsViewModel(
         val folderFile = File(context.filesDir, recipeFolderPath)
 
         if (folderFile.isDirectory) {
-            folderFile.delete()
+            FileFunctions.deleteDirectory(folderFile)
         }
     }
 

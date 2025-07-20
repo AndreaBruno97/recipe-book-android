@@ -18,10 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.intl.Locale
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.BuildConfig
+import com.example.recipebook.constants.FileConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -29,6 +31,8 @@ import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 sealed class Intent {
     data class OnPermissionGrantedWith(val compositionContext: Context) : Intent()
@@ -42,21 +46,30 @@ sealed class Intent {
 }
 
 fun getRecipeFolderPath(recipeId: ObjectId): String {
-    return "recipeFiles/${recipeId.toHexString()}"
+    return "${FileConstants.RECIPES_FOLDER}/${recipeId.toHexString()}"
 }
 
-fun getRecipeImagePath(recipeId: ObjectId): String {
+fun getRecipeImage(recipeId: ObjectId, context: Context): File? {
+    var recipeImageFile: File? = null
     val recipeFolderPath = getRecipeFolderPath(recipeId)
-    val recipeFileName = "recipeImage.jpg"
-    return "${recipeFolderPath}/${recipeFileName}"
+    val recipeFolder = File(context.filesDir, recipeFolderPath)
+
+    if (recipeFolder.exists() && recipeFolder.isDirectory) {
+        recipeImageFile = recipeFolder.listFiles()?.firstOrNull { file ->
+            file.exists() &&
+                    file.isFile &&
+                    file.name.startsWith(FileConstants.RECIPE_IMAGE_FILE_NAME_PREFIX)
+        }
+    }
+
+    return recipeImageFile
 }
 
 fun loadRecipeImage(recipeId: ObjectId, context: Context): ImageBitmap? {
     var recipeImage: ImageBitmap? = null
-    val recipeImagePath = getRecipeImagePath(recipeId)
-    val recipeImageFile = File(context.filesDir, recipeImagePath)
+    val recipeImageFile = getRecipeImage(recipeId, context)
 
-    if (recipeImageFile.isFile) {
+    if (recipeImageFile != null && recipeImageFile.isFile) {
         val bitmapOptions = BitmapFactory.Options()
         val recipeBytes = recipeImageFile.readBytes()
         val bitmap: Bitmap =
@@ -67,9 +80,8 @@ fun loadRecipeImage(recipeId: ObjectId, context: Context): ImageBitmap? {
     return recipeImage
 }
 
-suspend fun saveImage(
+suspend fun saveRecipeImage(
     folderPath: String,
-    filePath: String,
     sourceFilePath: String?,
     context: Context
 ) {
@@ -85,7 +97,14 @@ suspend fun saveImage(
     if (sourceFilePath != null) {
         val fileBytes = File(sourceFilePath).readBytes()
         withContext(Dispatchers.IO) {
-            val imageFile = File(context.filesDir, filePath)
+            val currentLocale = java.util.Locale(Locale.current.language)
+            val dateFormatter = SimpleDateFormat("yyyyMMdd_HHmmss", currentLocale)
+            val formattedDate = dateFormatter.format(Date())
+            val filePathName =
+                FileConstants.RECIPE_IMAGE_FILE_NAME_PREFIX +
+                        formattedDate +
+                        FileConstants.RECIPE_IMAGE_FILE_NAME_SUFFIX
+            val imageFile = File(folderFile, filePathName)
 
             FileOutputStream(imageFile).use {
                 it.write(fileBytes)
@@ -95,7 +114,6 @@ suspend fun saveImage(
 }
 
 open class ImageManagerViewModel : ViewModel() {
-    private val imagePrefix = "temp_image_file_"
 
     var tempFileUrl: Uri? by mutableStateOf(null)
     var tempFileUrlDirectString: String? by mutableStateOf(null)
@@ -116,8 +134,8 @@ open class ImageManagerViewModel : ViewModel() {
                 is Intent.OnPermissionGrantedWith -> {
                     // Create an empty image file in the app's cache directory
                     val tempFile = File.createTempFile(
-                        imagePrefix, /* prefix */
-                        ".jpg", /* suffix */
+                        FileConstants.TEMP_IMAGE_PREFIX, /* prefix */
+                        FileConstants.TEMP_IMAGE_SUFFIX, /* suffix */
                         intent.compositionContext.cacheDir  /* cache directory */
                     )
 
@@ -154,8 +172,8 @@ open class ImageManagerViewModel : ViewModel() {
                             tempImage = bitmap.asImageBitmap()
 
                             val tempFilePicked = File.createTempFile(
-                                imagePrefix, /* prefix */
-                                ".jpg", /* suffix */
+                                FileConstants.TEMP_IMAGE_PREFIX, /* prefix */
+                                FileConstants.TEMP_IMAGE_SUFFIX, /* suffix */
                                 intent.compositionContext.cacheDir  /* cache directory */
                             )
                             tempFilePicked.writeBytes(bytes)
