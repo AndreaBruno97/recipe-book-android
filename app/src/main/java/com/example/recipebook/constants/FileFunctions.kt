@@ -2,6 +2,7 @@ package com.example.recipebook.constants
 
 import android.Manifest
 import android.content.Context
+import android.net.Uri
 import android.os.Environment
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,14 +26,32 @@ class FileFunctions {
 
         fun deleteDirectory(directory: File) {
             if (directory.exists() && directory.isDirectory) {
-                directory.listFiles()?.forEach { file ->
-                    if (file.isDirectory) {
-                        deleteDirectory(file)
-                    } else {
-                        file.delete()
-                    }
+                directory.walkBottomUp().forEach { file ->
+                    // walkBottomUp visits folders after the files they contain
+                    // so the files can be deleted before their folder
+                    file.delete()
                 }
                 directory.delete()
+            }
+        }
+
+        fun deepCopyDirectory(sourceDirectory: File, destinationDirectory: File) {
+            if (sourceDirectory.exists() && sourceDirectory.isDirectory) {
+                if (destinationDirectory.exists() == false) {
+                    destinationDirectory.mkdir()
+                }
+
+                // walkTopDown visits folders before the files they contain
+                // so the folders can be copied before their content
+                sourceDirectory.walkTopDown().forEach { sourceFile ->
+                    val relativeFile = sourceFile.relativeTo(sourceDirectory)
+                    val destinationFile = File(destinationDirectory, relativeFile.path)
+                    if (sourceFile.isDirectory) {
+                        destinationFile.mkdir()
+                    } else {
+                        sourceFile.copyTo(destinationFile)
+                    }
+                }
             }
         }
 
@@ -79,10 +98,11 @@ class FileFunctions {
             return outputZipFile
         }
 
-        fun unzipFile(zipFilePath: String, destinationDir: String): File {
+        fun unzipFile(zipFileUri: Uri, destinationDir: String, context: Context) {
             val destinationDirFile = File(destinationDir).canonicalFile
+            val inputStream = context.contentResolver.openInputStream(zipFileUri)
 
-            ZipInputStream(BufferedInputStream(FileInputStream(zipFilePath))).use { zipIn ->
+            ZipInputStream(BufferedInputStream(inputStream)).use { zipIn ->
                 var entry = zipIn.nextEntry
                 while (entry != null) {
                     val newFile = File(destinationDirFile, entry.name).canonicalFile
@@ -98,16 +118,13 @@ class FileFunctions {
                     entry = zipIn.nextEntry
                 }
             }
-
-            return File(zipFilePath)
         }
 
-        fun saveToDownloadFolder(file: File, context: Context) {
-            /*
-                        ActivityCompat.requestPermissions(
-                            context as Activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 23
-                        )
-            */
+        fun saveToDownloadFolder(
+            file: File,
+            successMessage: String,
+            context: Context
+        ) {
             val downloadFolder: File =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
@@ -131,7 +148,7 @@ class FileFunctions {
             file.copyTo(destinationFile)
 
             // displaying a toast message
-            Toast.makeText(context, "Data saved publicly..", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
         }
     }
 }
@@ -139,6 +156,7 @@ class FileFunctions {
 @Composable
 fun saveToDownloadFolderComposable(
     context: Context,
+    successMessage: String,
     getFileToSave: () -> File
 ): () -> Unit {
     val permissionLauncher =
@@ -146,7 +164,7 @@ fun saveToDownloadFolderComposable(
             if (permissionGranted) {
                 // Save file
                 val fileToSave = getFileToSave()
-                FileFunctions.saveToDownloadFolder(fileToSave, context)
+                FileFunctions.saveToDownloadFolder(fileToSave, successMessage, context)
             } else {
                 // Can't save file
             }
@@ -154,5 +172,26 @@ fun saveToDownloadFolderComposable(
 
     return {
         permissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    }
+}
+
+
+@Composable
+fun selectFileComposable(
+    context: Context,
+    getSelectedFile: (Uri, Context) -> Unit
+): () -> Unit {
+    val getContentLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { fileUri ->
+            if (fileUri != null) {
+                // Copy file in cache
+                getSelectedFile(fileUri, context)
+            } else {
+                // No file selected
+            }
+        }
+
+    return {
+        getContentLauncher.launch("*/*")
     }
 }

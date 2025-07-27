@@ -1,8 +1,10 @@
 package com.example.recipebook.data.utility
 
 import android.content.Context
+import android.net.Uri
 import com.example.recipebook.constants.FileConstants
 import com.example.recipebook.constants.FileFunctions
+import com.example.recipebook.data.builder.DbBuilder
 import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
@@ -49,6 +51,11 @@ class DbFunc {
             }
         }
 
+        fun closeDb(realm: Realm) {
+            realm.close()
+            Realm.deleteRealm(realm.configuration)
+        }
+
         fun getDbDownloadFile(context: Context): File {
             var tmpDownloadFile = File(context.cacheDir, FileConstants.DOWNLOAD_DB_FILE)
 
@@ -56,22 +63,47 @@ class DbFunc {
             tmpDownloadFile.createNewFile()
 
             // Retrieve source files
-            val dbFile = File(context.filesDir, FileConstants.DB_NAME)
+            val dbFile = File(context.filesDir, FileConstants.DB_FULL_NAME)
             val recipeFileFolder = File(context.filesDir, FileConstants.RECIPES_FOLDER)
             val contentList = listOf(dbFile, recipeFileFolder)
 
             // Get zipped file
             tmpDownloadFile = FileFunctions.zipFile(contentList, tmpDownloadFile)
 
-            /*
-            // Save in Download folder
-            FileFunctions.saveToDownloadFolder(tmpDownloadFile, context)
-
-            // Delete temporary file
-            tmpDownloadFile.delete()
-            */
-
             return tmpDownloadFile
+        }
+
+        fun loadDbFile(dbFileUri: Uri, realm: Realm, context: Context): Realm? {
+            val unzippedFolder = File(context.cacheDir, FileConstants.LOAD_DB_FOLDER)
+            unzippedFolder.mkdir()
+            FileFunctions.unzipFile(dbFileUri, unzippedFolder.path, context)
+            val unzippedFolderContent = unzippedFolder.listFiles()
+
+            val dbFile = File(context.filesDir, FileConstants.DB_FULL_NAME)
+            val recipeFileFolder = File(context.filesDir, FileConstants.RECIPES_FOLDER)
+
+            val sourceDbFile = unzippedFolderContent
+                ?.firstOrNull { file ->
+                    file.isFile && file.name.endsWith(FileConstants.DB_NAME_EXTENSION)
+                }
+
+            val sourceRecipeFileFolder = unzippedFolderContent
+                ?.firstOrNull { file ->
+                    file.isDirectory
+                }
+
+            if (sourceDbFile != null && sourceRecipeFileFolder != null) {
+                closeDb(realm)
+
+                dbFile.delete()
+                sourceDbFile.copyTo(dbFile)
+                FileFunctions.deleteDirectory(recipeFileFolder)
+                FileFunctions.deepCopyDirectory(sourceRecipeFileFolder, recipeFileFolder)
+
+                return DbBuilder.getDb()
+            } else {
+                return null
+            }
         }
     }
 }

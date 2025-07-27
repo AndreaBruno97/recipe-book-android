@@ -6,7 +6,9 @@
     <string name="routeTitle_recipeDetails">Ricetta</string>
     <string name="routeTitle_recipeCreate">Aggiungi Ricetta</string>
     <string name="routeTitle_tagList">Tag</string>
+    <string name="routeTitle_recipeManager">Gestione Backup</string>
     <string name="home_navigate_to_tag_list">Gestisci Tag</string>
+    <string name="home_navigate_to_backup_manager">Gestisci Backup</string>
     <string name="home_filterSection_title">Filtri</string>
     <string name="home_filterSection_addTag">Aggiungi tag</string>
     <string name="home_filterSection_ingredient">Ingrediente</string>
@@ -62,4 +64,8 @@
     <string name="recipeFromImage_takeImage">Scatta foto da analizzare</string>
     <string name="recipeFromImage_pickImage">Scegli foto da analizzare</string>
     <string name="recipeFromImage_loadImage">Elabora immagine</string>
+    <string name="download_backup_button_name">Scarica Backup Ricettario</string>
+    <string name="upload_backup_button_name">Sovrascrivi Ricettario</string>
+    <string name="download_backup_success">Backup salvato sul dispositivo</string>
+    <string name="upload_backup_success">Ricettario sovrascritto</string>
 </resources>

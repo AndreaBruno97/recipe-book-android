@@ -22,7 +22,7 @@ class DbBuilder {
 
             val realmConfiguration = RealmConfiguration
                 .Builder(schema)
-                .name(FileConstants.DB_NAME)
+                .name(FileConstants.DB_FULL_NAME)
                 .schemaVersion(DbMigration.CURRENT_VERSION)
                 .initialData(DbInitialDataCallback())
                 //.migration()

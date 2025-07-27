@@ -32,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
 import com.example.recipebook.constants.FileFunctions
-import com.example.recipebook.constants.saveToDownloadFolderComposable
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.tag.Tag
@@ -62,6 +61,7 @@ fun HomeScreen(
     navigateToRecipeCreate: () -> Unit,
     navigateToRecipeDetails: (ObjectId) -> Unit,
     navigateToTagList: () -> Unit,
+    navigateToBackupManager: () -> Unit,
     modifier: Modifier = Modifier,
     homeViewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
     tagListViewModel: TagListSelectorViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -78,15 +78,12 @@ fun HomeScreen(
     val usedTagIdList = filterState.filterTagList.map { it._id }
     val unusedTagList = tagListUiState.tagDetailList.filter { it._id !in usedTagIdList }
 
-    val downloadDb = saveToDownloadFolderComposable(localContext) {
-        homeViewModel.getDbDownloadFile(localContext)
-    }
-
     HomeScreenStateCollector(
         screenSize = screenSize,
         navigateToRecipeCreate = navigateToRecipeCreate,
         navigateToRecipeDetails = navigateToRecipeDetails,
         navigateToTagList = navigateToTagList,
+        navigateToBackupManager = navigateToBackupManager,
         loadRecipeImage = homeViewModel::loadRecipeImage,
         recipeList = homeUiState.recipeList,
         modifier = modifier,
@@ -100,8 +97,7 @@ fun HomeScreen(
         unusedTagList = unusedTagList,
         closeTagListPopup = tagListViewModel::closeTagListPopup,
         isTagListPopupOpen = tagListViewModel.isTagListPopupOpen,
-        filterName = tagListFilterState.filterName,
-        downloadDb = downloadDb
+        filterName = tagListFilterState.filterName
     )
 }
 
@@ -111,6 +107,7 @@ private fun HomeScreenStateCollector(
     navigateToRecipeCreate: () -> Unit,
     navigateToRecipeDetails: (ObjectId) -> Unit,
     navigateToTagList: () -> Unit,
+    navigateToBackupManager: () -> Unit,
     loadRecipeImage: (ObjectId, Context) -> ImageBitmap?,
     recipeList: List<Recipe>,
     modifier: Modifier = Modifier,
@@ -125,8 +122,7 @@ private fun HomeScreenStateCollector(
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
     filterName: String = "",
-    enabled: Boolean = true,
-    downloadDb: () -> Unit
+    enabled: Boolean = true
 ) {
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val localContext = LocalContext.current
@@ -167,9 +163,9 @@ private fun HomeScreenStateCollector(
                     }
 
                     Button(
-                        onClick = downloadDb
+                        onClick = navigateToBackupManager
                     ) {
-                        Text("DOWNLOAD")
+                        Text(stringResource(R.string.home_navigate_to_backup_manager))
                     }
                 }
             )
@@ -273,6 +269,7 @@ fun HomeScreenPhonePreview() {
             navigateToRecipeCreate = {},
             navigateToRecipeDetails = {},
             navigateToTagList = {},
+            navigateToBackupManager = {},
             recipeList = RecipeExamples.recipeList,
             loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
             updateFilter = {},
@@ -280,8 +277,7 @@ fun HomeScreenPhonePreview() {
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {},
-            downloadDb = {}
+            closeTagListPopup = {}
         )
     }
 }
@@ -295,6 +291,7 @@ fun HomeScreenFoldablePreview() {
             navigateToRecipeCreate = {},
             navigateToRecipeDetails = {},
             navigateToTagList = {},
+            navigateToBackupManager = {},
             recipeList = RecipeExamples.recipeList,
             loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
             updateFilter = {},
@@ -302,8 +299,7 @@ fun HomeScreenFoldablePreview() {
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {},
-            downloadDb = {}
+            closeTagListPopup = {}
         )
     }
 }
@@ -317,6 +313,7 @@ fun HomeScreenTabletPreview() {
             navigateToRecipeCreate = {},
             navigateToRecipeDetails = {},
             navigateToTagList = {},
+            navigateToBackupManager = {},
             recipeList = RecipeExamples.recipeList,
             loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
             updateFilter = {},
@@ -324,8 +321,7 @@ fun HomeScreenTabletPreview() {
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {},
-            downloadDb = {}
+            closeTagListPopup = {}
         )
     }
 }

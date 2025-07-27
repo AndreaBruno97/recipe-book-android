@@ -13,7 +13,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeRepository
 import com.example.recipebook.data.objects.tag.Tag
-import com.example.recipebook.data.utility.DbFunc
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,7 +22,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.mongodb.kbson.ObjectId
-import java.io.File
 
 class HomeViewModel(
     recipeRepository: RecipeRepository
@@ -80,10 +78,6 @@ class HomeViewModel(
 
     fun updateFilter(newFilterState: RecipeListFilterState) {
         _filterState.value = newFilterState
-    }
-
-    fun getDbDownloadFile(context: Context): File {
-        return DbFunc.getDbDownloadFile(context)
     }
 
     companion object {

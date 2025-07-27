@@ -4,6 +4,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.recipebook.RecipeBookApplication
+import com.example.recipebook.ui.composables.backupManager.BackupManagerViewModel
 import com.example.recipebook.ui.composables.common.tagFormBody.TagFormBodyViewModel
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
 import com.example.recipebook.ui.composables.common.utility.ImageManagerViewModel
@@ -57,6 +58,12 @@ object AppViewModelProvider {
         initializer {
             TagListSelectorViewModel(
                 tagRepository = RecipeBookApplication.tagRepository
+            )
+        }
+
+        initializer {
+            BackupManagerViewModel(
+                reloadDbFile = RecipeBookApplication::reloadDb
             )
         }
 

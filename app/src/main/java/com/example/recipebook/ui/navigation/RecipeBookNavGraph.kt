@@ -8,6 +8,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.recipebook.ui.composables.backupManager.BackupManagerDestination
+import com.example.recipebook.ui.composables.backupManager.BackupManagerScreen
 import com.example.recipebook.ui.composables.home.HomeDestination
 import com.example.recipebook.ui.composables.home.HomeScreen
 import com.example.recipebook.ui.composables.recipeCreate.RecipeCreateDestination
@@ -52,7 +54,8 @@ fun RecipeBookNavHost(
                         )
                     )
                 },
-                navigateToTagList = { navController.navigate(TagListDestination.getNavigateString()) }
+                navigateToTagList = { navController.navigate(TagListDestination.getNavigateString()) },
+                navigateToBackupManager = { navController.navigate(BackupManagerDestination.getNavigateString()) }
             )
         }
 
@@ -113,6 +116,13 @@ fun RecipeBookNavHost(
             TagListScreen(
                 screenSize = screenSize,
                 navigateBack = { navController.navigate(HomeDestination.getNavigateString()) }
+            )
+        }
+
+        composable(route = BackupManagerDestination.route) {
+            BackupManagerScreen(
+                screenSize = screenSize,
+                onNavigateUp = { navController.navigate(HomeDestination.getNavigateString()) }
             )
         }
 
