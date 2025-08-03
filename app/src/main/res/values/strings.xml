@@ -66,6 +66,10 @@
     <string name="recipeFromImage_loadImage">Elabora immagine</string>
     <string name="download_backup_button_name">Scarica Backup Ricettario</string>
     <string name="upload_backup_button_name">Sovrascrivi Ricettario</string>
+    <string name="update_local_backup_button_name">Aggiorna Backup</string>
+    <string name="upload_from_local_backup_button_name">Sovrascrivi Ricettario da Backup locale</string>
     <string name="download_backup_success">Backup salvato sul dispositivo</string>
     <string name="upload_backup_success">Ricettario sovrascritto</string>
+    <string name="update_local_backup_success">Backup aggiornato</string>
+    <string name="backupManager_last_local_backup_date_label">Data dell\'ultimo backup: </string>
 </resources>

@@ -10,7 +10,11 @@ class FileConstants {
         const val RECIPE_IMAGE_FILE_NAME_SUFFIX = ".jpg"
         const val TEMP_IMAGE_PREFIX = "temp_image_file_"
         const val TEMP_IMAGE_SUFFIX = ".jpg"
-        const val DOWNLOAD_DB_FILE = "recipe_db.zip"
+        const val DOWNLOAD_DB_FILE_PREFIX = "recipe_db"
+        const val DOWNLOAD_DB_FILE_SUFFIX = ".zip"
         const val LOAD_DB_FOLDER = "tempLoadDbFolder"
+        const val BACKUP_IN_APP_LOCAL_STORAGE_FOLDER_NAME = "backup"
+
+        const val BACKUP_INTERVAL_HOURS: Long = 24 * 1 // 1 Day
     }
 }

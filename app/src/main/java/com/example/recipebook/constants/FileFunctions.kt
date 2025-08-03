@@ -55,6 +55,14 @@ class FileFunctions {
             }
         }
 
+        fun getAppExternalStorage(context: Context): File {
+            val externalStorageVolumes: Array<out File> =
+                context.getExternalFilesDirs(null)
+            val primaryExternalStorage = externalStorageVolumes[0]
+
+            return primaryExternalStorage
+        }
+
         fun zipFile(files: List<File>, outputZipFile: File): File {
             /*
              Transform the list of files and folders
@@ -149,6 +157,14 @@ class FileFunctions {
 
             // displaying a toast message
             Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()
+        }
+
+        fun getFileNameWithDate(namePrefix: String, nameSuffix: String, directory: File): File {
+            val formattedDate = DateFunctions.getCurrentLocaleDateString("yyyyMMdd_HHmmss")
+            val filePathName = namePrefix + formattedDate + nameSuffix
+            val imageFile = File(directory, filePathName)
+
+            return imageFile
         }
     }
 }

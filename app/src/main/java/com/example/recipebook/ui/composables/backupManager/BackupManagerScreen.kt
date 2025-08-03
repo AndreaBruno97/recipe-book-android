@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
+import com.example.recipebook.constants.DateFunctions
 import com.example.recipebook.constants.saveToDownloadFolderComposable
 import com.example.recipebook.constants.selectFileComposable
 import com.example.recipebook.ui.AppViewModelProvider
@@ -32,6 +34,7 @@ import com.example.recipebook.ui.preview.FoldablePreview
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import java.util.Date
 
 object BackupManagerDestination : NavigationDestinationNoParams {
     override val route = "backup_manager"
@@ -47,6 +50,14 @@ fun BackupManagerScreen(
     backupManagerViewModel: BackupManagerViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val localContext = LocalContext.current
+
+    val backupManagerUiState = backupManagerViewModel.backupManagerUiState
+
+    LaunchedEffect(backupManagerUiState.loadLastBackupDate) {
+        if (backupManagerUiState.loadLastBackupDate == true) {
+            backupManagerViewModel.getLastLocalBackupDate(localContext)
+        }
+    }
 
     val downloadDb = saveToDownloadFolderComposable(
         localContext,
@@ -78,12 +89,27 @@ fun BackupManagerScreen(
         onNavigateUp()
     }
 
+    val uploadLocalBackupSuccessMessage = stringResource(R.string.update_local_backup_success)
+
     BackupManagerScreenStateCollector(
         screenSize = screenSize,
         onNavigateUp = onNavigateUp,
         canNavigateBack = canNavigateBack,
+        lastLocalBackupDate = backupManagerUiState.lastBackupDate,
         downloadDb = downloadDb,
-        chooseFileToUpload = chooseFileToUpload
+        chooseFileToUpload = chooseFileToUpload,
+        updateLocalBackup = {
+            backupManagerViewModel.updateLocalBackup(
+                uploadLocalBackupSuccessMessage,
+                localContext
+            )
+        },
+        uploadFromLocalBackup = {
+            backupManagerViewModel.loadLocalBackup(
+                uploadLocalBackupSuccessMessage,
+                localContext
+            )
+        }
     )
 }
 
@@ -92,9 +118,19 @@ private fun BackupManagerScreenStateCollector(
     screenSize: ScreenSize,
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
+    lastLocalBackupDate: Long? = null,
     downloadDb: () -> Unit,
-    chooseFileToUpload: () -> Unit
+    chooseFileToUpload: () -> Unit,
+    updateLocalBackup: () -> Unit,
+    uploadFromLocalBackup: () -> Unit
 ) {
+    val localBackupFilePresent = lastLocalBackupDate != null
+
+    val lastLocalBackupDateString = if (lastLocalBackupDate != null) {
+        DateFunctions.getLocaleDateStringFromLong(lastLocalBackupDate, "yyyy-MM-dd HH:mm:ss")
+    } else {
+        "-"
+    }
 
     Scaffold(
         topBar = {
@@ -116,6 +152,11 @@ private fun BackupManagerScreenStateCollector(
                 .fillMaxWidth()
         ) {
 
+            Text(stringResource(R.string.backupManager_last_local_backup_date_label))
+            Text(lastLocalBackupDateString)
+
+            Text("SAVE")
+
             Button(
                 onClick = downloadDb
             ) {
@@ -123,9 +164,24 @@ private fun BackupManagerScreenStateCollector(
             }
 
             Button(
+                onClick = updateLocalBackup
+            ) {
+                Text(stringResource(R.string.update_local_backup_button_name))
+            }
+
+            Text("LOAD")
+
+            Button(
                 onClick = chooseFileToUpload
             ) {
                 Text(stringResource(R.string.upload_backup_button_name))
+            }
+
+            Button(
+                onClick = uploadFromLocalBackup,
+                enabled = localBackupFilePresent
+            ) {
+                Text(stringResource(R.string.upload_from_local_backup_button_name))
             }
         }
     }
@@ -142,7 +198,9 @@ fun HomeScreenPhonePreview() {
             onNavigateUp = {},
             canNavigateBack = true,
             downloadDb = {},
-            chooseFileToUpload = {}
+            chooseFileToUpload = {},
+            updateLocalBackup = {},
+            uploadFromLocalBackup = {}
         )
     }
 }
@@ -156,7 +214,9 @@ fun HomeScreenFoldablePreview() {
             onNavigateUp = {},
             canNavigateBack = true,
             downloadDb = {},
-            chooseFileToUpload = {}
+            chooseFileToUpload = {},
+            updateLocalBackup = {},
+            uploadFromLocalBackup = {}
         )
     }
 }
@@ -170,7 +230,26 @@ fun HomeScreenTabletPreview() {
             onNavigateUp = {},
             canNavigateBack = true,
             downloadDb = {},
-            chooseFileToUpload = {}
+            chooseFileToUpload = {},
+            updateLocalBackup = {},
+            uploadFromLocalBackup = {}
+        )
+    }
+}
+
+@PhonePreview
+@Composable
+fun HomeScreenWithBackupDatePreview() {
+    RecipeBookTheme {
+        BackupManagerScreenStateCollector(
+            ScreenSize.SMALL,
+            onNavigateUp = {},
+            canNavigateBack = true,
+            lastLocalBackupDate = Date().time,
+            downloadDb = {},
+            chooseFileToUpload = {},
+            updateLocalBackup = {},
+            uploadFromLocalBackup = {}
         )
     }
 }

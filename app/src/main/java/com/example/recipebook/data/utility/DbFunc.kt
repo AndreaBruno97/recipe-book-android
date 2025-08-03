@@ -2,6 +2,7 @@ package com.example.recipebook.data.utility
 
 import android.content.Context
 import android.net.Uri
+import com.example.recipebook.constants.DateFunctions
 import com.example.recipebook.constants.FileConstants
 import com.example.recipebook.constants.FileFunctions
 import com.example.recipebook.data.builder.DbBuilder
@@ -57,7 +58,11 @@ class DbFunc {
         }
 
         fun getDbDownloadFile(context: Context): File {
-            var tmpDownloadFile = File(context.cacheDir, FileConstants.DOWNLOAD_DB_FILE)
+            var tmpDownloadFile = FileFunctions.getFileNameWithDate(
+                FileConstants.DOWNLOAD_DB_FILE_PREFIX,
+                FileConstants.DOWNLOAD_DB_FILE_SUFFIX,
+                context.cacheDir
+            )
 
             // Create folder if it doesn't exist
             tmpDownloadFile.createNewFile()
@@ -104,6 +109,51 @@ class DbFunc {
             } else {
                 return null
             }
+        }
+
+        fun updateBackupInAppLocalStorage(context: Context) {
+            val backupFile = getDbDownloadFile(context)
+            val externalStorage = FileFunctions.getAppExternalStorage(context)
+
+            val externalStorageBackupFolder =
+                File(externalStorage, FileConstants.BACKUP_IN_APP_LOCAL_STORAGE_FOLDER_NAME)
+            if (externalStorageBackupFolder.exists()) {
+                FileFunctions.deleteDirectory(externalStorageBackupFolder)
+            }
+            externalStorageBackupFolder.mkdir()
+
+            val externalStorageBackupFile = File(externalStorageBackupFolder, backupFile.name)
+
+            /* Debug log data */
+            val testLogFile = File(externalStorage, "log.txt")
+
+            val formattedDate = DateFunctions.getCurrentLocaleDateString("yyyy-MM-dd HH:mm:ss")
+
+            testLogFile.appendText(formattedDate + "\n")
+            /* -------------- */
+
+            backupFile.copyTo(externalStorageBackupFile)
+        }
+
+        fun getLastBackupFromAppLocalStorage(context: Context): File? {
+            val externalStorage = FileFunctions.getAppExternalStorage(context)
+            val externalStorageBackupFolder =
+                File(externalStorage, FileConstants.BACKUP_IN_APP_LOCAL_STORAGE_FOLDER_NAME)
+
+            var backupFile: File? = null
+
+            if (externalStorageBackupFolder.isDirectory) {
+                backupFile = externalStorageBackupFolder.listFiles()
+                    ?.filter { file ->
+                        file.isFile &&
+                                file.name.startsWith(FileConstants.DOWNLOAD_DB_FILE_PREFIX)
+                    }
+                    ?.maxByOrNull { file ->
+                        file.lastModified()
+                    }
+            }
+
+            return backupFile
         }
     }
 }

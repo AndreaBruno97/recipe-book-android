@@ -78,4 +78,7 @@ dependencies {
 
     // Google ML Kit (Text Recognition)
     implementation(libs.text.recognition)
+
+    // WorkManager (Preriodic background tasks)
+    implementation(libs.androidx.work.runtime.ktx)
 }

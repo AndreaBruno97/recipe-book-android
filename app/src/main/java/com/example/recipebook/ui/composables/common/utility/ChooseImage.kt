@@ -18,12 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.intl.Locale
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebook.BuildConfig
 import com.example.recipebook.constants.FileConstants
+import com.example.recipebook.constants.FileFunctions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -31,8 +31,6 @@ import kotlinx.coroutines.withContext
 import org.mongodb.kbson.ObjectId
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 
 sealed class Intent {
     data class OnPermissionGrantedWith(val compositionContext: Context) : Intent()
@@ -97,14 +95,11 @@ suspend fun saveRecipeImage(
     if (sourceFilePath != null) {
         val fileBytes = File(sourceFilePath).readBytes()
         withContext(Dispatchers.IO) {
-            val currentLocale = java.util.Locale(Locale.current.language)
-            val dateFormatter = SimpleDateFormat("yyyyMMdd_HHmmss", currentLocale)
-            val formattedDate = dateFormatter.format(Date())
-            val filePathName =
-                FileConstants.RECIPE_IMAGE_FILE_NAME_PREFIX +
-                        formattedDate +
-                        FileConstants.RECIPE_IMAGE_FILE_NAME_SUFFIX
-            val imageFile = File(folderFile, filePathName)
+            val imageFile = FileFunctions.getFileNameWithDate(
+                FileConstants.RECIPE_IMAGE_FILE_NAME_PREFIX,
+                FileConstants.RECIPE_IMAGE_FILE_NAME_SUFFIX,
+                folderFile
+            )
 
             FileOutputStream(imageFile).use {
                 it.write(fileBytes)

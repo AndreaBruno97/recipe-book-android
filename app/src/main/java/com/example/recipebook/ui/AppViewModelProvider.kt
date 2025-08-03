@@ -63,7 +63,8 @@ object AppViewModelProvider {
 
         initializer {
             BackupManagerViewModel(
-                reloadDbFile = RecipeBookApplication::reloadDb
+                reloadDbFile = RecipeBookApplication::reloadDb,
+                reloadDbFileFromLocalBackup = RecipeBookApplication::reloadDbFileFromLocalBackup
             )
         }
 
