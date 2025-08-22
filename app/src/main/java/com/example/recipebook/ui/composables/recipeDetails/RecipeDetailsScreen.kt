@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -35,6 +33,7 @@ import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import com.example.recipebook.ui.theme.RecipeDetails_Edit
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
 
@@ -117,7 +116,7 @@ fun RecipeDetailsScreenStateCollector(
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
             ) {
                 Icon(
-                    imageVector = Icons.Default.Edit,
+                    imageVector = RecipeDetails_Edit,
                     contentDescription = stringResource(R.string.edit_recipe_button_text)
                 )
             }

@@ -23,10 +23,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.recipe.RecipeExamples
+import com.example.recipebook.ui.composables.common.utility.CardDialog
 import com.example.recipebook.ui.composables.recipeCreate.ImageRecipeBlock
 import com.example.recipebook.ui.composables.recipeCreate.ImageRecipeBlockContainer
 import com.example.recipebook.ui.composables.recipeCreate.ImageRecipeBlockTypes
@@ -61,102 +61,36 @@ fun RecipeFromImageSection(
         recipeFromImagePickImage = recipeFromImagePickImage
     )
 
-    if (isRecipeFromImagePopupOpen) {
-        Dialog(
-            onDismissRequest = closeRecipeFromImagePopup
-        ) {
-            Card(
-                modifier = Modifier
-                    .zIndex(800F)
-                    .padding(dimensionResource(R.dimen.padding_large))
-                    .fillMaxSize()
-            ) {
-                if (imageRecipeBlockContainer == null) {
-                    // Select image orientation
-                    if (recipeFromImageBitmap != null) {
-                        ImageRotationSection(
-                            modifier = Modifier.fillMaxSize(),
-                            imageBitmap = recipeFromImageBitmap,
-                            imageOrientation = imageOrientation,
-                            rotateRecipeFromImage90Right = rotateRecipeFromImage90Right,
-                            rotateRecipeFromImage90Left = rotateRecipeFromImage90Left,
-                            recipeFromImage = recipeFromImage
-                        )
-                    }
-                } else {
-                    // Select rows
-                    RowSelectionSection(
-                        modifier = Modifier.fillMaxSize(),
-                        imageRecipeBlockContainer = imageRecipeBlockContainer,
-                        updateBlockContainer = updateBlockContainer,
-                        loadRecipeFromImageResult = loadRecipeFromImageResult,
-                        closeRecipeFromImagePopup = closeRecipeFromImagePopup,
-                        updateBlockType = updateBlockType,
-                        updateBlockElementIndex = updateBlockElementIndex,
-                        updateBlockIsCollapsed = updateBlockIsCollapsed
-                    )
-                }
+    CardDialog(
+        isOpen = isRecipeFromImagePopupOpen,
+        closeDialog = closeRecipeFromImagePopup,
+        modifier = Modifier.fillMaxSize()
+    ){
+        if (imageRecipeBlockContainer == null) {
+            // Select image orientation
+            if (recipeFromImageBitmap != null) {
+                ImageRotationSection(
+                    modifier = Modifier.fillMaxSize(),
+                    imageBitmap = recipeFromImageBitmap,
+                    imageOrientation = imageOrientation,
+                    rotateRecipeFromImage90Right = rotateRecipeFromImage90Right,
+                    rotateRecipeFromImage90Left = rotateRecipeFromImage90Left,
+                    recipeFromImage = recipeFromImage
+                )
             }
+        } else {
+            // Select rows
+            RowSelectionSection(
+                modifier = Modifier.fillMaxSize(),
+                imageRecipeBlockContainer = imageRecipeBlockContainer,
+                updateBlockContainer = updateBlockContainer,
+                loadRecipeFromImageResult = loadRecipeFromImageResult,
+                closeRecipeFromImagePopup = closeRecipeFromImagePopup,
+                updateBlockType = updateBlockType,
+                updateBlockElementIndex = updateBlockElementIndex,
+                updateBlockIsCollapsed = updateBlockIsCollapsed
+            )
         }
-
-        /*
-        if(
-            imageRecipeBlockContainer != null &&
-            recipeFromImageWidth != null &&
-            recipeFromImageHeight != null
-        ){
-            Box( modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_large))
-                .height(with(density){recipeFromImageHeight.toDp()})
-                .width(with(density){recipeFromImageWidth.toDp()})
-                .wrapContentSize()
-            ) {
-                if (recipeFromImageSource != null) {
-                    Image(
-                        bitmap = recipeFromImageSource,
-                        contentDescription = "",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .onGloballyPositioned {coordinates ->
-                                loadRecipeFromImageCoordinates(coordinates)
-                            }
-                    )
-                }
-
-                Canvas(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    drawRect(
-                        color = Color.Green,
-                        style = Stroke(width = 5.dp.toPx())
-                    )
-
-                        val scaleFactorX = recipeFromImageWidth / imageRecipeBlockContainer.imageWidth
-                        val scaleFactorY = recipeFromImageHeight / imageRecipeBlockContainer.imageHeight
-
-                        imageRecipeBlockContainer.imageRecipeBlockList?.forEach {
-                            if(it.startX != null && it.startY != null &&
-                                it.endX != null && it.endY != null){
-
-                                val startX = scaleFactorX * it.startX.toFloat()
-                                val startY = scaleFactorY * it.startY.toFloat()
-                                val sizeX = scaleFactorX * (it.endX-it.startX).toFloat()
-                                val sizeY = scaleFactorY * (it.endY-it.startY).toFloat()
-
-                                drawRect(
-                                    color = Color.Red,
-                                    topLeft = Offset(startX, startY),
-                                    size = Size(sizeX, sizeY),
-                                    style = Stroke(width = 5.dp.toPx())
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        */
     }
 }
 

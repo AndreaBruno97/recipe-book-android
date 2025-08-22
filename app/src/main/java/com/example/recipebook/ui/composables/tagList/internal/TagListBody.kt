@@ -20,9 +20,9 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
+import com.example.recipebook.ui.composables.common.utility.ClearableItem
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
-import com.example.recipebook.ui.theme.TagForm_DeleteTag
 import org.mongodb.kbson.ObjectId
 
 
@@ -94,19 +94,14 @@ private fun TagRow(
         rowText = "${tag.icon} $rowText"
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    ClearableItem(
+        clearItem = { onDelete(tag) }
+    ) { clearableItemModifier ->
         Text(
             text = rowText,
             modifier = modifier,
             color = tag.colorObj
         )
-        IconButton(
-            onClick = { onDelete(tag) }
-        ) {
-            Icon(imageVector = TagForm_DeleteTag, contentDescription = "")
-        }
     }
 }
 

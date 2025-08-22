@@ -34,10 +34,10 @@ import com.example.recipebook.data.objects.tag.TagDao
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.data.objects.tag.tagColorList
 import com.example.recipebook.data.objects.tag.toTagDao
+import com.example.recipebook.ui.composables.common.utility.ClearableItem
 import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
-import com.example.recipebook.ui.theme.TagForm_DeleteIcon
 
 @Composable
 fun TagFormBody(
@@ -135,16 +135,11 @@ fun TagInputForm(
         }
     }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    ClearableItem(
+        clearItem = { onValueChange(tagDao.copy(icon = null)) },
+        enabled = enabled && tagDao.icon != null
+    ) { clearableItemModifier ->
         Text(stringResource(R.string.tag_icon, currentIconText))
-        IconButton(
-            onClick = { onValueChange(tagDao.copy(icon = null)) },
-            enabled = enabled && tagDao.icon != null
-        ) {
-            Icon(imageVector = TagForm_DeleteIcon, contentDescription = "")
-        }
     }
 
     AndroidView(

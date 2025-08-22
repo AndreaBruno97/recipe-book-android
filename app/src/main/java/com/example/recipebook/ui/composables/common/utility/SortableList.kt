@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.recipebook.R
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
-import com.example.recipebook.ui.theme.SortableList_DeleteIngredient
+import com.example.recipebook.ui.theme.SortableList_AddItem
 import com.example.recipebook.ui.theme.SortableList_ItemGoDown
 import com.example.recipebook.ui.theme.SortableList_ItemGoUp
 
@@ -99,18 +97,17 @@ fun <T> SortableList(
                     }
                 }
 
-                content(item, index, Modifier.weight(1F))
-
-                IconButton(
-                    onClick = {
+                ClearableItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    clearItem = {
                         val newItemList = itemList
                             .filterIndexed { curIndex, _ -> curIndex != index }
 
                         updateList(newItemList)
                     },
                     enabled = enabled
-                ) {
-                    Icon(imageVector = SortableList_DeleteIngredient, contentDescription = "")
+                ) {clearableItemModifier ->
+                    content(item, index, clearableItemModifier)
                 }
             }
         }
@@ -145,7 +142,7 @@ private fun SortableListPreview() {
             itemList = listOf("AAA", "BBB", "CCC"),
             updateList = {},
             onClickNewItem = {},
-            newItemButtonIcon = Icons.Default.Add,
+            newItemButtonIcon = SortableList_AddItem,
             newItemButtonText = R.string.recipe_ingredients,
             enabled = true
         ) { name, index, modifier ->

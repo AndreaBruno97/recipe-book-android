@@ -11,7 +11,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,14 +23,12 @@ import com.example.recipebook.data.objects.ingredient.IngredientExamples
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorBody
+import com.example.recipebook.ui.composables.common.utility.ClearableItem
+import com.example.recipebook.ui.composables.common.utility.CollapsableSection
+import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.composables.home.RecipeListFilterState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.Home_RecipeFilter_AddIngredient
-import com.example.recipebook.ui.theme.Home_RecipeFilter_ClearFilter
-import com.example.recipebook.ui.theme.Home_RecipeFilter_CloseSection
-import com.example.recipebook.ui.theme.Home_RecipeFilter_OpenSection
-import com.example.recipebook.ui.theme.Home_RecipeFilter_RemoveIngredient
-import com.example.recipebook.ui.theme.Home_RecipeFilter_RemoveTag
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
 
@@ -55,123 +52,75 @@ fun HomeRecipeFilters(
         .fillMaxWidth()
         .padding(dimensionResource(R.dimen.padding_medium))
 
-    Column(
+    CollapsableSection(
+        isCollapsed = (isFilterSectionOpen == false),
+        title = stringResource(R.string.home_filterSection_title),
         modifier = modifier
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        collapseSection = closeFilterSection,
+        expandSection = openFilterSection
     ) {
-
-        HomeRecipeFiltersTitle(
-            isFilterSectionOpen = isFilterSectionOpen,
-            openFilterSection = openFilterSection,
-            closeFilterSection = closeFilterSection,
+        HomeRecipeFiltersName(
+            filter = filter,
+            updateFilter = updateFilter,
+            enabled = enabled,
             modifier = internalElementsModifier
         )
 
-        if (isFilterSectionOpen) {
-            HomeRecipeFiltersName(
-                filter = filter,
-                updateFilter = updateFilter,
-                modifier = internalElementsModifier
-            )
-
-            HomeRecipeFiltersFavorite(
-                filter = filter,
-                updateFilter = updateFilter,
-                modifier = internalElementsModifier
-            )
-
-            HomeRecipeFiltersTag(
-                filter = filter,
-                updateFilter = updateFilter,
-                modifier = internalElementsModifier,
-                updateTagSelectorFilterName = updateTagSelectorFilterName,
-                openTagListPopup = openTagListPopup,
-                unusedTagList = unusedTagList,
-                closeTagListPopup = closeTagListPopup,
-                isTagListPopupOpen = isTagListPopupOpen,
-                filterName = filterName,
-                enabled = enabled
-            )
-
-            HomeRecipeFiltersIngredients(
-                filter = filter,
-                updateFilter = updateFilter,
-                modifier = internalElementsModifier
-            )
-
-            Button(
-                onClick = {
-                    updateFilter(RecipeListFilterState())
-                }
-            ) {
-                Text(stringResource(R.string.home_filterSection_clearFilters))
-            }
-        }
-
-    }
-}
-
-@Composable
-private fun HomeRecipeFiltersTitle(
-    modifier: Modifier = Modifier,
-    isFilterSectionOpen: Boolean = false,
-    openFilterSection: () -> Unit,
-    closeFilterSection: () -> Unit
-) {
-
-    val filterTitleIcon = if (isFilterSectionOpen) {
-        Home_RecipeFilter_CloseSection
-    } else {
-        Home_RecipeFilter_OpenSection
-    }
-
-    val filterTitleAction = if (isFilterSectionOpen) {
-        closeFilterSection
-    } else {
-        openFilterSection
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Text(
-            stringResource(R.string.home_filterSection_title),
-            modifier = Modifier.weight(1F)
+        HomeRecipeFiltersFavorite(
+            filter = filter,
+            updateFilter = updateFilter,
+            modifier = internalElementsModifier
         )
-        IconButton(
-            onClick = filterTitleAction
+
+        HomeRecipeFiltersTag(
+            filter = filter,
+            updateFilter = updateFilter,
+            modifier = internalElementsModifier,
+            updateTagSelectorFilterName = updateTagSelectorFilterName,
+            openTagListPopup = openTagListPopup,
+            unusedTagList = unusedTagList,
+            closeTagListPopup = closeTagListPopup,
+            isTagListPopupOpen = isTagListPopupOpen,
+            filterName = filterName,
+            enabled = enabled
+        )
+
+        HomeRecipeFiltersIngredients(
+            filter = filter,
+            updateFilter = updateFilter,
+            enabled = enabled,
+            modifier = internalElementsModifier
+        )
+
+        Button(
+            onClick = {
+                updateFilter(RecipeListFilterState())
+            }
         ) {
-            Icon(imageVector = filterTitleIcon, contentDescription = "")
+            Text(stringResource(R.string.home_filterSection_clearFilters))
         }
     }
-
 }
 
 @Composable
 fun HomeRecipeFiltersName(
     modifier: Modifier = Modifier,
     filter: RecipeListFilterState = RecipeListFilterState(),
+    enabled: Boolean = true,
     updateFilter: (RecipeListFilterState) -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        OutlinedTextField(
+    ClearableItem(
+        modifier = modifier,
+        clearItem = { updateFilter(filter.copy(filterName = "")) }
+    ){ clearableItemModifier ->
+        TextInput(
             value = filter.filterName,
             onValueChange = { updateFilter(filter.copy(filterName = it)) },
-            modifier = Modifier.weight(1F),
-            label = { Text(stringResource(R.string.recipe_name)) }
+            enabled = enabled,
+            modifier = clearableItemModifier,
+            labelText = stringResource(R.string.recipe_name)
         )
-        IconButton(
-            onClick = { updateFilter(filter.copy(filterName = "")) }
-        ) {
-            Icon(
-                imageVector = Home_RecipeFilter_ClearFilter,
-                contentDescription = ""
-            )
-        }
     }
 }
 
@@ -217,29 +166,19 @@ fun HomeRecipeFiltersTag(
         modifier = modifier
     ) {
         for ((index, tag) in filter.filterTagList.withIndex()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(text = tag.name)
-                IconButton(
-                    onClick = {
-                        updateFilter(
-                            filter.copy(
-                                filterTagList = filter
-                                    .filterTagList
-                                    .filterIndexed { curIndex, _ ->
-                                        curIndex != index
-                                    }
-                            )
-                        )
-                    }
-                ) {
-                    Icon(
-                        imageVector = Home_RecipeFilter_RemoveTag,
-                        contentDescription = ""
-                    )
+            ClearableItem(
+                modifier = Modifier.fillMaxWidth(),
+                clearItem = {
+                    updateFilter(filter.copy(filterTagList =
+                        filter
+                        .filterTagList
+                        .filterIndexed { curIndex, _ ->
+                            curIndex != index
+                        }
+                    ))
                 }
+            ) { clearableItemModifier ->
+                Text(text = tag.name)
             }
         }
         Button(
@@ -275,28 +214,28 @@ fun HomeRecipeFiltersTag(
 fun HomeRecipeFiltersIngredients(
     modifier: Modifier = Modifier,
     filter: RecipeListFilterState = RecipeListFilterState(),
+    enabled: Boolean = true,
     updateFilter: (RecipeListFilterState) -> Unit
 ) {
     Column(modifier = modifier) {
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier
+            modifier = Modifier.fillMaxWidth()
         ) {
-            OutlinedTextField(
-                value = filter.filterInputIngredient,
-                onValueChange = { updateFilter(filter.copy(filterInputIngredient = it)) },
+            ClearableItem(
                 modifier = Modifier.weight(1F),
-                label = { Text(stringResource(R.string.home_filterSection_ingredient)) }
-            )
-            IconButton(
-                onClick = { updateFilter(filter.copy(filterInputIngredient = "")) }
-            ) {
-                Icon(
-                    imageVector = Home_RecipeFilter_ClearFilter,
-                    contentDescription = ""
+                clearItem = { updateFilter(filter.copy(filterInputIngredient = "")) }
+            ){
+                TextInput(
+                    value = filter.filterInputIngredient,
+                    onValueChange = { updateFilter(filter.copy(filterInputIngredient = it)) },
+                    enabled = true,
+                    modifier = Modifier.weight(1F),
+                    labelText = stringResource(R.string.home_filterSection_ingredient)
                 )
             }
+
             IconButton(
                 onClick = {
                     updateFilter(
@@ -315,29 +254,19 @@ fun HomeRecipeFiltersIngredients(
         }
 
         for ((index, ingredient) in filter.filterIngredientList.withIndex()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+            ClearableItem(
+                modifier = Modifier.fillMaxWidth(),
+                clearItem = {
+                    updateFilter(filter.copy(filterIngredientList =
+                    filter
+                        .filterIngredientList
+                        .filterIndexed { curIndex, _ ->
+                            curIndex != index
+                        }
+                    ))
+                }
             ) {
                 Text(text = ingredient)
-                IconButton(
-                    onClick = {
-                        updateFilter(
-                            filter.copy(
-                                filterIngredientList = filter
-                                    .filterIngredientList
-                                    .filterIndexed { curIndex, _ ->
-                                        curIndex != index
-                                    }
-                            )
-                        )
-                    }
-                ) {
-                    Icon(
-                        imageVector = Home_RecipeFilter_RemoveIngredient,
-                        contentDescription = ""
-                    )
-                }
             }
         }
     }
@@ -383,30 +312,6 @@ fun HomeRecipeFiltersClosedPreview() {
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
             closeTagListPopup = {}
-        )
-    }
-}
-
-@DefaultPreview
-@Composable
-fun HomeRecipeFiltersTitleOpenPreview() {
-    RecipeBookTheme {
-        HomeRecipeFiltersTitle(
-            isFilterSectionOpen = true,
-            openFilterSection = {},
-            closeFilterSection = {}
-        )
-    }
-}
-
-@DefaultPreview
-@Composable
-fun HomeRecipeFiltersTitleClosedPreview() {
-    RecipeBookTheme {
-        HomeRecipeFiltersTitle(
-            isFilterSectionOpen = false,
-            openFilterSection = {},
-            closeFilterSection = {}
         )
     }
 }

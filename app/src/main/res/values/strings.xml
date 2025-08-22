@@ -7,13 +7,13 @@
     <string name="routeTitle_recipeCreate">Aggiungi Ricetta</string>
     <string name="routeTitle_tagList">Tag</string>
     <string name="routeTitle_recipeManager">Gestione Backup</string>
-    <string name="home_navigate_to_tag_list">Gestisci Tag</string>
-    <string name="home_navigate_to_backup_manager">Gestisci Backup</string>
+    <string name="home_navigate_to_tag_list">Tag</string>
+    <string name="home_navigate_to_backup_manager">Backup</string>
     <string name="home_filterSection_title">Filtri</string>
     <string name="home_filterSection_addTag">Aggiungi tag</string>
     <string name="home_filterSection_ingredient">Ingrediente</string>
     <string name="home_filterSection_clearFilters">Cancella filtri</string>
-    <string name="recipe_create_icon_name">Aggiungi Ricetta</string>
+    <string name="recipe_create_icon_name">Crea</string>
     <string name="no_recipes_description">Non ci sono attualmente ricette. Clicca + per crearne una.</string>
     <string name="no_tags_description">Non ci sono attualmente tag. Clicca + per crearne uno.</string>
     <string name="deletePopup_title">Attenzione</string>

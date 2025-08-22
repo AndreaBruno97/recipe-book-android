@@ -15,13 +15,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.recipebook.R
 import com.example.recipebook.network.SupportedWebsites
+import com.example.recipebook.ui.composables.common.utility.ClearableItem
+import com.example.recipebook.ui.composables.common.utility.CollapsableSection
 import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.composables.recipeCreate.RecipeWebsiteUrlErrors
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
-import com.example.recipebook.ui.theme.RecipeForm_ClearWebsiteField
-import com.example.recipebook.ui.theme.RecipeForm_closeRecipeFromWebsite
-import com.example.recipebook.ui.theme.RecipeForm_openRecipeFromWebsite
 
 @Composable
 fun RecipeFromWebsiteSection(
@@ -34,91 +33,57 @@ fun RecipeFromWebsiteSection(
     showRecipeFromWebsiteSection: () -> Unit,
     hideRecipeFromWebsiteSection: () -> Unit
 ) {
-    val (toggleSectionIcon, toggleSectionAction) =
-        if (isRecipeFromWebsiteSectionVisible) {
-            Pair(
-                RecipeForm_closeRecipeFromWebsite,
-                hideRecipeFromWebsiteSection
-            )
-        } else {
-            Pair(
-                RecipeForm_openRecipeFromWebsite,
-                showRecipeFromWebsiteSection
-            )
-        }
+    val supportedWebsiteList = SupportedWebsites.entries.joinToString { it.host }
+    val supportingText = when (validateRecipeWebsiteUrl) {
+        RecipeWebsiteUrlErrors.INVALID_URL ->
+            stringResource(R.string.recipeForm_websiteUrlErrorInvalid)
 
-    Column(
+        RecipeWebsiteUrlErrors.WEBSITE_NOT_MANAGED ->
+            stringResource(R.string.recipeForm_websiteUrlErrorUnmanaged)
+
+        RecipeWebsiteUrlErrors.LOADING_ERROR ->
+            stringResource(R.string.recipeForm_websiteUrlLoadingError)
+
+        null ->
+            null
+    }
+
+    CollapsableSection(
+        isCollapsed = (isRecipeFromWebsiteSectionVisible == false),
+        title = stringResource(R.string.recipeForm_websiteUrlTitle),
         modifier = modifier
             .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.padding_medium))
+            .padding(dimensionResource(R.dimen.padding_medium)),
+        collapseSection = hideRecipeFromWebsiteSection,
+        expandSection = showRecipeFromWebsiteSection
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.recipeForm_websiteUrlTitle),
-                modifier = Modifier.weight(1F)
+        Text(
+            text = stringResource(
+                R.string.recipeForm_websiteUrlWebsiteList,
+                supportedWebsiteList
             )
-            IconButton(
-                onClick = toggleSectionAction
-            ) {
-                Icon(
-                    imageVector = toggleSectionIcon,
-                    contentDescription = ""
-                )
-            }
+        )
+
+        ClearableItem(
+            modifier = Modifier.fillMaxWidth(),
+            clearItem = { updateRecipeWebsiteUrl("") }
+        ) { clearableItemModifier ->
+            TextInput(
+                value = recipeWebsiteUrl,
+                onValueChange = updateRecipeWebsiteUrl,
+                labelText = stringResource(R.string.recipeForm_websiteUrl),
+                modifier = clearableItemModifier,
+                enabled = true,
+                isError = validateRecipeWebsiteUrl != null && recipeWebsiteUrl.isNotBlank(),
+                supportingText = supportingText
+            )
         }
 
-        if (isRecipeFromWebsiteSectionVisible) {
-            val supportedWebsiteList = SupportedWebsites.entries.joinToString { it.host }
-            Text(
-                text = stringResource(
-                    R.string.recipeForm_websiteUrlWebsiteList,
-                    supportedWebsiteList
-                )
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextInput(
-                    value = recipeWebsiteUrl,
-                    onValueChange = updateRecipeWebsiteUrl,
-                    labelText = stringResource(R.string.recipeForm_websiteUrl),
-                    modifier = Modifier.weight(1F),
-                    enabled = true,
-                    isError = validateRecipeWebsiteUrl != null && recipeWebsiteUrl.isNotBlank(),
-                    supportingText = when (validateRecipeWebsiteUrl) {
-                        RecipeWebsiteUrlErrors.INVALID_URL ->
-                            stringResource(R.string.recipeForm_websiteUrlErrorInvalid)
-
-                        RecipeWebsiteUrlErrors.WEBSITE_NOT_MANAGED ->
-                            stringResource(R.string.recipeForm_websiteUrlErrorUnmanaged)
-
-                        RecipeWebsiteUrlErrors.LOADING_ERROR ->
-                            stringResource(R.string.recipeForm_websiteUrlLoadingError)
-
-                        null ->
-                            null
-                    }
-                )
-                IconButton(
-                    onClick = { updateRecipeWebsiteUrl("") }
-                ) {
-                    Icon(
-                        imageVector = RecipeForm_ClearWebsiteField,
-                        contentDescription = ""
-                    )
-                }
-            }
-            Button(
-                onClick = loadRecipeFromWebsite,
-                enabled = recipeWebsiteUrl.isNotBlank()
-            ) {
-                Text(stringResource(R.string.recipeForm_loadRecipeFromWebsite))
-            }
+        Button(
+            onClick = loadRecipeFromWebsite,
+            enabled = recipeWebsiteUrl.isNotBlank()
+        ) {
+            Text(stringResource(R.string.recipeForm_loadRecipeFromWebsite))
         }
     }
 }

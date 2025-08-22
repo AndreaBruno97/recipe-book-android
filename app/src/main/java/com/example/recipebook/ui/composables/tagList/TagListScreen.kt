@@ -14,7 +14,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -27,7 +26,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookTopAppBar
@@ -39,12 +37,14 @@ import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.tagFormBody.TagFormBody
 import com.example.recipebook.ui.composables.common.tagFormBody.TagFormBodyViewModel
 import com.example.recipebook.ui.composables.common.tagFormBody.TagUiState
+import com.example.recipebook.ui.composables.common.utility.CardDialog
+import com.example.recipebook.ui.composables.common.utility.ClearableItem
+import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.composables.tagList.internal.TagListBody
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
-import com.example.recipebook.ui.theme.TagList_ClearFilter
 import com.example.recipebook.ui.theme.TagList_FabAddTag
 import kotlinx.coroutines.launch
 import org.mongodb.kbson.ObjectId
@@ -76,6 +76,7 @@ fun TagListScreen(
         validateName = tagViewModel.validateName,
         currentTagId = tagListViewModel.currentTagId,
         filterName = filterState.filterName,
+        enabled = true,
         openPopup = {
             tagViewModel.loadTag(it)
             tagListViewModel.openPopup(it)
@@ -111,6 +112,7 @@ fun TagListStateCollector(
     validateName: Boolean = false,
     currentTagId: ObjectId? = null,
     filterName: String = "",
+    enabled: Boolean = true,
     openPopup: (ObjectId?) -> Unit,
     closePopup: () -> Unit,
     tagUiState: TagUiState,
@@ -148,25 +150,18 @@ fun TagListStateCollector(
         Column(
             modifier = Modifier.padding(innerPadding)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            ClearableItem(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_medium))
-            ) {
-                OutlinedTextField(
+                    .padding(dimensionResource(R.dimen.padding_medium)),
+                clearItem = { updateFilterName("") }
+            ) { clearableItemModifier ->
+                TextInput(
                     value = filterName,
                     onValueChange = updateFilterName,
-                    modifier = Modifier.weight(1F)
+                    enabled = enabled,
+                    modifier = clearableItemModifier
                 )
-                IconButton(
-                    onClick = { updateFilterName("") }
-                ) {
-                    Icon(
-                        imageVector = TagList_ClearFilter,
-                        contentDescription = ""
-                    )
-                }
             }
             TagListBody(
                 tagList = tagList,
@@ -177,26 +172,18 @@ fun TagListStateCollector(
                 onDelete = onDelete
             )
         }
-        if (isPopupOpen) {
-            Dialog(onDismissRequest = closePopup) {
-                Card(
-                    modifier = Modifier
-                        /*
-                        .height(100.dp)
-                        .width(100.dp)
-                        */
-                        .padding(dimensionResource(R.dimen.padding_medium)),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    TagFormBody(
-                        tagUiState = tagUiState,
-                        validateName = validateName,
-                        onTagValueChange = onTagValueChange,
-                        onSaveClick = onSaveClick,
-                        isNamePresent = isNamePresent
-                    )
-                }
-            }
+
+        CardDialog(
+            isOpen = isPopupOpen,
+            closeDialog = closePopup
+        ) {
+            TagFormBody(
+                tagUiState = tagUiState,
+                validateName = validateName,
+                onTagValueChange = onTagValueChange,
+                onSaveClick = onSaveClick,
+                isNamePresent = isNamePresent
+            )
         }
     }
 }

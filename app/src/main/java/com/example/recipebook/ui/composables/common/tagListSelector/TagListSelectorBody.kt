@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,9 +23,11 @@ import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagDao
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.data.objects.tag.toTagDao
+import com.example.recipebook.ui.composables.common.utility.CardDialog
+import com.example.recipebook.ui.composables.common.utility.ClearableItem
+import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
-import com.example.recipebook.ui.theme.TagList_ClearFilter
 
 @Composable
 fun TagListSelectorBody(
@@ -39,22 +40,17 @@ fun TagListSelectorBody(
     updateFilterName: (String) -> Unit,
     onTagSelect: (Tag) -> Unit
 ) {
-    if (isTagListPopupOpen) {
-        Dialog(onDismissRequest = closeTagListPopup) {
-            Card(
-                modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_medium)),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                TagListSelectorPopupContent(
-                    tagList = unusedTagList,
-                    enabled = enabled,
-                    onTagSelect = onTagSelect,
-                    filterName = filterName,
-                    updateFilterName = updateFilterName
-                )
-            }
-        }
+    CardDialog(
+        isOpen = isTagListPopupOpen,
+        closeDialog = closeTagListPopup
+    ) {
+        TagListSelectorPopupContent(
+            tagList = unusedTagList,
+            enabled = enabled,
+            onTagSelect = onTagSelect,
+            filterName = filterName,
+            updateFilterName = updateFilterName
+        )
     }
 }
 
@@ -68,25 +64,18 @@ private fun TagListSelectorPopupContent(
     updateFilterName: (String) -> Unit
 ) {
     Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        ClearableItem(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.padding_medium))
-        ) {
-            OutlinedTextField(
+                .padding(dimensionResource(R.dimen.padding_medium)),
+            clearItem = { updateFilterName("") }
+        ) {clearableItemModifier ->
+            TextInput(
                 value = filterName,
                 onValueChange = updateFilterName,
-                modifier = Modifier.weight(1F)
+                enabled = enabled,
+                modifier = clearableItemModifier
             )
-            IconButton(
-                onClick = { updateFilterName("") }
-            ) {
-                Icon(
-                    imageVector = TagList_ClearFilter,
-                    contentDescription = ""
-                )
-            }
         }
 
         LazyColumn(

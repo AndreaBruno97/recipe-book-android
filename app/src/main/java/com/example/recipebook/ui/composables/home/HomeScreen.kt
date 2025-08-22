@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -30,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
+import com.example.recipebook.RecipeBookBottomAppBar
 import com.example.recipebook.RecipeBookTopAppBar
 import com.example.recipebook.constants.FileFunctions
 import com.example.recipebook.data.objects.recipe.Recipe
@@ -45,8 +47,6 @@ import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.preview.FoldablePreview
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
-import com.example.recipebook.ui.theme.Home_FabAddRecipe
-import com.example.recipebook.ui.theme.Home_FabTagList
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import org.mongodb.kbson.ObjectId
 
@@ -125,7 +125,6 @@ private fun HomeScreenStateCollector(
     enabled: Boolean = true
 ) {
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val localContext = LocalContext.current
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBarBehavior.nestedScrollConnection),
@@ -136,38 +135,12 @@ private fun HomeScreenStateCollector(
                 scrollBehavior = scrollBarBehavior
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = navigateToRecipeCreate,
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
-            ) {
-                Icon(
-                    imageVector = Home_FabAddRecipe,
-                    contentDescription = stringResource(R.string.recipe_create_icon_name)
-                )
-            }
-        },
         bottomBar = {
-            BottomAppBar(
-                actions = {
-                    Button(
-                        onClick = navigateToTagList
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(imageVector = Home_FabTagList, contentDescription = "")
-                            Text(stringResource(R.string.home_navigate_to_tag_list))
-                        }
-                    }
-
-                    Button(
-                        onClick = navigateToBackupManager
-                    ) {
-                        Text(stringResource(R.string.home_navigate_to_backup_manager))
-                    }
-                }
+            RecipeBookBottomAppBar(
+                modifier = Modifier.fillMaxWidth(),
+                navigateToTagList = navigateToTagList,
+                navigateToBackupManager = navigateToBackupManager,
+                navigateToRecipeCreate = navigateToRecipeCreate
             )
         }
     ) { innerPadding ->

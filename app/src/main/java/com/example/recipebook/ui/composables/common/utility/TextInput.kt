@@ -2,8 +2,6 @@ package com.example.recipebook.ui.composables.common.utility
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -16,6 +14,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
+import com.example.recipebook.ui.theme.TextInput_Error
 
 @Composable
 fun TextInput(
@@ -60,22 +59,16 @@ fun TextInput(
         keyboardOptions = keyboardOptions,
         isError = isError,
         supportingText = {
-            val alphaValue = if (isError && supportingText != null) {
-                1F
-            } else {
-                0F
-            }
-            val errorText = supportingText ?: ""
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.alpha(alphaValue)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = ""
-                )
-                Text(errorText)
+            if (isError && supportingText != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = TextInput_Error,
+                        contentDescription = ""
+                    )
+                    Text(supportingText)
+                }
             }
         }
     )
