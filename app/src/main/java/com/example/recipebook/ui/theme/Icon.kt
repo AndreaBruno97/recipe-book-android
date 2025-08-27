@@ -20,7 +20,9 @@ val TopAppBar_Back = Icons.AutoMirrored.Filled.ArrowBack
 val BottomAppBar_TagList = Icons.AutoMirrored.Filled.List
 val BottomAppBar_BackupManager = Icons.Default.Lock
 val BottomAppBar_CreateRecipe = Icons.Default.Add
+val HomeFab_Filter = Icons.Default.Search
 
+val Home_EmptyList = Icons.Default.Edit
 val Home_RecipeFilter_AddIngredient = Icons.Default.Search
 val Home_RecipeIsFavorite = Icons.Default.Star
 
@@ -50,3 +52,5 @@ val CollapsableSection_Collapse = Icons.Default.KeyboardArrowUp
 val CollapsableSection_Expand = Icons.Default.KeyboardArrowDown
 
 val CardDialog_Close = Icons.Default.Close
+
+val Chip_Close = Icons.Default.Close

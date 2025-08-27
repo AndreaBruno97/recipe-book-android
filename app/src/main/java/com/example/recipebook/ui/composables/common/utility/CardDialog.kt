@@ -10,6 +10,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.Dialog
@@ -22,14 +23,15 @@ import com.example.recipebook.ui.theme.RecipeBookTheme
 @Composable
 fun CardDialog(
     modifier: Modifier = Modifier,
+    title: String? = null,
     isOpen: Boolean = false,
     closeDialog: () -> Unit,
     content: @Composable() () -> Unit
 ) {
-    if(isOpen){
+    if (isOpen) {
         Dialog(
             onDismissRequest = closeDialog
-        ){
+        ) {
             Card(
                 modifier = modifier
                     .padding(dimensionResource(R.dimen.padding_medium))
@@ -37,11 +39,19 @@ fun CardDialog(
             ) {
                 Column(
                     modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
-                ){
+                ) {
                     Row(
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
                     ) {
+                        Text(
+                            text = title ?: "",
+                            modifier = Modifier
+                                .weight(1F)
+                        )
+
                         IconButton(
                             onClick = closeDialog
                         ) {
@@ -62,8 +72,22 @@ fun CardDialog(
 
 @PhonePreview
 @Composable
-fun CardDialogPreview(){
-    RecipeBookTheme{
+fun CardDialogPreview() {
+    RecipeBookTheme {
+        CardDialog(
+            isOpen = true,
+            title = "Lorem Ipsum",
+            closeDialog = {}
+        ) {
+            Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce tempor volutpat arcu eu sollicitudin.")
+        }
+    }
+}
+
+@PhonePreview
+@Composable
+fun CardDialogNoTitlePreview() {
+    RecipeBookTheme {
         CardDialog(
             isOpen = true,
             closeDialog = {}
@@ -75,8 +99,8 @@ fun CardDialogPreview(){
 
 @PhonePreview
 @Composable
-fun CardDialogClosedPreview(){
-    RecipeBookTheme{
+fun CardDialogClosedPreview() {
+    RecipeBookTheme {
         CardDialog(
             isOpen = false,
             closeDialog = {}

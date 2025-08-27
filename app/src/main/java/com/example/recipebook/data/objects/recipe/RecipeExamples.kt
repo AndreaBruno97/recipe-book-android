@@ -76,6 +76,9 @@ class RecipeExamples {
 
         val recipeList: List<Recipe> = listOf(recipe1, recipe2, recipe3)
 
+        val longRecipeList: List<Recipe> =
+            listOf(recipe1, recipe2, recipe3, recipe3, recipe2, recipe1)
+
         val recipeImageBitmap = BitmapFactory
             .decodeResource(
                 Resources.getSystem(),

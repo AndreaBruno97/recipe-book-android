@@ -37,6 +37,15 @@ class TagExamples {
             icon = "4\uFE0F⃣"
         )
 
+        val longTag: Tag = Tag(
+            _id = BsonObjectId("555555555555555555555555"),
+            name = "Tag with a very long name",
+            color = Color.Green.toArgb(),
+            icon = "4\uFE0F⃣"
+        )
+
         val tagList: List<Tag> = listOf(tag1, tag2, tag3, tag4)
+
+        val tagListWithLong: List<Tag> = listOf(tag1, tag2, tag3, tag4, longTag)
     }
 }

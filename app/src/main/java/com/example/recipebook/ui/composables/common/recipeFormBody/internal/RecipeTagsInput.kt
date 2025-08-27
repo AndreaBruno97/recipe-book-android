@@ -64,6 +64,7 @@ fun RecipeTagsInput(
 
         TagListSelectorBody(
             unusedTagList = unusedTagList,
+            selectedTagList = recipeDao.tagList.map { it.toTag() },
             closeTagListPopup = closeTagListPopup,
             isTagListPopupOpen = isTagListPopupOpen,
             filterName = filterName,
@@ -75,6 +76,18 @@ fun RecipeTagsInput(
                         tagList = recipeDao.tagList
                             .plus(it.toTagDao())
                     )
+                        .apply { validateTagList = false }
+                )
+            },
+            onTagRemoval = { tagToRemove ->
+                onValueChange(
+                    recipeDao.copy(
+                        tagList = recipeDao.tagList
+                            .filter { tag ->
+                                tag._id != tagToRemove._id
+                            }
+                    )
+                        .apply { validateTagList = false }
                 )
             }
         )

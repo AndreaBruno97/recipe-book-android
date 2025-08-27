@@ -106,7 +106,7 @@ fun <T> SortableList(
                         updateList(newItemList)
                     },
                     enabled = enabled
-                ) {clearableItemModifier ->
+                ) { clearableItemModifier ->
                     content(item, index, clearableItemModifier)
                 }
             }

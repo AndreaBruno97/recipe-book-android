@@ -3,16 +3,14 @@
 package com.example.recipebook.ui.composables.home
 
 import android.content.Context
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,6 +37,7 @@ import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
+import com.example.recipebook.ui.composables.common.utility.CardDialog
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeFilters
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeList
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
@@ -47,6 +46,8 @@ import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.preview.FoldablePreview
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
+import com.example.recipebook.ui.theme.HomeFab_Filter
+import com.example.recipebook.ui.theme.Home_EmptyList
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import org.mongodb.kbson.ObjectId
 
@@ -127,7 +128,7 @@ private fun HomeScreenStateCollector(
     val scrollBarBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBarBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(scrollBarBehavior.nestedScrollConnection),
         topBar = {
             RecipeBookTopAppBar(
                 title = stringResource(HomeDestination.titleRes),
@@ -142,6 +143,18 @@ private fun HomeScreenStateCollector(
                 navigateToBackupManager = navigateToBackupManager,
                 navigateToRecipeCreate = navigateToRecipeCreate
             )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = openFilterSection,
+                icon = {
+                    Icon(
+                        imageVector = HomeFab_Filter,
+                        contentDescription = ""
+                    )
+                },
+                text = { Text(stringResource(R.string.home_fab_filters)) }
+            )
         }
     ) { innerPadding ->
         HomeBody(
@@ -149,12 +162,12 @@ private fun HomeScreenStateCollector(
             onRecipeClick = navigateToRecipeDetails,
             loadRecipeImage = loadRecipeImage,
             screenSize = screenSize,
-            modifier = modifier.fillMaxSize(),
-            contentPadding = innerPadding,
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(innerPadding),
             filter = filter,
             updateFilter = updateFilter,
             isFilterSectionOpen = isFilterSectionOpen,
-            openFilterSection = openFilterSection,
             closeFilterSection = closeFilterSection,
             updateTagSelectorFilterName = updateTagSelectorFilterName,
             openTagListPopup = openTagListPopup,
@@ -174,11 +187,9 @@ private fun HomeBody(
     onRecipeClick: (ObjectId) -> Unit,
     loadRecipeImage: (ObjectId, Context) -> ImageBitmap?,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(dimensionResource(id = R.dimen.no_padding)),
     filter: RecipeListFilterState = RecipeListFilterState(),
     updateFilter: (RecipeListFilterState) -> Unit,
     isFilterSectionOpen: Boolean = false,
-    openFilterSection: () -> Unit,
     closeFilterSection: () -> Unit,
     updateTagSelectorFilterName: (String) -> Unit,
     openTagListPopup: () -> Unit,
@@ -195,43 +206,75 @@ private fun HomeBody(
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(contentPadding)
+        modifier = modifier.padding(dimensionResource(R.dimen.padding_medium))
     ) {
-        HomeRecipeFilters(
-            filter = filter,
-            updateFilter = updateFilter,
-            isFilterSectionOpen = isFilterSectionOpen,
-            openFilterSection = openFilterSection,
-            closeFilterSection = closeFilterSection,
-            updateTagSelectorFilterName = updateTagSelectorFilterName,
-            openTagListPopup = openTagListPopup,
-            unusedTagList = unusedTagList,
-            closeTagListPopup = closeTagListPopup,
-            isTagListPopupOpen = isTagListPopupOpen,
-            filterName = filterName,
-            enabled = enabled
-        )
 
         if (recipeList.isEmpty()) {
-            Text(
-                text = stringResource(R.string.no_recipes_description),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge
+            HomeRecipeListEmpty(
+                modifier = Modifier.fillMaxSize()
             )
         } else {
             HomeRecipeList(
+                screenSize = screenSize,
                 recipeList = recipeList,
                 columnNum = columnNum,
                 onRecipeClick = { onRecipeClick(it._id) },
-                loadRecipeImage = loadRecipeImage,
-                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_small))
+                loadRecipeImage = loadRecipeImage
+            )
+        }
+
+        CardDialog(
+            title = stringResource(R.string.home_filterSection_title),
+            isOpen = isFilterSectionOpen,
+            closeDialog = closeFilterSection
+        ) {
+            HomeRecipeFilters(
+                filter = filter,
+                updateFilter = updateFilter,
+                updateTagSelectorFilterName = updateTagSelectorFilterName,
+                openTagListPopup = openTagListPopup,
+                unusedTagList = unusedTagList,
+                closeTagListPopup = closeTagListPopup,
+                isTagListPopupOpen = isTagListPopupOpen,
+                filterName = filterName,
+                enabled = enabled
             )
         }
     }
 }
 
+@Composable
+fun HomeRecipeListEmpty(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Home_EmptyList,
+            contentDescription = "",
+            modifier = Modifier
+                .size(dimensionResource(id = R.dimen.home_empty_list_icon_size))
+        )
+        Text(
+            text = stringResource(R.string.no_recipes_description),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
+}
+
 //region Preview
+
+private fun loadRecipeImage(objectId: ObjectId): ImageBitmap? {
+    if (objectId == RecipeExamples.recipe2._id) {
+        return null
+    } else {
+        return RecipeExamples.recipeImageBitmap
+    }
+}
 
 @PhonePreview
 @Composable
@@ -243,8 +286,8 @@ fun HomeScreenPhonePreview() {
             navigateToRecipeDetails = {},
             navigateToTagList = {},
             navigateToBackupManager = {},
-            recipeList = RecipeExamples.recipeList,
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            recipeList = RecipeExamples.longRecipeList,
+            loadRecipeImage = { objectId, _ -> loadRecipeImage(objectId) },
             updateFilter = {},
             openFilterSection = {},
             closeFilterSection = {},
@@ -265,8 +308,8 @@ fun HomeScreenFoldablePreview() {
             navigateToRecipeDetails = {},
             navigateToTagList = {},
             navigateToBackupManager = {},
-            recipeList = RecipeExamples.recipeList,
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            recipeList = RecipeExamples.longRecipeList,
+            loadRecipeImage = { objectId, _ -> loadRecipeImage(objectId) },
             updateFilter = {},
             openFilterSection = {},
             closeFilterSection = {},
@@ -287,66 +330,8 @@ fun HomeScreenTabletPreview() {
             navigateToRecipeDetails = {},
             navigateToTagList = {},
             navigateToBackupManager = {},
-            recipeList = RecipeExamples.recipeList,
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
-            updateFilter = {},
-            openFilterSection = {},
-            closeFilterSection = {},
-            updateTagSelectorFilterName = {},
-            openTagListPopup = {},
-            closeTagListPopup = {}
-        )
-    }
-}
-
-
-@PhonePreview
-@Composable
-fun HomeBodyPhonePreview() {
-    RecipeBookTheme {
-        HomeBody(
-            recipeList = RecipeExamples.recipeList,
-            screenSize = ScreenSize.SMALL,
-            onRecipeClick = {},
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
-            updateFilter = {},
-            openFilterSection = {},
-            closeFilterSection = {},
-            updateTagSelectorFilterName = {},
-            openTagListPopup = {},
-            closeTagListPopup = {}
-        )
-    }
-}
-
-@FoldablePreview
-@Composable
-fun HomeBodyFoldablePreview() {
-    RecipeBookTheme {
-        HomeBody(
-            recipeList = RecipeExamples.recipeList,
-            screenSize = ScreenSize.MEDIUM,
-            onRecipeClick = {},
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
-            updateFilter = {},
-            openFilterSection = {},
-            closeFilterSection = {},
-            updateTagSelectorFilterName = {},
-            openTagListPopup = {},
-            closeTagListPopup = {}
-        )
-    }
-}
-
-@TabletPreview
-@Composable
-fun HomeBodyTabletPreview() {
-    RecipeBookTheme {
-        HomeBody(
-            recipeList = RecipeExamples.recipeList,
-            screenSize = ScreenSize.LARGE,
-            onRecipeClick = {},
-            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            recipeList = RecipeExamples.longRecipeList,
+            loadRecipeImage = { objectId, _ -> loadRecipeImage(objectId) },
             updateFilter = {},
             openFilterSection = {},
             closeFilterSection = {},
@@ -367,7 +352,94 @@ fun HomeBodyEmptyListPreview() {
             onRecipeClick = {},
             loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
             updateFilter = {},
+            closeFilterSection = {},
+            updateTagSelectorFilterName = {},
+            openTagListPopup = {},
+            closeTagListPopup = {}
+        )
+    }
+}
+
+@PhonePreview
+@Composable
+fun HomeScreenPhoneFilterPreview() {
+    RecipeBookTheme {
+        HomeScreenStateCollector(
+            ScreenSize.SMALL,
+            isFilterSectionOpen = true,
+            navigateToRecipeCreate = {},
+            navigateToRecipeDetails = {},
+            navigateToTagList = {},
+            navigateToBackupManager = {},
+            recipeList = RecipeExamples.recipeList,
+            loadRecipeImage = { objectId, _ -> loadRecipeImage(objectId) },
+            updateFilter = {},
             openFilterSection = {},
+            closeFilterSection = {},
+            updateTagSelectorFilterName = {},
+            openTagListPopup = {},
+            closeTagListPopup = {}
+        )
+    }
+}
+
+@FoldablePreview
+@Composable
+fun HomeScreenFoldableFilterPreview() {
+    RecipeBookTheme {
+        HomeScreenStateCollector(
+            ScreenSize.MEDIUM,
+            isFilterSectionOpen = true,
+            navigateToRecipeCreate = {},
+            navigateToRecipeDetails = {},
+            navigateToTagList = {},
+            navigateToBackupManager = {},
+            recipeList = RecipeExamples.recipeList,
+            loadRecipeImage = { objectId, _ -> loadRecipeImage(objectId) },
+            updateFilter = {},
+            openFilterSection = {},
+            closeFilterSection = {},
+            updateTagSelectorFilterName = {},
+            openTagListPopup = {},
+            closeTagListPopup = {}
+        )
+    }
+}
+
+@TabletPreview
+@Composable
+fun HomeScreenTabletFilterPreview() {
+    RecipeBookTheme {
+        HomeScreenStateCollector(
+            ScreenSize.LARGE,
+            isFilterSectionOpen = true,
+            navigateToRecipeCreate = {},
+            navigateToRecipeDetails = {},
+            navigateToTagList = {},
+            navigateToBackupManager = {},
+            recipeList = RecipeExamples.recipeList,
+            loadRecipeImage = { objectId, _ -> loadRecipeImage(objectId) },
+            updateFilter = {},
+            openFilterSection = {},
+            closeFilterSection = {},
+            updateTagSelectorFilterName = {},
+            openTagListPopup = {},
+            closeTagListPopup = {}
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+fun HomeBodyEmptyListFilterPreview() {
+    RecipeBookTheme {
+        HomeBody(
+            recipeList = listOf(),
+            screenSize = ScreenSize.SMALL,
+            isFilterSectionOpen = true,
+            onRecipeClick = {},
+            loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap },
+            updateFilter = {},
             closeFilterSection = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},

@@ -26,7 +26,16 @@ class IngredientExamples {
             value = "DDD"
         )
 
+        val ingredientLong: Ingredient = Ingredient(
+            name = "Ingredient that is really really really really really really long",
+            quantity = 5F,
+            value = "EEE"
+        )
+
         val ingredientList: List<Ingredient> =
             listOf(ingredientA, ingredientB, ingredientC, ingredientD)
+
+        val ingredientListWithLong: List<Ingredient> =
+            listOf(ingredientA, ingredientB, ingredientC, ingredientD, ingredientLong)
     }
 }

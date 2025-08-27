@@ -53,6 +53,9 @@ class RecipeRepository(private val realm: Realm) {
             )
         }
 
+        // Sort by name (case insensitive)
+        realmQuery = realmQuery.sort("name")
+
         return realmQuery
             .asFlow()
             .map { it.list }
