@@ -111,6 +111,7 @@ fun RecipeBookTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         shapes = Shapes,
-        content = content
+        content = content,
+        typography = Typography
     )
 }

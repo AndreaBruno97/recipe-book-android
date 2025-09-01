@@ -56,4 +56,27 @@ class TagFormBodyViewModel(
 
         return saveTag
     }
+
+    //region Delete tag
+
+    suspend fun deleteTag() {
+        val tagId = tagUiState.tagDao._id
+        if (tagId != null) {
+            tagRepository.removeTagById(tagId)
+        }
+
+    }
+
+    var isTagDeletePopupOpen by mutableStateOf(false)
+        private set
+
+    fun openTagDeletePopup() {
+        isTagDeletePopupOpen = true
+    }
+
+    fun closeTagDeletePopup() {
+        isTagDeletePopupOpen = false
+    }
+
+    //endregion
 }

@@ -36,3 +36,7 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
 )
+
+val tagForm_selectedEmojiTextStyle = TextStyle(
+    fontSize = 24.sp
+)

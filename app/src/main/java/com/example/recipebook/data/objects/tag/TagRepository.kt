@@ -18,16 +18,21 @@ class TagRepository(private val realm: Realm) {
     }
 
     fun getTagFiltered(name: String?): Flow<List<Tag>> {
-        if (name == null) {
-            return getTag()
-        } else {
-            return realm
-                .query<Tag>(
+        var realmQuery = realm.query<Tag>()
+
+        if (name != null) {
+            realmQuery = realmQuery
+                .query(
                     "name CONTAINS[c] $0", name
                 )
-                .asFlow()
-                .map { it.list }
         }
+
+        // Sort by name (case insensitive)
+        realmQuery = realmQuery.sort("name")
+
+        return realmQuery
+            .asFlow()
+            .map { it.list }
     }
 
     suspend fun addTag(tag: Tag): ObjectId {
@@ -41,6 +46,11 @@ class TagRepository(private val realm: Realm) {
     suspend fun removeTag(tag: Tag) {
         DbFunc.delete(realm, tag)
     }
+
+    suspend fun removeTagById(_id: ObjectId) {
+        DbFunc.deleteById<Tag>(realm, _id)
+    }
+
 
     fun isNamePresent(tag: Tag): Boolean {
         val tagWithName = realm

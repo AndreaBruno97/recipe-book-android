@@ -73,6 +73,10 @@ class RecipeRepository(private val realm: Realm) {
         DbFunc.delete(realm, recipe)
     }
 
+    suspend fun removeRecipeById(_id: ObjectId) {
+        DbFunc.deleteById<Recipe>(realm, _id)
+    }
+
     suspend fun setIsFavorite(_id: ObjectId, isFavorite: Boolean) {
         val recipeToUpdate = realm
             .query<Recipe>("_id = $0", _id)

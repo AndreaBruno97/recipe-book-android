@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.recipebook.RecipeBookApplication.Companion.tagRepository
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.mongodb.kbson.ObjectId
 
 class TagListViewModel(tagRepository: TagRepository) : ViewModel() {
     private val _filterState = MutableStateFlow(TagListFilterState())
@@ -36,19 +34,15 @@ class TagListViewModel(tagRepository: TagRepository) : ViewModel() {
                 initialValue = TagListUiState()
             )
 
-    var isPopupOpen by mutableStateOf(false)
-        private set
-    var currentTagId by mutableStateOf<ObjectId?>(null)
+    var isTagEditPopupOpen by mutableStateOf(false)
         private set
 
-    fun openPopup(curTagId: ObjectId?) {
-        isPopupOpen = true
-        currentTagId = curTagId
+    fun openTagEditPopup() {
+        isTagEditPopupOpen = true
     }
 
-    fun closePopup() {
-        isPopupOpen = false
-        currentTagId = null
+    fun closeTagEditPopup() {
+        isTagEditPopupOpen = false
     }
 
     //endregion
@@ -62,10 +56,6 @@ class TagListViewModel(tagRepository: TagRepository) : ViewModel() {
     }
 
     //endregion
-
-    suspend fun deleteTag(tag: Tag) {
-        tagRepository.removeTag(tag)
-    }
 
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L

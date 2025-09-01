@@ -3,30 +3,24 @@
 package com.example.recipebook.ui.composables.home
 
 import android.content.Context
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.recipebook.R
 import com.example.recipebook.RecipeBookBottomAppBar
@@ -38,6 +32,7 @@ import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
 import com.example.recipebook.ui.composables.common.utility.CardDialog
+import com.example.recipebook.ui.composables.common.utility.EmptyListText
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeFilters
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeList
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
@@ -210,8 +205,9 @@ private fun HomeBody(
     ) {
 
         if (recipeList.isEmpty()) {
-            HomeRecipeListEmpty(
-                modifier = Modifier.fillMaxSize()
+            EmptyListText(
+                text = stringResource(R.string.no_recipes_description),
+                icon = Home_EmptyList
             )
         } else {
             HomeRecipeList(
@@ -243,28 +239,6 @@ private fun HomeBody(
     }
 }
 
-@Composable
-fun HomeRecipeListEmpty(
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Home_EmptyList,
-            contentDescription = "",
-            modifier = Modifier
-                .size(dimensionResource(id = R.dimen.home_empty_list_icon_size))
-        )
-        Text(
-            text = stringResource(R.string.no_recipes_description),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-}
 
 //region Preview
 

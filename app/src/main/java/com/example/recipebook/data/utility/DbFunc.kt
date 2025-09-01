@@ -52,6 +52,18 @@ class DbFunc {
             }
         }
 
+        suspend inline fun <reified T : RealmObject> deleteById(realm: Realm, _id: ObjectId) {
+            realm.write {
+                val record = realm
+                    .query<T>("_id = $0", _id)
+                    .find().firstOrNull() ?: return@write
+
+                val latestRecord = findLatest(record) ?: return@write
+
+                delete(latestRecord)
+            }
+        }
+
         fun closeDb(realm: Realm) {
             realm.close()
             Realm.deleteRealm(realm.configuration)

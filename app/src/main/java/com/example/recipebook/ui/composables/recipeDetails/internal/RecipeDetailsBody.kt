@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -20,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +34,7 @@ import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.data.objects.tag.TagExamples
+import com.example.recipebook.ui.composables.common.utility.DeleteConfirmationDialog
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
@@ -88,16 +87,16 @@ fun RecipeDetailsBody(
             Text(stringResource(R.string.delete_button_text))
         }
 
-        if (isDeletePopupOpen) {
-            DeleteConfirmationDialog(
-                onDeleteConfirm = {
-                    closeDeletePopup()
-                    onDelete()
-                },
-                onDeleteCancel = closeDeletePopup,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
-            )
-        }
+        DeleteConfirmationDialog(
+            isPopupOpen = isDeletePopupOpen,
+            text = stringResource(R.string.recipeForm_deletePopupText),
+            onDeleteConfirm = {
+                closeDeletePopup()
+                onDelete()
+            },
+            onDeleteCancel = closeDeletePopup,
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
+        )
     }
 }
 
@@ -251,31 +250,6 @@ private fun RecipeDetails(
             }
         }
     }
-}
-
-@Composable
-private fun DeleteConfirmationDialog(
-    onDeleteConfirm: () -> Unit,
-    onDeleteCancel: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    AlertDialog(
-        onDismissRequest = onDeleteCancel,
-        title = { Text(stringResource(R.string.deletePopup_title)) },
-        text = { Text(stringResource(R.string.deletePopup_text)) },
-        modifier = modifier,
-        dismissButton = {
-            TextButton(onClick = onDeleteCancel) {
-                Text(stringResource(R.string.confirmationButton_cancel))
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDeleteConfirm) {
-                Text(stringResource(R.string.confirmationButton_confirm))
-            }
-        }
-
-    )
 }
 
 //region Preview

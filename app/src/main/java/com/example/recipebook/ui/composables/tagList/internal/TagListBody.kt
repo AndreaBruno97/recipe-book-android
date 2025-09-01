@@ -1,25 +1,25 @@
 package com.example.recipebook.ui.composables.tagList.internal
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
-import com.example.recipebook.ui.composables.common.utility.ClearableItem
+import com.example.recipebook.data.objects.tag.toTagDao
+import com.example.recipebook.ui.composables.common.utility.EmptyListText
+import com.example.recipebook.ui.composables.common.utility.TagChip
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
+import com.example.recipebook.ui.theme.TagList_EmptyList
 import org.mongodb.kbson.ObjectId
 
 
@@ -28,28 +28,28 @@ fun TagListBody(
     tagList: List<Tag>,
     screenSize: ScreenSize,
     openPopup: (ObjectId?) -> Unit,
-    onDelete: (Tag) -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(dimensionResource(id = R.dimen.no_padding))
+    modifier: Modifier = Modifier
 ) {
+    val columnNum = when (screenSize) {
+        ScreenSize.SMALL -> 1
+        ScreenSize.MEDIUM -> 2
+        ScreenSize.LARGE -> 3
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
         if (tagList.isEmpty()) {
-            Text(
+            EmptyListText(
                 text = stringResource(R.string.no_tags_description),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(contentPadding)
+                icon = TagList_EmptyList
             )
         } else {
             TagList(
                 tagList = tagList,
-                openPopup = openPopup,
-                onDelete = onDelete,
-                contentPadding = contentPadding,
-                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.padding_small))
+                columnNum = columnNum,
+                openPopup = openPopup
             )
         }
     }
@@ -58,47 +58,26 @@ fun TagListBody(
 @Composable
 private fun TagList(
     tagList: List<Tag>,
+    columnNum: Int,
     openPopup: (ObjectId?) -> Unit,
-    onDelete: (Tag) -> Unit,
-    contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = contentPadding
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(columnNum),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+        modifier = modifier
     ) {
         items(tagList) { tag ->
-            TagRow(
-                tag = tag,
-                onDelete = onDelete,
-                modifier = Modifier
-                    .clickable {
-                        openPopup(tag._id)
-                    }
-            )
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                TagChip(
+                    tag = tag.toTagDao(),
+                    onClick = { openPopup(tag._id) }
+                )
+            }
         }
-    }
-}
-
-@Composable
-private fun TagRow(
-    tag: Tag,
-    modifier: Modifier = Modifier,
-    onDelete: (Tag) -> Unit
-) {
-    var rowText = tag.name
-    if (tag.icon != null) {
-        rowText = "${tag.icon} $rowText"
-    }
-
-    ClearableItem(
-        clearItem = { onDelete(tag) }
-    ) { clearableItemModifier ->
-        Text(
-            text = rowText,
-            modifier = modifier,
-            color = tag.colorObj
-        )
     }
 }
 
@@ -110,8 +89,27 @@ fun TagListPreview() {
     TagListBody(
         tagList = TagExamples.tagList,
         screenSize = ScreenSize.SMALL,
-        openPopup = {},
-        onDelete = {}
+        openPopup = {}
+    )
+}
+
+@DefaultPreview
+@Composable
+fun TagListMediumPreview() {
+    TagListBody(
+        tagList = TagExamples.tagList,
+        screenSize = ScreenSize.MEDIUM,
+        openPopup = {}
+    )
+}
+
+@DefaultPreview
+@Composable
+fun TagListEmptyPreview() {
+    TagListBody(
+        tagList = listOf(),
+        screenSize = ScreenSize.SMALL,
+        openPopup = {}
     )
 }
 

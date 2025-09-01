@@ -37,7 +37,9 @@ import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.composables.tagList.internal.TagListBody
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
 import com.example.recipebook.ui.navigation.ScreenSize
+import com.example.recipebook.ui.preview.FoldablePreview
 import com.example.recipebook.ui.preview.PhonePreview
+import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.theme.TagList_FabAddTag
 import kotlinx.coroutines.launch
@@ -66,29 +68,32 @@ fun TagListScreen(
         modifier = modifier,
         navigateBack = navigateBack,
         tagList = tagListUiState.tagList,
-        isPopupOpen = tagListViewModel.isPopupOpen,
+        isTagEditPopupOpen = tagListViewModel.isTagEditPopupOpen,
         validateName = tagViewModel.validateName,
-        currentTagId = tagListViewModel.currentTagId,
         filterName = filterState.filterName,
         enabled = true,
-        openPopup = {
+        openTagEditPopup = {
             tagViewModel.loadTag(it)
-            tagListViewModel.openPopup(it)
+            tagListViewModel.openTagEditPopup()
         },
-        closePopup = tagListViewModel::closePopup,
+        closeTagEditPopup = tagListViewModel::closeTagEditPopup,
         tagUiState = tagViewModel.tagUiState,
         onTagValueChange = tagViewModel::updateUiState,
         onSaveClick = {
             coroutineScope.launch {
                 val isTagSaved = tagViewModel.updateTag()
                 if (isTagSaved) {
-                    tagListViewModel.closePopup()
+                    tagListViewModel.closeTagEditPopup()
                 }
             }
         },
-        onDelete = {
+        isDeletePopupOpen = tagViewModel.isTagDeletePopupOpen,
+        openTagDeletePopup = tagViewModel::openTagDeletePopup,
+        closeTagDeletePopup = tagViewModel::closeTagDeletePopup,
+        onDeleteClick = {
             coroutineScope.launch {
-                tagListViewModel.deleteTag(it)
+                tagViewModel.deleteTag()
+                tagListViewModel.closeTagEditPopup()
             }
         },
         isNamePresent = tagViewModel::isNamePresent,
@@ -102,17 +107,19 @@ fun TagListStateCollector(
     navigateBack: () -> Unit,
     tagList: List<Tag>,
     modifier: Modifier = Modifier,
-    isPopupOpen: Boolean = false,
+    isTagEditPopupOpen: Boolean = false,
     validateName: Boolean = false,
-    currentTagId: ObjectId? = null,
     filterName: String = "",
     enabled: Boolean = true,
-    openPopup: (ObjectId?) -> Unit,
-    closePopup: () -> Unit,
+    openTagEditPopup: (ObjectId?) -> Unit,
+    closeTagEditPopup: () -> Unit,
     tagUiState: TagUiState,
     onTagValueChange: (TagDao) -> Unit,
     onSaveClick: () -> Unit,
-    onDelete: (Tag) -> Unit,
+    isDeletePopupOpen: Boolean = false,
+    openTagDeletePopup: () -> Unit,
+    closeTagDeletePopup: () -> Unit,
+    onDeleteClick: () -> Unit,
     isNamePresent: () -> Boolean,
     updateFilterName: (String) -> Unit
 ) {
@@ -130,7 +137,7 @@ fun TagListStateCollector(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { openPopup(null) },
+                onClick = { openTagEditPopup(null) },
                 shape = MaterialTheme.shapes.medium,
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
             ) {
@@ -142,12 +149,13 @@ fun TagListStateCollector(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(dimensionResource(R.dimen.padding_medium))
         ) {
             ClearableItem(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_medium)),
+                    .fillMaxWidth(),
                 clearItem = { updateFilterName("") }
             ) { clearableItemModifier ->
                 TextInput(
@@ -161,24 +169,27 @@ fun TagListStateCollector(
                 tagList = tagList,
                 screenSize = screenSize,
                 modifier = modifier.fillMaxSize(),
-                //contentPadding = innerPadding,
-                openPopup = openPopup,
-                onDelete = onDelete
+                openPopup = openTagEditPopup,
             )
         }
+    }
 
-        CardDialog(
-            isOpen = isPopupOpen,
-            closeDialog = closePopup
-        ) {
-            TagFormBody(
-                tagUiState = tagUiState,
-                validateName = validateName,
-                onTagValueChange = onTagValueChange,
-                onSaveClick = onSaveClick,
-                isNamePresent = isNamePresent
-            )
-        }
+    CardDialog(
+        title = stringResource(R.string.tagList_editTagPopupTitle),
+        isOpen = isTagEditPopupOpen,
+        closeDialog = closeTagEditPopup
+    ) {
+        TagFormBody(
+            tagUiState = tagUiState,
+            validateName = validateName,
+            onTagValueChange = onTagValueChange,
+            onSaveClick = onSaveClick,
+            isNamePresent = isNamePresent,
+            isDeletePopupOpen = isDeletePopupOpen,
+            openTagDeletePopup = openTagDeletePopup,
+            closeTagDeletePopup = closeTagDeletePopup,
+            onDeleteClick = onDeleteClick
+        )
     }
 }
 
@@ -192,12 +203,80 @@ fun TagListScreenPhonePreview() {
             ScreenSize.SMALL,
             navigateBack = {},
             TagExamples.tagList,
-            openPopup = {},
-            closePopup = {},
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
             tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
             onTagValueChange = {},
             onSaveClick = {},
-            onDelete = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
+            isNamePresent = { false },
+            updateFilterName = {}
+        )
+    }
+}
+
+@FoldablePreview
+@Composable
+fun TagListScreenFoldablePreview() {
+    RecipeBookTheme {
+        TagListStateCollector(
+            ScreenSize.MEDIUM,
+            navigateBack = {},
+            TagExamples.tagList,
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
+            tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
+            onTagValueChange = {},
+            onSaveClick = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
+            isNamePresent = { false },
+            updateFilterName = {}
+        )
+    }
+}
+
+@TabletPreview
+@Composable
+fun TagListScreenTabletPreview() {
+    RecipeBookTheme {
+        TagListStateCollector(
+            ScreenSize.LARGE,
+            navigateBack = {},
+            TagExamples.tagList,
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
+            tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
+            onTagValueChange = {},
+            onSaveClick = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
+            isNamePresent = { false },
+            updateFilterName = {}
+        )
+    }
+}
+
+@PhonePreview
+@Composable
+fun TagListScreenEmptyPreview() {
+    RecipeBookTheme {
+        TagListStateCollector(
+            ScreenSize.SMALL,
+            navigateBack = {},
+            tagList = listOf(),
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
+            tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
+            onTagValueChange = {},
+            onSaveClick = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
             isNamePresent = { false },
             updateFilterName = {}
         )
@@ -212,13 +291,61 @@ fun TagListScreenPhonePopupPreview() {
             ScreenSize.SMALL,
             navigateBack = {},
             TagExamples.tagList,
-            isPopupOpen = true,
-            openPopup = {},
-            closePopup = {},
+            isTagEditPopupOpen = true,
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
             tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
             onTagValueChange = {},
             onSaveClick = {},
-            onDelete = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
+            isNamePresent = { false },
+            updateFilterName = {}
+        )
+    }
+}
+
+@FoldablePreview
+@Composable
+fun TagListScreenFoldablePopupPreview() {
+    RecipeBookTheme {
+        TagListStateCollector(
+            ScreenSize.MEDIUM,
+            navigateBack = {},
+            TagExamples.tagList,
+            isTagEditPopupOpen = true,
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
+            tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
+            onTagValueChange = {},
+            onSaveClick = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
+            isNamePresent = { false },
+            updateFilterName = {}
+        )
+    }
+}
+
+@TabletPreview
+@Composable
+fun TagListScreenTabletPopupPreview() {
+    RecipeBookTheme {
+        TagListStateCollector(
+            ScreenSize.LARGE,
+            navigateBack = {},
+            TagExamples.tagList,
+            isTagEditPopupOpen = true,
+            openTagEditPopup = {},
+            closeTagEditPopup = {},
+            tagUiState = TagUiState(TagExamples.tag1.toTagDao()),
+            onTagValueChange = {},
+            onSaveClick = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {},
+            onDeleteClick = {},
             isNamePresent = { false },
             updateFilterName = {}
         )
