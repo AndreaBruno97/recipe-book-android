@@ -32,7 +32,7 @@ import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorViewModel
 import com.example.recipebook.ui.composables.common.utility.CardDialog
-import com.example.recipebook.ui.composables.common.utility.EmptyListText
+import com.example.recipebook.ui.composables.common.utility.TextWithIcon
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeFilters
 import com.example.recipebook.ui.composables.home.internal.HomeRecipeList
 import com.example.recipebook.ui.navigation.NavigationDestinationNoParams
@@ -205,7 +205,7 @@ private fun HomeBody(
     ) {
 
         if (recipeList.isEmpty()) {
-            EmptyListText(
+            TextWithIcon(
                 text = stringResource(R.string.no_recipes_description),
                 icon = Home_EmptyList
             )

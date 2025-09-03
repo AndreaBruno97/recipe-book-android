@@ -55,3 +55,5 @@ val CollapsableSection_Expand = Icons.Default.KeyboardArrowDown
 val CardDialog_Close = Icons.Default.Close
 
 val Chip_Close = Icons.Default.Close
+
+val BackupManager_Warning = Icons.Default.Warning

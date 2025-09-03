@@ -20,7 +20,7 @@ import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
 @Composable
-fun EmptyListText(
+fun TextWithIcon(
     modifier: Modifier = Modifier,
     text: String,
     icon: ImageVector
@@ -49,9 +49,9 @@ fun EmptyListText(
 
 @PhonePreview
 @Composable
-fun EmptyListTextPreview() {
+private fun TextWithIconPreview() {
     RecipeBookTheme {
-        EmptyListText(
+        TextWithIcon(
             text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
             icon = Icons.Default.ThumbUp
         )

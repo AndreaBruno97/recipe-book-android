@@ -37,9 +37,10 @@ import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.data.objects.tag.tagColorList
 import com.example.recipebook.data.objects.tag.toTagDao
 import com.example.recipebook.ui.composables.common.utility.ClearableItem
-import com.example.recipebook.ui.composables.common.utility.DeleteConfirmationDialog
 import com.example.recipebook.ui.composables.common.utility.TagChip
 import com.example.recipebook.ui.composables.common.utility.TextInput
+import com.example.recipebook.ui.composables.common.utility.WarningConfirmationDialog
+import com.example.recipebook.ui.composables.common.utility.WarningDialogType
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.theme.tagForm_selectedEmojiTextStyle
@@ -58,6 +59,7 @@ fun TagFormBody(
     onDeleteClick: () -> Unit
 ) {
     val isNamePresentFlag = isNamePresent()
+    val isUpdateForm = tagUiState.tagDao._id != null
 
     Column(
         verticalArrangement = Arrangement
@@ -93,7 +95,8 @@ fun TagFormBody(
             OutlinedButton(
                 onClick = openTagDeletePopup,
                 modifier = Modifier
-                    .weight(0.45F)
+                    .weight(0.45F),
+                enabled = isUpdateForm
             ) {
                 Text(text = stringResource(R.string.tagList_body_delete))
             }
@@ -110,14 +113,15 @@ fun TagFormBody(
         }
     }
 
-    DeleteConfirmationDialog(
+    WarningConfirmationDialog(
         isPopupOpen = isDeletePopupOpen,
         text = stringResource(R.string.tagForm_deletePopupText),
-        onDeleteConfirm = {
+        warningType = WarningDialogType.DELETE,
+        onWarningConfirm = {
             closeTagDeletePopup()
             onDeleteClick()
         },
-        onDeleteCancel = closeTagDeletePopup,
+        onWarningCancel = closeTagDeletePopup,
         modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     )
 
@@ -330,6 +334,23 @@ private fun TagFormBodyEmptyIconScreenPreview() {
                 TagExamples.tag1.toTagDao()
                     .copy(icon = null)
             ),
+            validateName = true,
+            onTagValueChange = {},
+            onSaveClick = {},
+            isNamePresent = { false },
+            onDeleteClick = {},
+            openTagDeletePopup = {},
+            closeTagDeletePopup = {}
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+private fun TagFormBodyCreateScreenPreview() {
+    RecipeBookTheme {
+        TagFormBody(
+            tagUiState = TagUiState(),
             validateName = true,
             onTagValueChange = {},
             onSaveClick = {},

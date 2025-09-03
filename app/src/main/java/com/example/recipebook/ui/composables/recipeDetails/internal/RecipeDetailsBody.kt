@@ -34,7 +34,8 @@ import com.example.recipebook.data.objects.recipe.Recipe
 import com.example.recipebook.data.objects.recipe.RecipeExamples
 import com.example.recipebook.data.objects.recipe.toRecipeDao
 import com.example.recipebook.data.objects.tag.TagExamples
-import com.example.recipebook.ui.composables.common.utility.DeleteConfirmationDialog
+import com.example.recipebook.ui.composables.common.utility.WarningConfirmationDialog
+import com.example.recipebook.ui.composables.common.utility.WarningDialogType
 import com.example.recipebook.ui.composables.recipeDetails.RecipeDetailsUiState
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
@@ -87,14 +88,15 @@ fun RecipeDetailsBody(
             Text(stringResource(R.string.delete_button_text))
         }
 
-        DeleteConfirmationDialog(
+        WarningConfirmationDialog(
             isPopupOpen = isDeletePopupOpen,
             text = stringResource(R.string.recipeForm_deletePopupText),
-            onDeleteConfirm = {
+            warningType = WarningDialogType.DELETE,
+            onWarningConfirm = {
                 closeDeletePopup()
                 onDelete()
             },
-            onDeleteCancel = closeDeletePopup,
+            onWarningCancel = closeDeletePopup,
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
         )
     }

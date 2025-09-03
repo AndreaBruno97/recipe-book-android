@@ -49,6 +49,17 @@ class BackupManagerViewModel(
         getLastLocalBackupDate(context)
     }
 
+    var isLoadLocalBackupConfirmOpen by mutableStateOf(false)
+        private set
+
+    fun openLoadLocalBackupConfirmSection() {
+        isLoadLocalBackupConfirmOpen = true
+    }
+
+    fun closeLoadLocalBackupConfirmSection() {
+        isLoadLocalBackupConfirmOpen = false
+    }
+
     fun loadLocalBackup(successMessage: String, context: Context) {
         reloadDbFileFromLocalBackup(context)
         Toast.makeText(context, successMessage, Toast.LENGTH_SHORT).show()

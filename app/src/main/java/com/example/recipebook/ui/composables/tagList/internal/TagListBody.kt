@@ -15,8 +15,8 @@ import com.example.recipebook.R
 import com.example.recipebook.data.objects.tag.Tag
 import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.data.objects.tag.toTagDao
-import com.example.recipebook.ui.composables.common.utility.EmptyListText
 import com.example.recipebook.ui.composables.common.utility.TagChip
+import com.example.recipebook.ui.composables.common.utility.TextWithIcon
 import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.TagList_EmptyList
@@ -41,7 +41,7 @@ fun TagListBody(
         modifier = modifier
     ) {
         if (tagList.isEmpty()) {
-            EmptyListText(
+            TextWithIcon(
                 text = stringResource(R.string.no_tags_description),
                 icon = TagList_EmptyList
             )
