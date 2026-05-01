@@ -39,6 +39,7 @@ import com.example.recipebook.ui.composables.common.utility.ClearableItem
 import com.example.recipebook.ui.composables.common.utility.TagChip
 import com.example.recipebook.ui.composables.common.utility.TextInput
 import com.example.recipebook.ui.composables.home.RecipeListFilterState
+import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.Chip_Close
 import com.example.recipebook.ui.theme.Home_RecipeFilter_AddIngredient
@@ -49,9 +50,11 @@ import com.example.recipebook.ui.theme.RecipeBookTheme
 fun HomeRecipeFilters(
     modifier: Modifier = Modifier,
     filter: RecipeListFilterState = RecipeListFilterState(),
+    screenSize: ScreenSize,
     updateFilter: (RecipeListFilterState) -> Unit,
     updateTagSelectorFilterName: (String) -> Unit,
     openTagListPopup: () -> Unit,
+    closeFilterPopup: () -> Unit,
     unusedTagList: List<Tag> = listOf(),
     closeTagListPopup: () -> Unit,
     isTagListPopupOpen: Boolean = false,
@@ -64,20 +67,6 @@ fun HomeRecipeFilters(
             .verticalScroll(rememberScrollState())
             .padding(dimensionResource(R.dimen.padding_medium))
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            OutlinedButton(
-                onClick = {
-                    updateFilter(RecipeListFilterState())
-                },
-                modifier = Modifier.fillMaxWidth(0.8F)
-            ) {
-                Text(stringResource(R.string.home_filterSection_clearFilters))
-            }
-        }
-
         HomeRecipeFiltersName(
             filter = filter,
             updateFilter = updateFilter,
@@ -91,6 +80,7 @@ fun HomeRecipeFilters(
         )
 
         HomeRecipeFiltersTag(
+            screenSize = screenSize,
             filter = filter,
             updateFilter = updateFilter,
             modifier = Modifier.fillMaxWidth(),
@@ -109,6 +99,33 @@ fun HomeRecipeFilters(
             enabled = enabled,
             modifier = Modifier.fillMaxWidth()
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+
+            ) {
+            OutlinedButton(
+                onClick = {
+                    updateFilter(RecipeListFilterState())
+                },
+                modifier = Modifier.weight(0.8F)
+            ) {
+                Text(stringResource(R.string.home_filterSection_clearFilters))
+            }
+
+            Spacer(
+                modifier = Modifier
+                    .width(dimensionResource(R.dimen.padding_medium))
+            )
+
+            Button(
+                onClick = closeFilterPopup,
+                modifier = Modifier.weight(0.8F)
+            ) {
+                Text(stringResource(R.string.home_filterSection_showRecipes))
+            }
+        }
     }
 }
 
@@ -119,17 +136,25 @@ fun HomeRecipeFiltersName(
     enabled: Boolean = true,
     updateFilter: (RecipeListFilterState) -> Unit
 ) {
-    ClearableItem(
-        modifier = modifier,
-        clearItem = { updateFilter(filter.copy(filterName = "")) }
-    ) { clearableItemModifier ->
-        TextInput(
-            value = filter.filterName,
-            onValueChange = { updateFilter(filter.copy(filterName = it)) },
-            enabled = enabled,
-            modifier = clearableItemModifier,
-            labelText = stringResource(R.string.recipe_name)
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            stringResource(R.string.home_filterSection_name)
         )
+
+        ClearableItem(
+            modifier = modifier,
+            clearItem = { updateFilter(filter.copy(filterName = "")) }
+        ) { clearableItemModifier ->
+            TextInput(
+                value = filter.filterName,
+                onValueChange = { updateFilter(filter.copy(filterName = it)) },
+                enabled = enabled,
+                modifier = clearableItemModifier,
+                labelText = stringResource(R.string.recipe_name)
+            )
+        }
     }
 }
 
@@ -143,7 +168,7 @@ fun HomeRecipeFiltersFavorite(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Text(stringResource(R.string.recipe_isFavorite))
+        Text(stringResource(R.string.home_filterSection_isFavorite))
 
         Spacer(
             modifier = Modifier
@@ -160,6 +185,7 @@ fun HomeRecipeFiltersFavorite(
 @Composable
 fun HomeRecipeFiltersTag(
     modifier: Modifier = Modifier,
+    screenSize: ScreenSize,
     filter: RecipeListFilterState = RecipeListFilterState(),
     updateFilter: (RecipeListFilterState) -> Unit,
     updateTagSelectorFilterName: (String) -> Unit,
@@ -174,6 +200,21 @@ fun HomeRecipeFiltersTag(
         modifier = modifier
     ) {
         Text(stringResource(R.string.home_filterSection_tagTitle))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = {
+                    updateTagSelectorFilterName("")
+                    openTagListPopup()
+                },
+                modifier = Modifier.fillMaxWidth(0.8F)
+            ) {
+                Text(stringResource(R.string.home_filterSection_addTag))
+            }
+        }
 
         FlowRow(
             modifier = Modifier
@@ -199,16 +240,8 @@ fun HomeRecipeFiltersTag(
             }
         }
 
-        Button(
-            onClick = {
-                updateTagSelectorFilterName("")
-                openTagListPopup()
-            }
-        ) {
-            Text(stringResource(R.string.home_filterSection_addTag))
-        }
-
         TagListSelectorBody(
+            screenSize = screenSize,
             unusedTagList = unusedTagList,
             selectedTagList = filter.filterTagList,
             closeTagListPopup = closeTagListPopup,
@@ -248,40 +281,6 @@ fun HomeRecipeFiltersIngredients(
     Column(modifier = modifier) {
         Text(stringResource(R.string.home_filterSection_ingredientTitle))
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
-        ) {
-            for ((index, ingredient) in filter.filterIngredientList.withIndex()) {
-                InputChip(
-                    onClick = {
-                        updateFilter(filter.copy(filterIngredientList =
-                        filter
-                            .filterIngredientList
-                            .filterIndexed { curIndex, _ ->
-                                curIndex != index
-                            }
-                        ))
-                    },
-                    selected = false,
-                    label = {
-                        Text(
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            text = ingredient
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Chip_Close,
-                            contentDescription = "",
-                            Modifier.size(InputChipDefaults.AvatarSize)
-                        )
-                    }
-                )
-            }
-        }
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -315,6 +314,40 @@ fun HomeRecipeFiltersIngredients(
                 )
             }
         }
+
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+        ) {
+            for ((index, ingredient) in filter.filterIngredientList.withIndex()) {
+                InputChip(
+                    onClick = {
+                        updateFilter(filter.copy(filterIngredientList =
+                        filter
+                            .filterIngredientList
+                            .filterIndexed { curIndex, _ ->
+                                curIndex != index
+                            }
+                        ))
+                    },
+                    selected = false,
+                    label = {
+                        Text(
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            text = ingredient
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Chip_Close,
+                            contentDescription = "",
+                            Modifier.size(InputChipDefaults.AvatarSize)
+                        )
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -325,11 +358,12 @@ fun HomeRecipeFiltersIngredients(
 fun HomeRecipeFiltersPreview() {
     RecipeBookTheme {
         HomeRecipeFilters(
+            screenSize = ScreenSize.SMALL,
             filter = RecipeListFilterState(
                 filterTagList = listOf(
                     TagExamples.tag1,
-                    TagExamples.tag2,
-                    TagExamples.longTag
+                    TagExamples.longTag,
+                    TagExamples.tag2
                 ),
                 filterIngredientList = listOf(
                     IngredientExamples.ingredientA.name,
@@ -340,7 +374,8 @@ fun HomeRecipeFiltersPreview() {
             updateFilter = {},
             updateTagSelectorFilterName = {},
             openTagListPopup = {},
-            closeTagListPopup = {}
+            closeTagListPopup = {},
+            closeFilterPopup = {}
         )
     }
 }
@@ -370,6 +405,7 @@ fun HomeRecipeFiltersFavoritePreview() {
 fun HomeRecipeFiltersTagPreview() {
     RecipeBookTheme {
         HomeRecipeFiltersTag(
+            screenSize = ScreenSize.SMALL,
             filter = RecipeListFilterState(
                 filterTagList = TagExamples.tagListWithLong
             ),

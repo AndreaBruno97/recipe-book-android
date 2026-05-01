@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import com.example.recipebook.R
@@ -46,8 +47,15 @@ fun CardDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
+                        IconButton(
+                            onClick = {}
+                        ) {
+                            // Nothing here, this button centers the title
+                        }
+
                         Text(
                             text = title ?: "",
+                            textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .weight(1F)
                         )

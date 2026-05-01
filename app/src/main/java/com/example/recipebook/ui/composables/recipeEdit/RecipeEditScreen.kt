@@ -128,6 +128,7 @@ fun RecipeEditScreenStateCollector(
         modifier = modifier
     ) { innerPadding ->
         RecipeFormBody(
+            screenSize = screenSize,
             recipeUiState = recipeUiState,
             onRecipeValueChange = onRecipeValueChange,
             onSaveClick = {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.recipebook.R
 import com.example.recipebook.data.objects.recipe.Recipe
@@ -88,18 +90,28 @@ private fun HomeRecipeItem(
             if (screenSize == ScreenSize.SMALL) {
                 // Small Size
 
+                val imageModifier = Modifier
+                    .size(dimensionResource(id = R.dimen.card_image_size_small))
+                    .clip(RecipeList_SmallImage)
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
                 ) {
+
                     if (recipeImage != null) {
                         Image(
                             bitmap = recipeImage,
                             contentDescription = "",
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(dimensionResource(id = R.dimen.card_image_size_small))
-                                .clip(RecipeList_SmallImage)
+                            modifier = imageModifier
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.placeholder_recipe_image_small),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = imageModifier
                         )
                     }
 
@@ -113,6 +125,20 @@ private fun HomeRecipeItem(
             } else {
                 // Medium and Large Size
 
+                val imageModifier = Modifier
+                    .height(
+                        dimensionResource(
+                            id =
+                            if (screenSize == ScreenSize.MEDIUM) {
+                                R.dimen.card_image_height_medium
+                            } else {
+                                R.dimen.card_image_height_large
+                            }
+                        )
+                    )
+                    .fillMaxWidth()
+                    .clip(RecipeList_LargeImage)
+
                 Column(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.Top
@@ -122,18 +148,14 @@ private fun HomeRecipeItem(
                             bitmap = recipeImage,
                             contentDescription = "",
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .height(
-                                    dimensionResource(
-                                        id =
-                                        if (screenSize == ScreenSize.MEDIUM) {
-                                            R.dimen.card_image_height_medium
-                                        } else {
-                                            R.dimen.card_image_height_large
-                                        }
-                                    )
-                                )
-                                .clip(RecipeList_LargeImage)
+                            modifier = imageModifier
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.placeholder_recipe_image_large),
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = imageModifier
                         )
                     }
 
@@ -236,6 +258,18 @@ fun RecipeItemMediumImagePreview() {
             screenSize = ScreenSize.MEDIUM,
             recipe = RecipeExamples.recipe1,
             loadRecipeImage = { _, _ -> RecipeExamples.recipeImageBitmap }
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+fun RecipeItemMediumImageNoImagePreview() {
+    RecipeBookTheme {
+        HomeRecipeItem(
+            screenSize = ScreenSize.MEDIUM,
+            recipe = RecipeExamples.recipe1,
+            loadRecipeImage = { _, _ -> null }
         )
     }
 }

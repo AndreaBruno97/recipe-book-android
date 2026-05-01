@@ -28,11 +28,13 @@ import com.example.recipebook.ui.composables.common.recipeFormBody.internal.Reci
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeMethodListInput
 import com.example.recipebook.ui.composables.common.recipeFormBody.internal.RecipeTagsInput
 import com.example.recipebook.ui.composables.common.utility.TextInput
+import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
 @Composable
 fun RecipeFormBody(
+    screenSize: ScreenSize,
     recipeUiState: RecipeUiState,
     modifier: Modifier = Modifier,
     onRecipeValueChange: (RecipeDao) -> Unit,
@@ -55,6 +57,7 @@ fun RecipeFormBody(
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
         RecipeInputForm(
+            screenSize = screenSize,
             recipeDao = recipeDao,
             onValueChange = onRecipeValueChange,
             modifier = Modifier.fillMaxWidth(),
@@ -81,6 +84,7 @@ fun RecipeFormBody(
 
 @Composable
 fun RecipeInputForm(
+    screenSize: ScreenSize,
     recipeDao: RecipeDao,
     modifier: Modifier = Modifier,
     onValueChange: (RecipeDao) -> Unit = {},
@@ -201,6 +205,7 @@ fun RecipeInputForm(
         }
 
         RecipeTagsInput(
+            screenSize = screenSize,
             recipeDao = recipeDao,
             onValueChange = onValueChange,
             enabled = enabled,
@@ -241,6 +246,7 @@ fun RecipeInputForm(
 private fun RecipeFormBodyScreenPreview() {
     RecipeBookTheme {
         RecipeFormBody(
+            screenSize = ScreenSize.SMALL,
             recipeUiState = RecipeUiState(
                 recipeDao = RecipeExamples.recipe1.toRecipeDao(),
                 recipeImage = RecipeExamples.recipeImageBitmap
@@ -263,6 +269,7 @@ private fun RecipeFormBodyScreenPreview() {
 private fun RecipeFormBodyScreenWithPopupPreview() {
     RecipeBookTheme {
         RecipeFormBody(
+            screenSize = ScreenSize.SMALL,
             recipeUiState = RecipeUiState(
                 recipeDao = RecipeExamples.recipe1.toRecipeDao(),
                 recipeImage = RecipeExamples.recipeImageBitmap
@@ -286,6 +293,7 @@ private fun RecipeFormBodyScreenWithPopupPreview() {
 private fun RecipeFormBodyScreenErrorPreview() {
     RecipeBookTheme {
         RecipeFormBody(
+            screenSize = ScreenSize.SMALL,
             recipeUiState = RecipeUiState(
                 recipeImage = RecipeExamples.recipeImageBitmap,
                 recipeDao = RecipeExamples.recipe1.toRecipeDao()

@@ -226,11 +226,13 @@ private fun HomeBody(
         ) {
             HomeRecipeFilters(
                 filter = filter,
+                screenSize = screenSize,
                 updateFilter = updateFilter,
                 updateTagSelectorFilterName = updateTagSelectorFilterName,
                 openTagListPopup = openTagListPopup,
                 unusedTagList = unusedTagList,
                 closeTagListPopup = closeTagListPopup,
+                closeFilterPopup = closeFilterSection,
                 isTagListPopupOpen = isTagListPopupOpen,
                 filterName = filterName,
                 enabled = enabled

@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -27,12 +25,15 @@ import com.example.recipebook.ui.composables.common.utility.CardDialog
 import com.example.recipebook.ui.composables.common.utility.ClearableItem
 import com.example.recipebook.ui.composables.common.utility.TagChip
 import com.example.recipebook.ui.composables.common.utility.TextInput
+import com.example.recipebook.ui.composables.tagList.internal.TagListBody
+import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 
 @Composable
 fun TagListSelectorBody(
     modifier: Modifier = Modifier,
+    screenSize: ScreenSize,
     unusedTagList: List<Tag>,
     selectedTagList: List<Tag>,
     closeTagListPopup: () -> Unit,
@@ -50,6 +51,7 @@ fun TagListSelectorBody(
         modifier = modifier
     ) {
         TagListSelectorPopupContent(
+            screenSize = screenSize,
             tagList = unusedTagList,
             selectedTagList = selectedTagList,
             enabled = enabled,
@@ -63,6 +65,7 @@ fun TagListSelectorBody(
 
 @Composable
 private fun TagListSelectorPopupContent(
+    screenSize: ScreenSize,
     tagList: List<Tag>,
     selectedTagList: List<Tag>,
     enabled: Boolean,
@@ -88,21 +91,17 @@ private fun TagListSelectorPopupContent(
             )
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.7F)
-        ) {
-            items(tagList) { tag ->
-                TagChip(
-                    tag = tag.toTagDao(),
-                    enabled = enabled,
-                    onClick = {
-                        onTagSelect(tag)
+        TagListBody(
+            tagList = tagList,
+            screenSize = screenSize,
+            openPopup = { selectedTagId ->
+                onTagSelect(
+                    tagList.first { tag ->
+                        tag._id == selectedTagId
                     }
                 )
             }
-        }
+        )
 
         Spacer(
             modifier = Modifier
@@ -138,6 +137,27 @@ private fun TagListSelectorPopupContent(
 private fun TagListPopupContentPreview() {
     RecipeBookTheme {
         TagListSelectorPopupContent(
+            screenSize = ScreenSize.SMALL,
+            tagList = TagExamples.tagList,
+            selectedTagList = listOf(
+                TagExamples.tag1, TagExamples.tag2, TagExamples.tag1, TagExamples.tag2,
+                TagExamples.tag1, TagExamples.tag2, TagExamples.tag1, TagExamples.tag2,
+                TagExamples.tag1, TagExamples.tag2, TagExamples.tag1, TagExamples.tag2
+            ),
+            enabled = true,
+            onTagSelect = {},
+            onTagRemoval = {},
+            updateFilterName = {}
+        )
+    }
+}
+
+@DefaultPreview
+@Composable
+private fun TagListMediumScreenPopupContentPreview() {
+    RecipeBookTheme {
+        TagListSelectorPopupContent(
+            screenSize = ScreenSize.MEDIUM,
             tagList = TagExamples.tagList,
             selectedTagList = listOf(
                 TagExamples.tag1, TagExamples.tag2, TagExamples.tag1, TagExamples.tag2,
@@ -157,6 +177,7 @@ private fun TagListPopupContentPreview() {
 private fun TagListSelectorPreview() {
     RecipeBookTheme {
         TagListSelectorBody(
+            screenSize = ScreenSize.SMALL,
             unusedTagList = TagExamples.tagList,
             selectedTagList = listOf(
                 TagExamples.tag1, TagExamples.tag2, TagExamples.tag1, TagExamples.tag2,

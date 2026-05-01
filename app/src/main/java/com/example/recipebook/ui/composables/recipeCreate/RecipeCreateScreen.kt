@@ -235,6 +235,7 @@ fun RecipeCreateScreenStateCollector(
             )
 
             RecipeFormBody(
+                screenSize = screenSize,
                 recipeUiState = recipeUiState,
                 onRecipeValueChange = onRecipeValueChange,
                 onSaveClick = {

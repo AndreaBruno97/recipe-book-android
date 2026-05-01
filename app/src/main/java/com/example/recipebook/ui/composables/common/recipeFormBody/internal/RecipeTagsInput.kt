@@ -17,12 +17,14 @@ import com.example.recipebook.data.objects.tag.TagExamples
 import com.example.recipebook.data.objects.tag.toTagDao
 import com.example.recipebook.ui.composables.common.tagListSelector.TagListSelectorBody
 import com.example.recipebook.ui.composables.common.utility.SortableList
+import com.example.recipebook.ui.navigation.ScreenSize
 import com.example.recipebook.ui.preview.DefaultPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
 import com.example.recipebook.ui.theme.RecipeForm_AddTag
 
 @Composable
 fun RecipeTagsInput(
+    screenSize: ScreenSize,
     recipeDao: RecipeDao,
     onValueChange: (RecipeDao) -> Unit,
     enabled: Boolean,
@@ -63,6 +65,7 @@ fun RecipeTagsInput(
         }
 
         TagListSelectorBody(
+            screenSize = screenSize,
             unusedTagList = unusedTagList,
             selectedTagList = recipeDao.tagList.map { it.toTag() },
             closeTagListPopup = closeTagListPopup,
@@ -124,6 +127,7 @@ private fun TagInputLine(
 private fun RecipeTagsInputPreview() {
     RecipeBookTheme {
         RecipeTagsInput(
+            screenSize = ScreenSize.SMALL,
             recipeDao = RecipeExamples.recipe1.toRecipeDao(),
             onValueChange = {},
             enabled = true,

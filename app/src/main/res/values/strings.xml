@@ -15,7 +15,10 @@
     <string name="home_filterSection_addTag">Aggiungi tag</string>
     <string name="home_filterSection_ingredientTitle">Ingredienti</string>
     <string name="home_filterSection_ingredient">Ingrediente</string>
+    <string name="home_filterSection_name">Nome della ricetta</string>
     <string name="home_filterSection_clearFilters">Cancella filtri</string>
+    <string name="home_filterSection_showRecipes">Mostra ricette</string>
+    <string name="home_filterSection_isFavorite">Solo preferiti</string>
     <string name="recipe_create_icon_name">Crea</string>
     <string name="no_recipes_description">Non ci sono attualmente ricette. Clicca + per crearne una.</string>
     <string name="no_tags_description">Non ci sono attualmente tag. Clicca + per crearne uno.</string>
