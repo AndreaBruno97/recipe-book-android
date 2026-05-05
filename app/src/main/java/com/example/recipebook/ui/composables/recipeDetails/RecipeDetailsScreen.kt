@@ -30,6 +30,7 @@ import com.example.recipebook.ui.AppViewModelProvider
 import com.example.recipebook.ui.composables.recipeDetails.internal.RecipeDetailsBody
 import com.example.recipebook.ui.navigation.NavigationDestinationRecipeId
 import com.example.recipebook.ui.navigation.ScreenSize
+import com.example.recipebook.ui.preview.FoldablePreview
 import com.example.recipebook.ui.preview.PhonePreview
 import com.example.recipebook.ui.preview.TabletPreview
 import com.example.recipebook.ui.theme.RecipeBookTheme
@@ -109,21 +110,10 @@ fun RecipeDetailsScreenStateCollector(
                 navigateUp = navigateBack
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigateToEditRecipe(uiState.recipe._id) },
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
-            ) {
-                Icon(
-                    imageVector = RecipeDetails_Edit,
-                    contentDescription = stringResource(R.string.edit_recipe_button_text)
-                )
-            }
-        },
         modifier = modifier
     ) { innerPadding ->
         RecipeDetailsBody(
+            screenSize = screenSize,
             recipeDetailsUiState = uiState,
             recipeImage = recipeImage,
             curServingsNum = curServingsNum,
@@ -143,7 +133,6 @@ fun RecipeDetailsScreenStateCollector(
             isDeletePopupOpen = isDeletePopupOpen,
             curIsFavorite = curIsFavorite,
             enabled = enabled,
-            openDeletePopup = openDeletePopup,
             closeDeletePopup = closeDeletePopup,
             servingsRatio = servingsRatio,
             increaseServingsNum = increaseServingsNum,
@@ -153,7 +142,8 @@ fun RecipeDetailsScreenStateCollector(
                 coroutineScope.launch {
                     toggleIsFavorite()
                 }
-            }
+            },
+            navigateToEditRecipe = navigateToEditRecipe
         )
     }
 }
@@ -166,6 +156,28 @@ fun RecipeDetailsScreenPhonePreview() {
     RecipeBookTheme {
         RecipeDetailsScreenStateCollector(
             ScreenSize.SMALL,
+            navigateToEditRecipe = {},
+            navigateBack = {},
+            uiState = RecipeDetailsUiState(RecipeExamples.recipe1),
+            recipeImage = RecipeExamples.recipeImageBitmap,
+            curServingsNum = RecipeExamples.recipe1.servingsNum,
+            deleteRecipe = {},
+            openDeletePopup = {},
+            closeDeletePopup = {},
+            increaseServingsNum = {},
+            decreaseServingsNum = {},
+            resetServingsNum = {},
+            toggleIsFavorite = {}
+        )
+    }
+}
+
+@FoldablePreview
+@Composable
+fun RecipeDetailsScreenFoldablePreview() {
+    RecipeBookTheme {
+        RecipeDetailsScreenStateCollector(
+            ScreenSize.MEDIUM,
             navigateToEditRecipe = {},
             navigateBack = {},
             uiState = RecipeDetailsUiState(RecipeExamples.recipe1),

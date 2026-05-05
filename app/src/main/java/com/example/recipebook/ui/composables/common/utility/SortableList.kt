@@ -76,7 +76,7 @@ fun <T> SortableList(
 
                             updateList(newItemList)
                         },
-                        modifier = modifier.size(dimensionResource(R.dimen.padding_medium)),
+                        modifier = modifier.size(dimensionResource(R.dimen.icon_size_small)),
                         enabled = enabled && canGoUp
                     ) {
                         Icon(imageVector = SortableList_ItemGoUp, contentDescription = "")

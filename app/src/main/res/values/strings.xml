@@ -34,9 +34,9 @@
     <string name="recipe_ingredient">Ingrediente</string>
     <string name="recipe_ingredientTitle">Titolo ingredienti</string>
     <string name="recipe_tags">Tag</string>
-    <string name="recipe_servingsNum">Numero di portate</string>
-    <string name="recipe_prepTimeMinutes">Tempo di preparazione</string>
-    <string name="recipe_cookTimeMinutes">Tempo di cottura</string>
+    <string name="recipe_servingsNum">Portate</string>
+    <string name="recipe_prepTimeMinutes">Preparazione</string>
+    <string name="recipe_cookTimeMinutes">Cottura</string>
     <string name="recipe_isFavorite">Preferito</string>
     <string name="recipe_takeImage">Scatta foto</string>
     <string name="recipe_pickImage">Scegli foto</string>

@@ -1,5 +1,6 @@
 package com.example.recipebook.ui.theme
 
+import android.graphics.drawable.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -15,6 +16,11 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import com.example.recipebook.R
 
 val TopAppBar_Back = Icons.AutoMirrored.Filled.ArrowBack
 val BottomAppBar_TagList = Icons.AutoMirrored.Filled.List
@@ -26,6 +32,7 @@ val Home_EmptyList = Icons.Default.Edit
 val Home_RecipeFilter_AddIngredient = Icons.Default.Search
 val Home_RecipeIsFavorite = Icons.Default.Star
 
+val RecipeDetails_IncreaseServingsNum = Icons.Default.Add
 val RecipeDetails_ResetServingsNum = Icons.Default.Refresh
 val RecipeDetails_Edit = Icons.Default.Edit
 
@@ -57,3 +64,16 @@ val CardDialog_Close = Icons.Default.Close
 val Chip_Close = Icons.Default.Close
 
 val BackupManager_Warning = Icons.Default.Warning
+
+
+val Recipe_isFavorite_Selected = Icons.Default.Star
+
+// Icons loaded as drawables
+@Composable
+fun Recipe_isFavorite_Unselected(): ImageVector{
+    return ImageVector.vectorResource(id = R.drawable.baseline_star_outline_24)
+}
+@Composable
+fun RecipeDetails_DecreaseServingsNum(): ImageVector{
+    return ImageVector.vectorResource(id = R.drawable.remove_24dp_1f1f1f_fill0_wght400_grad0_opsz24)
+}
